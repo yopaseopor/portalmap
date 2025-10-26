@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Sprites - OSM Map</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com chrome-extension:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https: wss:;">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.5.2/ol.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.5.2/dist/ol.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol-mapbox-style@10.7.0/dist/olms.js"></script>
+    <style>
+        body, html, #map {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Test sprite loading
+        fetch('src/assets/sprites/basics/sprites.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Sprites loaded successfully!');
+                console.log(`📊 Found ${Object.keys(data).length} sprite definitions`);
+            })
+            .catch(error => {
+                console.error('❌ Error loading sprites:', error);
+            });
+
+        // Initialize map with colorful style
+        fetch('src/assets/colorful.json')
+            .then(response => response.json())
+            .then(style => {
+                console.log('✅ Style loaded successfully');
+
+                const map = new ol.Map({
+                    target: 'map',
+                    view: new ol.View({
+                        center: ol.proj.fromLonLat([1.59647, 41.69689]),
+                        zoom: 8
+                    }),
+                    layers: []
+                });
+
+                olms.applyStyle(map, style, 'versatiles-shortbread')
+                    .then(() => {
+                        console.log('✅ Map style applied successfully!');
+                        console.log('🎉 Map should now display with sprites working');
+                    })
+                    .catch(error => {
+                        console.error('❌ Error applying style:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('❌ Error loading style:', error);
+            });
+    </script>
+</body>
+</html>
