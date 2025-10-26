@@ -1,0 +1,100 @@
+{{Software
+|name=Portal Map
+|author=yopaseopor, Ripollx, Qjammer, Crashillo, ismaell
+|wiki=
+|web=https://yopaseopor.github.io/portalmap
+|repo=https://github.com/yopaseopor/portalmap
+|platform=Web
+|code=JavaScript
+|framework=OpenLayers
+|input=OpenStreetMap data
+|output=Interactive map
+|languages=Catalan, Spanish, English
+|genre=Viewer
+|license=Open source
+|version=2025
+|description=Specialized brand and service viewer for OpenStreetMap
+}}
+
+== Portal Map ==
+
+'''Portal Map''' (formerly OSM Utils) is a web-based OpenStreetMap viewer specialized in displaying specific brands and services, with tools for exploring concrete map data.
+
+== Features ==
+
+=== Core Mapping ===
+* Interactive map display using OpenLayers
+* Multiple base maps including MapTiler, OpenStreetMap, Esri Satellite, IGN, ICGC
+* Vector tiles support with MapTiler Basic and Versatiles colorful styles
+* Real-time coordinate display and map controls
+
+=== Brand and Service Visualization ===
+* '''Animal and Veterinary Services''': Over 20 specialized brands
+  * Veterinary chains: AniCura, Banfield Pet Hospital, BluePearl, Vets4Pets
+  * Pet boarding: Dogtopia, PetsHotel, PetSuites
+  * Animal protection: Blue Cross (UK), Société Protectrice des Animaux (France)
+  * Pest control: Orkin, Truly Nolen
+
+* '''Government Offices''': Over 25 administrative brands
+  * Italian services: Agenzia delle Entrate, INPS
+  * French services: France Services, France Travail
+  * International: NAV (Norway), Centrelink (Australia)
+  * Social security: Instituto de Previsión Social (Argentina, Chile)
+
+* '''Commercial Services''':
+  * Generic supermarkets
+  * Banco Sabadell (Spain)
+
+=== Search and Query ===
+* Category-based queries for animals, government, and food services
+* Element type filtering (nodes, ways, relations)
+* Query statistics showing execution time and element counts
+* Metadata visualization including OSM user information and changesets
+
+=== Multi-language Support ===
+* '''3 languages available''': Catalan, Spanish, English
+* Dynamic translation system with language switcher
+* Interface adapted for each language
+
+=== External Integrations ===
+'''OSM Editing Tools''':
+* iD Editor, JOSM, Potlatch 2, RapiD Editor
+
+'''Complementary Maps''':
+* Google Maps, HERE WeGo, Bing Maps, Apple Maps
+* Main OpenStreetMap website
+
+'''Specialized Tools''':
+* MapComplete (addresses, playgrounds, waste)
+* OSM Hydrants, Keep Right (validation)
+* Waymarked Trails (hiking routes)
+* OpenCampingMap, WheelMap (accessibility)
+
+'''Community Tools''':
+* Latest OSM Edits, OSMCha (recent changes)
+* OSM Notes, Geofabrik Tools
+
+== Usage ==
+
+Portal Map is designed for:
+* Exploring specific brand locations on OpenStreetMap
+* Finding veterinary and animal services
+* Locating government offices and public services
+* Accessing external OSM tools and services
+* Mobile mapping with responsive design
+
+== Technical Details ==
+
+* Built with OpenLayers 6.2.2
+* Real-time data from Overpass API
+* Vector tiles from MapTiler and Versatiles
+* Responsive CSS design
+* Custom translation system
+
+== See also ==
+* [[OpenStreetMap]]
+* [[OpenLayers]]
+* [[Overpass API]]
+* [[MapComplete]]
+
+[[Category:Software]]
