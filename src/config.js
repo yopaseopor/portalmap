@@ -591,6 +591,50 @@ style: function (feature) {
 			node.append([config.i18n.nodeLabel, ' ', $('<span>').css('fontWeight', 900).html(feature.getId()), '<br/>']);
 		}
 
+		// Add name and ref if available
+		var name = feature.get('name');
+		var ref = feature.get('ref');
+		if (name || ref) {
+			var identifiers = [];
+			if (name) identifiers.push(name);
+			if (ref) identifiers.push('ref: ' + ref);
+			if (identifiers.length > 0) {
+				node.append([$('<div>').css({paddingLeft: '10px', color: '#666'}).html(identifiers.join(' • ')), '<br/>']);
+			}
+		}
+
+		// Add opening hours status if available
+		var openingHours = feature.get('opening_hours');
+		if (openingHours) {
+			try {
+				// Use opening_hours.js library to parse and check if open
+				var oh = new opening_hours(openingHours);
+				var state = oh.getState(); // true = open, false = closed
+				var comment = oh.getComment();
+				
+				var openStatusEl = $('<div>')
+					.css({
+						paddingLeft: '10px',
+						marginBottom: '5px',
+						fontWeight: 'bold',
+						color: state ? '#2ecc71' : '#e74c3c'
+					})
+					.html(state ? '🕒 Open now' : '🕒 Closed now');
+				
+				if (comment) {
+					openStatusEl.append($('<span>').css({
+						fontWeight: 'normal',
+						color: '#666',
+						marginLeft: '5px'
+					}).html(' (' + comment + ')'));
+				}
+				
+				node.append([openStatusEl, '<br/>']);
+			} catch (err) {
+				console.warn('Could not parse opening_hours:', err);
+			}
+		}
+
 		$.each(feature.getProperties(), function (index, value) {
 			if (typeof value !== 'object') {
 				node.append([$('<a>').attr({href: 'https://wiki.openstreetmap.org/wiki/Key:' + index + '?uselang=ca', target: '_blank'}).html(index), '=', value, '<br/>']);
