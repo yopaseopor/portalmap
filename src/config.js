@@ -607,19 +607,51 @@ style: function (feature) {
 		var openingHours = feature.get('opening_hours');
 		if (openingHours) {
 			try {
+				// Get current date for status check
+				var now = new Date(); // Will use current time
+				console.log('Checking opening hours:', openingHours, 'at time:', now);
+
 				// Use opening_hours.js library to parse and check if open
-				var oh = new opening_hours(openingHours);
-				var state = oh.getState(); // true = open, false = closed
+				var oh = new opening_hours(openingHours, {
+					'address': { 'country_code': 'es' }, // Default to Spain, can be made configurable
+					'locale': 'es' // Default to Spanish locale
+				});
+
+				var state = oh.getState(now);
 				var comment = oh.getComment();
+				var nextChange = oh.getNextChange(now);
 				
+				console.log('Opening hours state:', state, 'next change:', nextChange);
+
 				var openStatusEl = $('<div>')
 					.css({
 						paddingLeft: '10px',
 						marginBottom: '5px',
 						fontWeight: 'bold',
 						color: state ? '#2ecc71' : '#e74c3c'
+					});
+
+				// Add status text
+				var statusText = state ? '🕒 Open now' : '🕒 Closed now';
+				
+				// Add next change info if available
+				if (nextChange) {
+					var hours = nextChange.getHours().toString().padStart(2, '0');
+					var minutes = nextChange.getMinutes().toString().padStart(2, '0');
+					statusText += ' (until ' + hours + ':' + minutes + ')';
+				}
+
+				openStatusEl.html(statusText);
+				
+				// Add the raw opening hours below in gray
+				var openingHoursEl = $('<div>')
+					.css({
+						paddingLeft: '10px',
+						color: '#666',
+						fontSize: '0.9em',
+						marginTop: '2px'
 					})
-					.html(state ? '🕒 Open now' : '🕒 Closed now');
+					.html('Hours: ' + openingHours);
 				
 				if (comment) {
 					openStatusEl.append($('<span>').css({
@@ -629,9 +661,18 @@ style: function (feature) {
 					}).html(' (' + comment + ')'));
 				}
 				
-				node.append([openStatusEl, '<br/>']);
+				node.append([openStatusEl, openingHoursEl, '<br/>']);
 			} catch (err) {
 				console.warn('Could not parse opening_hours:', err);
+				// Still show the raw opening hours even if parsing fails
+				var openingHoursEl = $('<div>')
+					.css({
+						paddingLeft: '10px',
+						color: '#666',
+						fontSize: '0.9em'
+					})
+					.html('Hours: ' + openingHours);
+				node.append([openingHoursEl, '<br/>']);
 			}
 		}
 
