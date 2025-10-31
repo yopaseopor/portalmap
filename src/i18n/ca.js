@@ -509,6 +509,8 @@ export const ca = {
     clickMapHint: 'Fer clic al mapa per definir ubicacions',
     calculateRoute: 'Calcular Ruta',
     selectedOnMap: 'Seleccionat al mapa',
+    exportGpx: 'Exportar GPX',
+    noRouteToExport: 'No hi ha cap ruta per exportar',
     // Mapillary Street View translations
     streetViewTitle: '📷 Street View <small>(fer clic per tancar)</small>',
     mapillaryStreetView: 'Mapillary Street View',

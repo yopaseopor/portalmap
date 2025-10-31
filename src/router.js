@@ -31,6 +31,126 @@ function initRouter(map) {
             }
         }
     };
+
+    // Export current route as GPX
+    const exportRouteAsGPX = function() {
+        try {
+            // Prefer using lastRoute (original GeoJSON coordinates) if available
+            const routeObj = lastRoute;
+            const features = routeLayer.getSource().getFeatures();
+
+            if ((!routeObj || !routeObj.geometry || !routeObj.geometry.coordinates) && (!features || features.length === 0)) {
+                const msg = (window.getTranslation && window.getTranslation('noRouteToExport')) || 'No route to export';
+                alert(msg);
+                return;
+            }
+
+            // Build GPX manually so we can include metadata and waypoints
+            const coords = routeObj && routeObj.geometry && routeObj.geometry.coordinates ? routeObj.geometry.coordinates : null;
+
+            const distanceKm = routeObj && routeObj.distance ? (routeObj.distance / 1000).toFixed(2) : null;
+            const durationMin = routeObj && routeObj.duration ? Math.round(routeObj.duration / 60) : null;
+
+            const now = new Date().toISOString();
+
+            let gpx = '';
+            gpx += '<?xml version="1.0" encoding="UTF-8"?>\n';
+            gpx += '<gpx version="1.1" creator="PortalMap" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n';
+
+            // Metadata
+            gpx += '  <metadata>\n';
+            gpx += `    <name>PortalMap route ${now}</name>\n`;
+            if (distanceKm !== null || durationMin !== null) {
+                const parts = [];
+                if (distanceKm !== null) parts.push(`Distance: ${distanceKm} km`);
+                if (durationMin !== null) parts.push(`Duration: ${durationMin} min`);
+                gpx += `    <desc>${parts.join(' - ')}</desc>\n`;
+            }
+            gpx += `    <time>${now}</time>\n`;
+            gpx += '  </metadata>\n';
+
+            // Waypoints for start/end if available
+            const formatPlace = function(p) {
+                if (!p) return null;
+                // p may be { lon, lat } or a Nominatim place with lat/lon strings
+                const lat = parseFloat(p.lat || p.lat === 0 ? p.lat : (p[1] || null));
+                const lon = parseFloat(p.lon || p.lon === 0 ? p.lon : (p[0] || null));
+                if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat: lat, lon: lon };
+                if (p && p.lon !== undefined && p.lat !== undefined) {
+                    const llat = parseFloat(p.lat);
+                    const llon = parseFloat(p.lon);
+                    if (Number.isFinite(llat) && Number.isFinite(llon)) return { lat: llat, lon: llon };
+                }
+                return null;
+            };
+
+            const start = formatPlace(startPlace);
+            const end = formatPlace(endPlace);
+
+            if (start) {
+                gpx += `  <wpt lat="${start.lat}" lon="${start.lon}">\n`;
+                gpx += '    <name>Start</name>\n';
+                gpx += '  </wpt>\n';
+            }
+            if (end) {
+                gpx += `  <wpt lat="${end.lat}" lon="${end.lon}">\n`;
+                gpx += '    <name>End</name>\n';
+                gpx += '  </wpt>\n';
+            }
+
+            // Track
+            gpx += '  <trk>\n';
+            gpx += `    <name>Route</name>\n`;
+            gpx += '    <trkseg>\n';
+
+            if (coords && coords.length) {
+                coords.forEach(c => {
+                    // c is [lon, lat]
+                    const lon = parseFloat(c[0]);
+                    const lat = parseFloat(c[1]);
+                    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+                    gpx += `      <trkpt lat="${lat}" lon="${lon}"></trkpt>\n`;
+                });
+            } else if (features && features.length) {
+                // Fallback: extract coordinates from features (transform to EPSG:4326)
+                const fmt = new ol.format.GeoJSON();
+                const asGeo = fmt.writeFeaturesObject(features, { featureProjection: map.getView().getProjection(), dataProjection: 'EPSG:4326' });
+                // asGeo may be a FeatureCollection
+                if (asGeo && asGeo.features && asGeo.features.length) {
+                    asGeo.features.forEach(f => {
+                        const g = f.geometry;
+                        if (g && g.type === 'LineString' && Array.isArray(g.coordinates)) {
+                            g.coordinates.forEach(c => {
+                                const lon = parseFloat(c[0]);
+                                const lat = parseFloat(c[1]);
+                                if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+                                gpx += `      <trkpt lat="${lat}" lon="${lon}"></trkpt>\n`;
+                            });
+                        }
+                    });
+                }
+            }
+
+            gpx += '    </trkseg>\n';
+            gpx += '  </trk>\n';
+
+            gpx += '</gpx>';
+
+            const blob = new Blob([gpx], { type: 'application/gpx+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const filename = 'route_' + new Date().toISOString().replace(/[:.]/g,'-') + '.gpx';
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Error exporting GPX:', err);
+            alert('Error exporting GPX: ' + err.message);
+        }
+    };
     loading.init();
 
     let startPlace = null;
@@ -39,6 +159,7 @@ function initRouter(map) {
     let startMarker = null;
     let endMarker = null;
     let viaMarker = null;
+    let lastRoute = null; // store last fetched route (OSRM response) for GPX export
     let clickHandler = null;
 
     // Create markers for points
@@ -151,6 +272,7 @@ function initRouter(map) {
                         }
                         
                         const route = data.routes[0];
+                        lastRoute = route;
                         const format = new ol.format.GeoJSON();
                         const features = format.readFeatures(route.geometry, {
                             featureProjection: map.getView().getProjection(),
@@ -377,6 +499,7 @@ function initRouter(map) {
                 }
                 
                 const route = data.routes[0];
+                lastRoute = route;
                 const format = new ol.format.GeoJSON();
                 const features = format.readFeatures(route.geometry, {
                     featureProjection: map.getView().getProjection(),
@@ -510,6 +633,7 @@ function initRouter(map) {
                                 <i class="fa fa-info-circle"></i> <span data-i18n="clickMapHint">Click on the map to set locations</span>
                             </div>
                             <button class="calculate-route" data-i18n="calculateRoute">Calculate Route</button>
+                            <button class="export-gpx" data-i18n="exportGpx">Export GPX</button>
                         </div>
                     </div>
                 </div>
@@ -655,6 +779,12 @@ function initRouter(map) {
             routerContent.find('.calculate-route').on('click', function(e) {
                 e.preventDefault();
                 calculateRoute();
+            });
+
+            // Export GPX
+            routerContent.find('.export-gpx').on('click', function(e) {
+                e.preventDefault();
+                exportRouteAsGPX();
             });
 
             // Insert router content between classic layer and overlay selectors

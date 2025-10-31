@@ -508,6 +508,8 @@ export const es = {
     clickMapHint: 'Haz clic en el mapa para establecer ubicaciones',
     calculateRoute: 'Calcular Ruta',
     selectedOnMap: 'Seleccionado en el mapa',
+    exportGpx: 'Exportar GPX',
+    noRouteToExport: 'No hay ruta para exportar',
     // Mapillary Street View translations
     streetViewTitle: '📷 Street View <small>(hacer clic para cerrar)</small>',
     mapillaryStreetView: 'Mapillary Street View',

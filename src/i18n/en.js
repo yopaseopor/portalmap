@@ -360,6 +360,8 @@ export const en = {
     clickMapHint: 'Click on the map to set locations',
     calculateRoute: 'Calculate Route',
     selectedOnMap: 'Selected on map',
+    exportGpx: 'Export GPX',
+    noRouteToExport: 'No route to export',
     // Mapillary Street View translations
     streetViewTitle: '📷 Street View <small>(click to close)</small>',
     mapillaryStreetView: 'Mapillary Street View',
