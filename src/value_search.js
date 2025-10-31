@@ -159,9 +159,24 @@ window.tagQueryLegend = {
     },
 };
 
+// Guard set to avoid re-running the same tag query multiple times concurrently
+if (!window._runningTagQueries) window._runningTagQueries = new Set();
+
 function executeTagQuery(key, value) {
     console.log('🚀 executeTagQuery called with:', key, value);
     console.log('🚀 Current legend queries before execution:', window.tagQueryLegend.queries.size);
+
+    // Prevent duplicate concurrent executions for the same key/value
+    try {
+        const overlayKey = `tag_${key}_${value}`;
+        if (window._runningTagQueries && window._runningTagQueries.has(overlayKey)) {
+            console.log('🚫 executeTagQuery skipped - already running for', overlayKey);
+            return;
+        }
+        window._runningTagQueries.add(overlayKey);
+    } catch (guardErr) {
+        console.warn('Could not set running guard for executeTagQuery', guardErr);
+    }
 
     /**
      * Check if this exact query is already running or exists - OPTIMIZED
@@ -336,7 +351,7 @@ function createTagOverlay(key, value, query) {
                         image: new ol.style.Circle({
                             radius: 6,
                             fill: new ol.style.Fill({
-                                color: [...generateQueryColor(vectorLayer.get('id'), false), 0.4] // Reduced transparency for consistency
+                                color: [...generateQueryColor(vectorLayer.get('id'), false), 0.65] // 65% opacity for value queries
                             }),
                             stroke: new ol.style.Stroke({
                                 color: generateQueryColor(vectorLayer.get('id'), false),
@@ -351,7 +366,7 @@ function createTagOverlay(key, value, query) {
                     image: new ol.style.Circle({
                         radius: 4,
                         fill: new ol.style.Fill({
-                            color: [...generateQueryColor(vectorLayer.get('id'), false), 0.6] // Reduced transparency for consistency
+                            color: [...generateQueryColor(vectorLayer.get('id'), false), 0.65] // 65% opacity for value queries
                         }),
                         stroke: new ol.style.Stroke({
                             color: generateQueryColor(vectorLayer.get('id'), false),
@@ -389,7 +404,7 @@ function createTagOverlay(key, value, query) {
                             image: new ol.style.Circle({
                                 radius: 6,
                                 fill: new ol.style.Fill({
-                                    color: [...generateQueryColor(vectorLayer.get('id'), false), 0.8] // Use query color for invalid polygons
+                                    color: [...generateQueryColor(vectorLayer.get('id'), false), 0.65] // 65% opacity for value queries
                                 }),
                                 stroke: new ol.style.Stroke({
                                     color: generateQueryColor(vectorLayer.get('id'), false),
@@ -407,7 +422,7 @@ function createTagOverlay(key, value, query) {
                             width: 2
                         }),
                         fill: new ol.style.Fill({
-                            color: [...generateQueryColor(vectorLayer.get('id'), false), 0.05] // Ultra transparent for maximum visibility
+                            color: [...generateQueryColor(vectorLayer.get('id'), false), 0.65] // 65% opacity for value queries
                         })
                     });
                 } catch (error) {
@@ -1387,6 +1402,14 @@ function initValueSearch() {
         const tagQueriesGroup = findOrCreateTagOverlaysGroup();
         if (tagQueriesGroup) {
             tagQueriesGroup.getLayers().push(vectorLayer);
+            // Ensure the group is actually added to the map
+            if (window.map) {
+                const mapLayers = window.map.getLayers().getArray();
+                if (!mapLayers.some(l => l === tagQueriesGroup)) {
+                    console.log('🔍 Tag Queries group not present in map yet, adding it now');
+                    window.map.addLayer(tagQueriesGroup);
+                }
+            }
         }
 
         // Dispatch events
@@ -1394,13 +1417,95 @@ function initValueSearch() {
             detail: { key, value, overlayId }
         }));
 
+        // Clear running guard for this query so future executions are allowed
+        try {
+            if (window._runningTagQueries && window._runningTagQueries.has(overlayId)) {
+                window._runningTagQueries.delete(overlayId);
+                console.log('✅ Cleared running guard for', overlayId);
+            }
+        } catch (delErr) {
+            console.warn('Could not clear running guard for', overlayId, delErr);
+        }
+
         $('#execute-query-btn').prop('disabled', false).text(`${window.getTranslation ? window.getTranslation('queryExecuted') : 'Query Executed'} - ${window.getTranslation ? window.getTranslation('clickToRepeat') : 'Click to Repeat'}`);
         $('#clear-search-btn').show();
+
+        // If we added features, make sure they are visible: fit view to features and render
+        try {
+            const src = vectorLayer.getSource();
+            const feats = src.getFeatures ? src.getFeatures() : [];
+            console.log('🎯 Added features count for overlay', overlayId, ':', feats.length);
+
+            // Ensure layer is visible and on top
+            try {
+                vectorLayer.setVisible(true);
+                // Give it a high z-index so it renders above basemap/other overlays
+                if (typeof vectorLayer.setZIndex === 'function') vectorLayer.setZIndex(1000);
+            } catch (zErr) {
+                console.warn('⚠️ Could not set zIndex on vector layer:', zErr);
+            }
+
+            if (feats.length > 0 && window.map) {
+                const featuresExtent = src.getExtent();
+
+                console.log('🎯 Features extent:', featuresExtent);
+
+                // Validate extent numbers (must be finite and not empty)
+                const isValidExtent = featuresExtent && !ol.extent.isEmpty(featuresExtent) &&
+                    featuresExtent.every(coord => Number.isFinite(coord));
+
+                if (isValidExtent) {
+                    try {
+                        const mapView = window.map.getView();
+                        const mapSize = window.map.getSize();
+                        const viewExtent = mapView.calculateExtent(mapSize);
+
+                        // Only fit the view if the features extent is not already fully inside the current view
+                        const needFit = !(ol.extent.containsExtent(viewExtent, featuresExtent));
+                        console.log('🔎 View extent contains features extent?', ol.extent.containsExtent(viewExtent, featuresExtent), 'needFit:', needFit);
+
+                        if (needFit) {
+                            console.log('🔎 Fitting map view to new features extent for overlay', overlayId);
+                            // Fit with padding and maxZoom to avoid zooming too far
+                            mapView.fit(featuresExtent, { size: mapSize, maxZoom: 18, padding: [50, 50, 50, 50] });
+                        } else {
+                            console.log('🔎 Features already within view; skipping fit to avoid flash');
+                        }
+                    } catch (fitErr) {
+                        console.warn('⚠️ Error fitting view to extent:', fitErr);
+                    }
+                } else {
+                    console.warn('⚠️ Invalid features extent, skipping fit:', featuresExtent);
+                }
+
+                // Force synchronous render to ensure visibility
+                try {
+                    window.map.renderSync();
+                } catch (rsErr) {
+                    console.warn('⚠️ renderSync failed, calling render instead:', rsErr);
+                    window.map.render();
+                }
+            }
+        } catch (err) {
+            console.error('🎯 Error while trying to show features on map:', err);
+        }
     }
 
     function executeTagQuery(key, value) {
         console.log('🚀 executeTagQuery called with:', key, value);
         console.log('🚀 Current legend queries before execution:', window.tagQueryLegend.queries.size);
+
+        // Prevent duplicate concurrent executions for the same key/value
+        try {
+            const overlayKey = `tag_${key}_${value}`;
+            if (window._runningTagQueries && window._runningTagQueries.has(overlayKey)) {
+                console.log('🚫 executeTagQuery skipped - already running for', overlayKey);
+                return;
+            }
+            window._runningTagQueries.add(overlayKey);
+        } catch (guardErr) {
+            console.warn('Could not set running guard for executeTagQuery', guardErr);
+        }
 
         // Check if this exact query is already running or exists
         const existingQuery = Array.from(window.tagQueryLegend.queries.entries())
@@ -1596,7 +1701,7 @@ function findOrCreateTagOverlaysGroup() {
                 Math.round(r * 255),
                 Math.round(g * 255),
                 Math.round(b * 255),
-                isFixed ? 0.9 : 0.8 // Semi-transparent for better visibility
+                0.65 // Forced 65% opacity for value search overlays
             ];
         };
 

@@ -190,6 +190,41 @@ function initKeySearch() {
                     <div class="key-count">${formatKeyCount(result.totalCount, bestDefinition)}</div>
                 `);
 
+            // Append value suggestions (if available in taginfoData)
+            try {
+                const keyData = window.taginfoData && window.taginfoData.keys && window.taginfoData.keys.get(result.key);
+                if (keyData && keyData.values && keyData.values.size > 0) {
+                    // Build a small list of top values sorted by total count
+                    const valueCounts = [];
+                    for (const [v, entries] of keyData.values) {
+                        // Sum counts for duplicate entries
+                        let total = 0;
+                        for (const e of entries) total += (e.countAll || 0);
+                        valueCounts.push({ value: v, total });
+                    }
+
+                    // Sort descending by count, put '*' and empty values first so they're visible
+                    valueCounts.sort((a, b) => {
+                        if (a.value === '*' && b.value !== '*') return -1;
+                        if (b.value === '*' && a.value !== '*') return 1;
+                        if (!a.value && b.value) return -1;
+                        if (!b.value && a.value) return 1;
+                        return b.total - a.total;
+                    });
+
+                    const maxVals = 6;
+                    const valsHtml = valueCounts.slice(0, maxVals).map(vc => {
+                        const display = vc.value === '*' ? '*' : (vc.value === '' ? '(empty)' : escapeHtml(vc.value));
+                        return `<button class="kv-btn" data-key="${escapeHtml(result.key)}" data-value="${escapeHtml(vc.value)}">${display} <span class=\"kv-count\">${formatNumber(vc.total)}</span></button>`;
+                    }).join(' ');
+
+                    const valuesContainer = $(`<div class="key-values">${valsHtml}</div>`);
+                    resultElement.append(valuesContainer);
+                }
+            } catch (err) {
+                console.error('🔑 Error building value suggestions for key', result.key, err);
+            }
+
             resultsContainer.append(resultElement);
         });
 
@@ -261,9 +296,24 @@ function initKeySearch() {
     // Handle execute button click for generic key queries
     $('#execute-key-query-btn').on('click', function() {
         if (currentKey) {
+            // If user typed key=value in the input, pass it as-is. Otherwise this will be the key only.
             executeGenericKeyQuery(currentKey);
             $(this).prop('disabled', true).text('Executing...');
         }
+    });
+
+    // Handle clicks on value suggestion buttons inside results
+    resultsContainer.on('click', '.kv-btn', function(e) {
+        e.stopPropagation();
+        const key = $(this).data('key');
+        const value = $(this).data('value');
+        console.log('🔑 Value suggestion clicked:', key, value);
+        // Fill input and execute query for key=value (treat '*' or empty as wildcard)
+        currentKey = `${key}${value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')}`;
+        $('#key-search').val(key + (value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')));
+        showKeyExecuteButton(currentKey);
+        executeGenericKeyQuery(currentKey);
+        $('#execute-key-query-btn').prop('disabled', true).text('Executing...');
     });
 
     // Handle clear button click
@@ -295,22 +345,37 @@ function initKeySearch() {
         clearBtn.show();
     }
 
-    function executeGenericKeyQuery(key) {
-        console.log('🚀 executeGenericKeyQuery called with:', key);
+    function executeGenericKeyQuery(keyOrKeyValue) {
+        console.log('🚀 executeGenericKeyQuery called with:', keyOrKeyValue);
+
+        // Allow input forms: "key", "key=value", or "key=*" (wildcard)
+        let key = keyOrKeyValue;
+        let value = null;
+        if (typeof keyOrKeyValue === 'string' && keyOrKeyValue.indexOf('=') !== -1) {
+            const parts = keyOrKeyValue.split('=');
+            key = parts.shift();
+            value = parts.join('=');
+            if (value === '*' || value === '') {
+                // Treat '*' or empty value as generic key (no specific value)
+                value = null;
+            }
+        }
+
+        console.log('🚀 Resolved key:', key, 'value:', value);
 
         if (!window.map) {
             console.log('🚀 Map not ready, retrying in 500ms');
-            setTimeout(() => executeGenericKeyQuery(key), 500);
+            setTimeout(() => executeGenericKeyQuery(keyOrKeyValue), 500);
             return;
         }
 
         if (typeof window.map.getView !== 'function') {
             console.log('🚀 Map view not ready, retrying in 500ms');
-            setTimeout(() => executeGenericKeyQuery(key), 500);
+            setTimeout(() => executeGenericKeyQuery(keyOrKeyValue), 500);
             return;
         }
 
-        console.log('🚀 Map is ready, getting bbox');
+    console.log('🚀 Map is ready, getting bbox');
 
         // Get current map bbox
         const view = window.map.getView();
@@ -333,8 +398,8 @@ function initKeySearch() {
         const elementTypes = ['node', 'way', 'relation']; // For generic key queries, search all types
         console.log('🚀 Element types:', elementTypes);
 
-        // Generate generic key query (no specific value)
-        const query = window.generateOverpassQuery(key, null, bbox, elementTypes);
+    // Generate query: if value is null => generic key query, else key=value
+    const query = window.generateOverpassQuery(key, value, bbox, elementTypes);
         console.log('🚀 Generated generic key query:', query);
 
         // Check if query generation failed
@@ -348,26 +413,28 @@ function initKeySearch() {
         $('#execute-key-query-btn').prop('disabled', true).text('Executing...');
         console.log('🚀 Button state updated to executing');
 
-        // Create overlay for results
-        createGenericKeyOverlay(key, query);
+        // Create overlay for results (pass key and value so overlay id/name can reflect value)
+        createGenericKeyOverlay(key, value, query);
     }
 
-    function createGenericKeyOverlay(key, query) {
-        console.log('🎯 createGenericKeyOverlay called with:', key);
+    function createGenericKeyOverlay(key, value, query) {
+        console.log('🎯 createGenericKeyOverlay called with:', key, value);
         console.log('🎯 Query:', query);
 
-        // Generate unique color for this key
-        const uniqueColor = generateUniqueColor(key, 'generic');
+        // Generate unique color for this key/value combination
+        const uniqueColor = generateUniqueColor(key, value || 'generic');
         console.log('🎯 Generated unique color:', uniqueColor);
 
-        // Create a unique overlay for this generic key query
-        const overlayId = `key_${key}`;
-        const overlayTitle = `Key: ${key}`;
+        // Sanitize value for id
+        const safeValue = value ? String(value).replace(/[^a-z0-9]/gi, '_') : 'any';
+        // Create a unique overlay id that includes key and value (or 'any' if generic)
+        const overlayId = `key_${key}_${safeValue}`;
+        const overlayTitle = value ? `Tag: ${key}=${value}` : `Key: ${key}`;
 
         console.log('🎯 Creating generic key overlay:', overlayId, overlayTitle);
 
         // Add to legend before creating the overlay
-        window.tagQueryLegend.addQuery(overlayId, key, null, uniqueColor, 0, true);
+        window.tagQueryLegend.addQuery(overlayId, key, value, uniqueColor, 0, true);
 
         // Create vector source for the query with retry mechanism
         const vectorSource = new ol.source.Vector({
@@ -459,7 +526,7 @@ function initKeySearch() {
 
                                     // Trigger event for overlay management
                                     window.dispatchEvent(new CustomEvent('tagOverlayLoaded', {
-                                        detail: { key, value: null, overlayId, featureCount: features.length }
+                                        detail: { key, value: value || null, overlayId, featureCount: features.length }
                                     }));
 
                                     // Trigger the overlay features loaded event
