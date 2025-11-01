@@ -4,86 +4,32 @@
  * OSM Cat config
  */
 
-// Initialize opening_hours library with multiple CDN fallbacks and a small timeout.
-// This avoids a hard failure if one CDN is unreachable.
+// opening_hours loader: use local vendored file loaded synchronously from index.html.
+// Resolve to the OpeningHours constructor (or the opening_hours factory) or reject if missing.
 var openingHoursPromise = new Promise(function(resolve, reject) {
-	var tried = 0;
-	var cdnUrls = [
-		'https://unpkg.com/opening_hours@3.8.0/opening_hours.min.js',
-		'https://cdn.jsdelivr.net/npm/opening_hours@3.8.0/opening_hours.min.js',
-		// Local fallback (should be committed to the repo at src/vendor/opening_hours.min.js)
-		'src/vendor/opening_hours.min.js'
-	];
-
-	function alreadyLoaded() {
-		return (typeof window.opening_hours === 'function') || (typeof opening_hours === 'function');
+	function isAvailable() {
+		return (typeof window.OpeningHours === 'function') || (typeof window.opening_hours === 'function');
 	}
 
-	function resolveIfLoaded() {
-		if (typeof window.opening_hours === 'function') {
-			resolve(window.opening_hours);
-			return true;
-		}
-		if (typeof opening_hours === 'function') {
-			window.opening_hours = opening_hours;
-			resolve(window.opening_hours);
-			return true;
-		}
-		return false;
+	if (isAvailable()) {
+		resolve(window.OpeningHours || window.opening_hours);
+		return;
 	}
 
-	function tryLoadNext() {
-		// If library already present, resolve immediately
-		if (resolveIfLoaded()) return;
-
-		if (tried >= cdnUrls.length) {
-			// Exhausted all options
-			reject(new Error('Failed to load opening_hours from all CDNs'));
+	// If not yet available (unexpected), wait briefly for synchronous include to execute.
+	var waited = 0;
+	var interval = setInterval(function() {
+		if (isAvailable()) {
+			clearInterval(interval);
+			resolve(window.OpeningHours || window.opening_hours);
 			return;
 		}
-
-		var url = cdnUrls[tried++];
-		console.log('Attempting to load opening_hours from:', url);
-
-		var script = document.createElement('script');
-		script.src = url;
-		script.async = true;
-		// Some environments require crossorigin attribute
-		script.crossOrigin = 'anonymous';
-
-		var timeoutId = setTimeout(function() {
-			// If nothing happened in 7s, try next CDN
-			script.onerror = null;
-			script.onload = null;
-			console.warn('Timeout loading opening_hours from', url);
-			tryLoadNext();
-		}, 7000);
-
-		script.onload = function() {
-			clearTimeout(timeoutId);
-			if (resolveIfLoaded()) {
-				console.log('opening_hours loaded successfully from', url);
-			} else {
-				console.warn('opening_hours script loaded but did not expose the API (from ' + url + '), trying next CDN');
-				tryLoadNext();
-			}
-		};
-
-		script.onerror = function() {
-			clearTimeout(timeoutId);
-			console.warn('Failed to load opening_hours from', url);
-			tryLoadNext();
-		};
-
-		document.head.appendChild(script);
-	}
-
-	// If index.html already loaded the library synchronously, pick it up.
-	if (alreadyLoaded()) {
-		resolveIfLoaded();
-	} else {
-		tryLoadNext();
-	}
+		waited += 50;
+		if (waited > 5000) {
+			clearInterval(interval);
+			reject(new Error('opening_hours library not available (expected local file at src/vendor/opening_hours.min.js)'));
+		}
+	}, 50);
 });
 
 //@@ Ruta de imágenes
@@ -666,13 +612,6 @@ style: function (feature) {
 		var node = $('<div>').css('borderTop', '1px solid');
 		var metaNode = feature.get('meta');
 
-		if (metaNode && metaNode['type']) {
-			var nodeType = metaNode['type'];
-			node.append([config.i18n[nodeType==='node' ? 'nodeLabel' : 'wayLabel'], ' ', $('<a>').css('fontWeight', 900).attr({href: 'https://www.openstreetmap.org/' + nodeType + '/' + feature.getId(), target: '_blank'}).html(feature.getId()), '<br/>']);
-		} else {
-			node.append([config.i18n.nodeLabel, ' ', $('<span>').css('fontWeight', 900).html(feature.getId()), '<br/>']);
-		}
-
 		// Add name and ref if available
 		var name = feature.get('name');
 		var ref = feature.get('ref');
@@ -772,6 +711,14 @@ style: function (feature) {
 				loadingEl.css('color', '#e74c3c')
 					.html('Hours: ' + openingHours + ' (Library not available)');
 			});
+		}
+
+		// Append node/way/relation id after opening hours and name/ref
+		if (metaNode && metaNode['type']) {
+			var nodeType = metaNode['type'];
+			node.append([config.i18n[nodeType==='node' ? 'nodeLabel' : 'wayLabel'], ' ', $('<a>').css('fontWeight', 900).attr({href: 'https://www.openstreetmap.org/' + nodeType + '/' + feature.getId(), target: '_blank'}).html(feature.getId()), '<br/>']);
+		} else {
+			node.append([config.i18n.nodeLabel, ' ', $('<span>').css('fontWeight', 900).html(feature.getId()), '<br/>']);
 		}
 
 		$.each(feature.getProperties(), function (index, value) {
