@@ -615,27 +615,30 @@ style: function (feature) {
 		// Add name and ref if available
 		var name = feature.get('name');
 		var ref = feature.get('ref');
-		if (name || ref) {
-			var identifiers = [];
-			if (name) identifiers.push(name);
-			if (ref) identifiers.push('ref: ' + ref);
-			if (identifiers.length > 0) {
-				node.append([$('<div>').css({paddingLeft: '10px', color: '#666'}).html(identifiers.join(' • ')), '<br/>']);
-			}
+
+		// Create an information block that will contain name/ref, opening hours and will be
+		// placed immediately under the name/ref as requested.
+		var infoBlock = $('<div>').css({paddingLeft: '10px', color: '#666'});
+		var identifiers = [];
+		if (name) identifiers.push(name);
+		if (ref) identifiers.push('ref: ' + ref);
+		if (identifiers.length > 0) {
+			infoBlock.append($('<div>').html(identifiers.join(' • ')));
 		}
+		// Append the info block early so loading/status elements appear in the right position
+		node.append(infoBlock);
 
 		// Add opening hours status if available
 		var openingHours = feature.get('opening_hours');
 		if (openingHours) {
-			// Create a temporary element to show while loading
+			// Create a temporary element to show while loading and append it to infoBlock
 			var loadingEl = $('<div>')
 				.css({
-					paddingLeft: '10px',
 					color: '#666',
 					fontSize: '0.9em'
 				})
 				.html('Hours: ' + openingHours);
-			node.append(loadingEl);
+			infoBlock.append(loadingEl);
 
 			// Use the Promise to ensure the library is loaded
 			openingHoursPromise.then(OpeningHours => {
@@ -662,7 +665,6 @@ style: function (feature) {
 					// Create status element
 					var openStatusEl = $('<div>')
 						.css({
-							paddingLeft: '10px',
 							marginBottom: '5px',
 							fontWeight: 'bold',
 							color: state ? '#2ecc71' : '#e74c3c'
@@ -680,10 +682,9 @@ style: function (feature) {
 
 					openStatusEl.html(statusText);
 					
-					// Add the raw opening hours below in gray
+					// Add the raw opening hours below in gray inside the infoBlock
 					var openingHoursEl = $('<div>')
 						.css({
-							paddingLeft: '10px',
 							color: '#666',
 							fontSize: '0.9em',
 							marginTop: '2px'
@@ -698,7 +699,7 @@ style: function (feature) {
 						}).html(' (' + comment + ')'));
 					}
 					
-					node.append([openStatusEl, openingHoursEl, '<br/>']);
+					infoBlock.append([openStatusEl, openingHoursEl, '<br/>']);
 				} catch (err) {
 					console.warn('Could not parse opening_hours:', err);
 					// Update loading element to show error state
