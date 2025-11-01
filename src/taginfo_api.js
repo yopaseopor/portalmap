@@ -466,18 +466,25 @@ function searchValues(query, key = null, limit = 100) {
                     } else {
                         // For description matches, be more flexible - allow partial matches in descriptions
                         // This helps find values like "churro" when searching for "churrería" (which appears in descriptions)
-                        const regex = new RegExp(`${queryNormalized}`, 'i');
+                        // Also helps find values mentioned in descriptions like "guagua"
+                        const regex = new RegExp(`\\b${queryNormalized}\\b|${queryNormalized}`, 'i');
                         if (regex.test(searchText)) {
                             // Description matches - include for relevant values
                             if (value !== 'yes' && value !== 'no') {
-                                matchScore += 15;   // Higher priority for description matches
+                                if (regex.test(removeDiacritics(`${valueData.definition_en || ''}`.toLowerCase())) ||
+                                    regex.test(removeDiacritics(`${valueData.definition_ca || ''}`.toLowerCase())) ||
+                                    regex.test(removeDiacritics(`${valueData.definition_es || ''}`.toLowerCase()))) {
+                                    matchScore += 25;   // Higher priority for description matches
+                                } else {
+                                    matchScore += 15;   // Lower priority for other text matches
+                                }
                             }
                         }
                     }
                 }
             }
 
-            if (matchFound && matchScore >= 5) {  // Lower threshold but still filter very weak matches
+            if (matchFound && matchScore >= 1) {  // Lower threshold to catch description matches
                 // For each key that uses this value, create a result for each duplicate entry
                 for (const valueKey of keysWithValue) {
                     const keyData = window.taginfoData.keys.get(valueKey);
