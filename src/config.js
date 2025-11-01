@@ -10,7 +10,9 @@ var openingHoursPromise = new Promise(function(resolve, reject) {
 	var tried = 0;
 	var cdnUrls = [
 		'https://unpkg.com/opening_hours@3.8.0/opening_hours.min.js',
-		'https://cdn.jsdelivr.net/npm/opening_hours@3.8.0/opening_hours.min.js'
+		'https://cdn.jsdelivr.net/npm/opening_hours@3.8.0/opening_hours.min.js',
+		// Local fallback (should be committed to the repo at src/vendor/opening_hours.min.js)
+		'src/vendor/opening_hours.min.js'
 	];
 
 	function alreadyLoaded() {
