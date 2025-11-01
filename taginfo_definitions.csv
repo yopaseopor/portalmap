@@ -1459,7 +1459,7 @@ bus,no,bus=no,,autobús	=	no,autobús	=	no,20517,,5679,,14755,,83,,Yes,5,autobú
 bus,school,,,autobús	=	escola,autobús	=	escuela,,,,,,,,,,,autobús,escola,autobús,escuela,14734
 bus,unofficial,,,autobús	=	no oficial,autobús	=	no oficial,,,,,,,,,,,autobús,no oficial,autobús,no oficial,14733
 bus,urban,,,autobús	=	urbà,autobús	=	urbano,,,,,,,,,,,autobús,urbà,autobús,urbano,14732
-bus,yes,bus=yes,,autobús	=	sí,autobús = sí guagua = sí,4575365,0,4289466,0,251936,0,33963,0,Yes,16,autobús,sí,autobús=guagua,sí,14729
+bus,yes,bus=yes,,autobús	=	sí,autobús = sí guagua = sí,4575365,0,4289466,0,251936,0,33963,0,Yes,16,autobús,sí,autobús = guagua,sí,14729
 bus_bay,right,bus_bay=right,,,,10938,,561,,10377,,,,Yes,2,,,,,12311
 busbar,flexible,,,barra col·lectora	=	flexible,barra colectora	=	flexible,,,,,,,,,,,barra col·lectora,flexible,barra colectora,flexible,14736
 busbar,rigid,,,barra col·lectora	=	rígid,barra colectora	=	rígido,,,,,,,,,,,barra col·lectora,rígid,barra colectora,rígido,14737
