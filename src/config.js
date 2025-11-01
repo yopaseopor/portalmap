@@ -4,6 +4,86 @@
  * OSM Cat config
  */
 
+// Initialize opening_hours library with multiple CDN fallbacks and a small timeout.
+// This avoids a hard failure if one CDN is unreachable.
+var openingHoursPromise = new Promise(function(resolve, reject) {
+	var tried = 0;
+	var cdnUrls = [
+		'https://unpkg.com/opening_hours@3.8.0/opening_hours.min.js',
+		'https://cdn.jsdelivr.net/npm/opening_hours@3.8.0/opening_hours.min.js'
+	];
+
+	function alreadyLoaded() {
+		return (typeof window.opening_hours === 'function') || (typeof opening_hours === 'function');
+	}
+
+	function resolveIfLoaded() {
+		if (typeof window.opening_hours === 'function') {
+			resolve(window.opening_hours);
+			return true;
+		}
+		if (typeof opening_hours === 'function') {
+			window.opening_hours = opening_hours;
+			resolve(window.opening_hours);
+			return true;
+		}
+		return false;
+	}
+
+	function tryLoadNext() {
+		// If library already present, resolve immediately
+		if (resolveIfLoaded()) return;
+
+		if (tried >= cdnUrls.length) {
+			// Exhausted all options
+			reject(new Error('Failed to load opening_hours from all CDNs'));
+			return;
+		}
+
+		var url = cdnUrls[tried++];
+		console.log('Attempting to load opening_hours from:', url);
+
+		var script = document.createElement('script');
+		script.src = url;
+		script.async = true;
+		// Some environments require crossorigin attribute
+		script.crossOrigin = 'anonymous';
+
+		var timeoutId = setTimeout(function() {
+			// If nothing happened in 7s, try next CDN
+			script.onerror = null;
+			script.onload = null;
+			console.warn('Timeout loading opening_hours from', url);
+			tryLoadNext();
+		}, 7000);
+
+		script.onload = function() {
+			clearTimeout(timeoutId);
+			if (resolveIfLoaded()) {
+				console.log('opening_hours loaded successfully from', url);
+			} else {
+				console.warn('opening_hours script loaded but did not expose the API (from ' + url + '), trying next CDN');
+				tryLoadNext();
+			}
+		};
+
+		script.onerror = function() {
+			clearTimeout(timeoutId);
+			console.warn('Failed to load opening_hours from', url);
+			tryLoadNext();
+		};
+
+		document.head.appendChild(script);
+	}
+
+	// If index.html already loaded the library synchronously, pick it up.
+	if (alreadyLoaded()) {
+		resolveIfLoaded();
+	} else {
+		tryLoadNext();
+	}
+});
+
 //@@ Ruta de imágenes
 var imgSrc = 'src/img/';
 
@@ -606,74 +686,90 @@ style: function (feature) {
 		// Add opening hours status if available
 		var openingHours = feature.get('opening_hours');
 		if (openingHours) {
-			try {
-				// Get current date for status check
-				var now = new Date(); // Will use current time
-				console.log('Checking opening hours:', openingHours, 'at time:', now);
+			// Create a temporary element to show while loading
+			var loadingEl = $('<div>')
+				.css({
+					paddingLeft: '10px',
+					color: '#666',
+					fontSize: '0.9em'
+				})
+				.html('Hours: ' + openingHours);
+			node.append(loadingEl);
 
-				// Use opening_hours.js library to parse and check if open
-				var oh = new opening_hours(openingHours, {
-					'address': { 'country_code': 'es' }, // Default to Spain, can be made configurable
-					'locale': 'es' // Default to Spanish locale
-				});
+			// Use the Promise to ensure the library is loaded
+			openingHoursPromise.then(OpeningHours => {
+				try {
+					// Get current date for status check
+					var now = new Date();
+					console.log('Checking opening hours:', openingHours, 'at time:', now);
 
-				var state = oh.getState(now);
-				var comment = oh.getComment();
-				var nextChange = oh.getNextChange(now);
-				
-				console.log('Opening hours state:', state, 'next change:', nextChange);
-
-				var openStatusEl = $('<div>')
-					.css({
-						paddingLeft: '10px',
-						marginBottom: '5px',
-						fontWeight: 'bold',
-						color: state ? '#2ecc71' : '#e74c3c'
+					// Use opening_hours.js library to parse and check if open
+					var oh = new OpeningHours(openingHours, {
+						'address': { 'country_code': 'es' },
+						'locale': 'es'
 					});
 
-				// Add status text
-				var statusText = state ? '🕒 Open now' : '🕒 Closed now';
-				
-				// Add next change info if available
-				if (nextChange) {
-					var hours = nextChange.getHours().toString().padStart(2, '0');
-					var minutes = nextChange.getMinutes().toString().padStart(2, '0');
-					statusText += ' (until ' + hours + ':' + minutes + ')';
-				}
+					var state = oh.getState(now);
+					var comment = oh.getComment();
+					var nextChange = oh.getNextChange(now);
+					
+					console.log('Opening hours state:', state, 'next change:', nextChange);
 
-				openStatusEl.html(statusText);
-				
-				// Add the raw opening hours below in gray
-				var openingHoursEl = $('<div>')
-					.css({
-						paddingLeft: '10px',
-						color: '#666',
-						fontSize: '0.9em',
-						marginTop: '2px'
-					})
-					.html('Hours: ' + openingHours);
-				
-				if (comment) {
-					openStatusEl.append($('<span>').css({
-						fontWeight: 'normal',
-						color: '#666',
-						marginLeft: '5px'
-					}).html(' (' + comment + ')'));
+					// Remove loading element
+					loadingEl.remove();
+
+					// Create status element
+					var openStatusEl = $('<div>')
+						.css({
+							paddingLeft: '10px',
+							marginBottom: '5px',
+							fontWeight: 'bold',
+							color: state ? '#2ecc71' : '#e74c3c'
+						});
+
+				// Add status text
+					var statusText = state ? '🕒 Open now' : '🕒 Closed now';
+					
+					// Add next change info if available
+					if (nextChange) {
+						var hours = nextChange.getHours().toString().padStart(2, '0');
+						var minutes = nextChange.getMinutes().toString().padStart(2, '0');
+						statusText += ' (until ' + hours + ':' + minutes + ')';
+					}
+
+					openStatusEl.html(statusText);
+					
+					// Add the raw opening hours below in gray
+					var openingHoursEl = $('<div>')
+						.css({
+							paddingLeft: '10px',
+							color: '#666',
+							fontSize: '0.9em',
+							marginTop: '2px'
+						})
+						.html('Hours: ' + openingHours);
+					
+					if (comment) {
+						openStatusEl.append($('<span>').css({
+							fontWeight: 'normal',
+							color: '#666',
+							marginLeft: '5px'
+						}).html(' (' + comment + ')'));
+					}
+					
+					node.append([openStatusEl, openingHoursEl, '<br/>']);
+				} catch (err) {
+					console.warn('Could not parse opening_hours:', err);
+					// Update loading element to show error state
+					loadingEl.css('color', '#e74c3c')
+						.html('Hours: ' + openingHours + ' (Could not parse)');
 				}
-				
-				node.append([openStatusEl, openingHoursEl, '<br/>']);
-			} catch (err) {
-				console.warn('Could not parse opening_hours:', err);
-				// Still show the raw opening hours even if parsing fails
-				var openingHoursEl = $('<div>')
-					.css({
-						paddingLeft: '10px',
-						color: '#666',
-						fontSize: '0.9em'
-					})
-					.html('Hours: ' + openingHours);
-				node.append([openingHoursEl, '<br/>']);
-			}
+			}).catch(err => {
+				console.error('Failed to load opening_hours library:', err);
+				// Update loading element to show error state
+				loadingEl.css('color', '#e74c3c')
+					.html('Hours: ' + openingHours + ' (Library not available)');
+			});
 		}
 
 		$.each(feature.getProperties(), function (index, value) {
