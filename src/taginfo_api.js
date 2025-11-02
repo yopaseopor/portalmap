@@ -10,6 +10,14 @@ window.taginfoData = {
     loaded: false
 };
 
+// Alternate dataset focused on yes/no definitions
+window.taginfoDataYes = {
+    keys: new Map(),
+    values: new Map(),
+    definitions: new Map(),
+    loaded: false
+};
+
 /**
  * Load taginfo definitions from CSV file
  */
@@ -33,7 +41,7 @@ function loadTaginfoDefinitions() {
             })
             .then(csvText => {
                 console.log('📊 CSV loaded, length:', csvText.length);
-                parseCSVData(csvText);
+                parseCSVData(csvText, window.taginfoData);
                 window.taginfoData.loaded = true;
                 console.log('📊 Taginfo data loaded successfully');
                 resolve();
@@ -45,10 +53,42 @@ function loadTaginfoDefinitions() {
     });
 }
 
+// Load the alternate yes/no-focused CSV into a separate data store
+function loadTaginfoDefinitionsYes() {
+    return new Promise((resolve, reject) => {
+        if (window.taginfoDataYes.loaded) {
+            console.log('📊 Taginfo YES data already loaded');
+            resolve();
+            return;
+        }
+
+        console.log('📊 Loading yes/no-focused taginfo definitions from CSV...');
+        fetch('taginfo_definitions_yes.csv')
+            .then(response => {
+                console.log('📊 YES CSV fetch response:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(csvText => {
+                console.log('📊 YES CSV loaded, length:', csvText.length);
+                parseCSVData(csvText, window.taginfoDataYes);
+                window.taginfoDataYes.loaded = true;
+                console.log('📊 Taginfo YES data loaded successfully');
+                resolve();
+            })
+            .catch(error => {
+                console.error('❌ Error loading taginfo YES definitions:', error);
+                reject(error);
+            });
+    });
+}
+
 /**
  * Parse CSV data and organize it for fast searching
  */
-function parseCSVData(csvText) {
+function parseCSVData(csvText, targetData = window.taginfoData) {
     console.log('📊 Parsing CSV data...');
     const lines = csvText.split('\n');
 
@@ -78,8 +118,8 @@ function parseCSVData(csvText) {
             ] = values;
 
             // Add to keys map
-            if (!window.taginfoData.keys.has(key)) {
-                window.taginfoData.keys.set(key, {
+            if (!targetData.keys.has(key)) {
+                targetData.keys.set(key, {
                     definition: definition_en || definition_ca || definition_es || '',  // Try multiple description fields
                     definition_en: definition_en || '',
                     definition_ca: definition_ca || '',
@@ -91,7 +131,7 @@ function parseCSVData(csvText) {
                 });
             }
 
-            const keyData = window.taginfoData.keys.get(key);
+            const keyData = targetData.keys.get(key);
 
             // Allow multiple entries for the same key=value pair
             if (!keyData.values.has(value)) {
@@ -116,16 +156,16 @@ function parseCSVData(csvText) {
             keyData.totalCount += parseInt(count_all) || 0;
 
             // Add to values map (for global value search)
-            if (!window.taginfoData.values.has(value)) {
-                window.taginfoData.values.set(value, {
+            if (!targetData.values.has(value)) {
+                targetData.values.set(value, {
                     totalCount: 0
                 });
             }
-            window.taginfoData.values.get(value).totalCount += parseInt(count_all) || 0;
+            targetData.values.get(value).totalCount += parseInt(count_all) || 0;
 
             // Add to definitions
             if (tag) {
-                window.taginfoData.definitions.set(tag, definition_en || definition_ca || definition_es || '');
+                targetData.definitions.set(tag, definition_en || definition_ca || definition_es || '');
             }
 
             // Debug first few entries
@@ -143,8 +183,8 @@ function parseCSVData(csvText) {
         }
     }
 
-    console.log('📊 Parsed keys:', window.taginfoData.keys.size);
-    console.log('📊 Parsed values:', window.taginfoData.values.size);
+    console.log('📊 Parsed keys:', targetData.keys.size);
+    console.log('📊 Parsed values:', targetData.values.size);
 }
 
 /**
@@ -282,16 +322,19 @@ function searchKeys(query, limit = 20) {
  * @param {string|null} key - The key to search in, or null for global search
  * @param {number} limit - Maximum number of results
  */
-function searchValues(query, key = null, limit = 100) {
+function searchValues(query, key = null, limit = 100, useYesCsv = false) {
     if (!query || query.length < 1) return [];
 
     const results = [];
     const queryLower = query.toLowerCase();
     const queryNormalized = removeDiacritics(queryLower);
 
-    if (key && window.taginfoData.keys.has(key)) {
+    // Select dataset to use (default or yes/no-focused)
+    const data = useYesCsv ? window.taginfoDataYes : window.taginfoData;
+
+    if (key && data.keys.has(key)) {
         // Search values for specific key
-        const keyData = window.taginfoData.keys.get(key);
+        const keyData = data.keys.get(key);
 
         // Iterate over all values for this key
         for (const [value, valueEntries] of keyData.values) {
@@ -380,7 +423,7 @@ function searchValues(query, key = null, limit = 100) {
         const valueResults = new Map(); // Use Map to avoid duplicates
 
         // Search in all values
-        for (const [value, valueData] of window.taginfoData.values) {
+    for (const [value, valueData] of data.values) {
             // Skip generic values (containing *) unless explicitly searching for *
             if (value.includes('*') && !queryNormalized.includes('*')) {
                 continue;
@@ -388,7 +431,7 @@ function searchValues(query, key = null, limit = 100) {
 
             // Find keys that use this value
             const keysWithValue = [];
-            for (const [keyItem, keyData] of window.taginfoData.keys) {
+            for (const [keyItem, keyData] of data.keys) {
                 if (keyData.values.has(value)) {
                     keysWithValue.push(keyItem);
                 }
@@ -412,7 +455,7 @@ function searchValues(query, key = null, limit = 100) {
 
             // Add definition columns with lower weight - search in ALL entries for each key
             for (const valueKey of keysWithValue) {
-                const keyData = window.taginfoData.keys.get(valueKey);
+                const keyData = data.keys.get(valueKey);
                 if (keyData && keyData.values.has(value)) {
                     // valueEntries is now an array of entries
                     const valueEntries = keyData.values.get(value);
@@ -480,7 +523,7 @@ function searchValues(query, key = null, limit = 100) {
             if (matchFound && matchScore >= 5) {  // Lower threshold but still filter very weak matches
                 // For each key that uses this value, create a result for each duplicate entry
                 for (const valueKey of keysWithValue) {
-                    const keyData = window.taginfoData.keys.get(valueKey);
+                    const keyData = data.keys.get(valueKey);
                     const valueEntries = keyData ? keyData.values.get(value) : null;
 
                     if (valueEntries && valueEntries.length > 0) {
@@ -522,7 +565,7 @@ function searchValues(query, key = null, limit = 100) {
 
         // If we don't have enough results, also search in key definitions
         if (results.length < limit) {
-            for (const [keyItem, keyData] of window.taginfoData.keys) {
+            for (const [keyItem, keyData] of data.keys) {
                 if (results.length >= limit) break;
 
                 // Search in key and all definition columns
@@ -721,6 +764,10 @@ function initTaginfoAPI() {
     return loadTaginfoDefinitions();
 }
 
+function initTaginfoAPIYes() {
+    return loadTaginfoDefinitionsYes();
+}
+
 // Export updated function for use in other modules
 window.loadTaginfoDefinitions = loadTaginfoDefinitions;
 window.searchKeys = searchKeys;
@@ -728,5 +775,6 @@ window.searchValues = searchValues;
 window.getTagDefinition = getTagDefinition;
 window.generateOverpassQuery = generateOverpassQuery;
 window.initTaginfoAPI = initTaginfoAPI;
+window.initTaginfoAPIYes = initTaginfoAPIYes;
 window.removeDiacritics = removeDiacritics;
 window.parseCSVLine = parseCSVLine;

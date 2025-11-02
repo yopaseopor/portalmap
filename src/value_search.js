@@ -1,4 +1,264 @@
 /**
+ * Value search UI and behavior
+ * Restored from backup and minimally modified to add a checkbox to switch
+ * between the default taginfo CSV and a yes/no-focused CSV.
+ */
+
+function initValueSearch() {
+    console.log('🔍 initValueSearch called');
+    const searchInput = $('#value-search');
+    const resultsContainer = $('#value-search-dropdown');
+
+    console.log('🔍 Value search input found:', searchInput.length);
+    console.log('🔍 Value search dropdown found:', resultsContainer.length);
+
+    if (!searchInput.length) {
+        console.error('🔍 Value search input not found!');
+        return;
+    }
+
+    if (!resultsContainer.length) {
+        console.error('🔍 Value search dropdown not found!');
+        return;
+    }
+
+    // Add checkbox to toggle using the yes/no-focused CSV dataset
+    if (!$('#use-yes-csv-container').length) {
+        const checkboxHtml = `
+            <div id="use-yes-csv-container" style="margin-top:6px; font-size:12px;">
+                <label style="cursor:pointer;">
+                    <input type="checkbox" id="use-yes-csv-checkbox" style="margin-right:6px;" />
+                    Use yes/no definitions (focus on definitions)
+                </label>
+            </div>
+        `;
+        // Append next to the value search input container if present
+        $('#value-search-container').append(checkboxHtml);
+    }
+
+    let searchTimeout;
+    let currentKey = null;
+    let currentValue = null;
+    let currentResults = [];
+
+    // Initialize search input
+    searchInput.on('input', function() {
+        const query = $(this).val().trim();
+        console.log('🔍 Value search input:', query);
+
+        // Get the selected key from key search
+        const selectedKey = $(this).data('selectedKey');
+        console.log('🔍 Selected key:', selectedKey);
+
+        // Read checkbox state
+        const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
+        console.log('🔍 useYesCsv:', useYesCsv);
+
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Clear results if query is empty
+        if (!query) {
+            resultsContainer.empty().hide();
+            return;
+        }
+
+        // Debounce search - use selected key if available
+        searchTimeout = setTimeout(() => {
+            console.log('🔍 Performing value search for:', query, 'with key:', selectedKey, 'useYesCsv:', useYesCsv);
+            performValueSearch(query, selectedKey, useYesCsv);
+        }, 300);
+    });
+
+    // Handle result selection
+    resultsContainer.on('click', '.value-search-result', function() {
+        let result = $(this).data('result');
+
+        // If jQuery data didn't work, try the attribute
+        if (!result) {
+            const attrData = $(this).attr('data-result');
+            if (attrData) {
+                try {
+                    result = JSON.parse(attrData);
+                } catch (e) {
+                    console.error('🔍 Failed to parse result attribute:', e);
+                }
+            }
+        }
+
+        console.log('🔍 Clicked result data:', result);
+        if (result) {
+            selectValueResult(result);
+        } else {
+            console.error('🔍 No result data found on clicked element');
+            console.log('🔍 Element HTML:', $(this).html());
+            console.log('🔍 Element data:', $(this).data());
+            console.log('🔍 Element attributes:', $(this).attr());
+        }
+    });
+
+    // Handle execute button click
+    $('#execute-query-btn').on('click', function() {
+        if (currentKey && currentValue) {
+            executeTagQuery(currentKey, currentValue);
+            $(this).prop('disabled', true).text('Executing...');
+        }
+    });
+
+    // Handle clear button click
+    $('#clear-search-btn').on('click', function() {
+        console.log('🧹 Clear button clicked');
+
+        // Clear map layers first
+        clearMapLayers();
+
+        // Clear legend
+        window.tagQueryLegend.queries.clear();
+        window.tagQueryLegend.updateLegendDisplay();
+
+        // Clear UI state
+        currentKey = null;
+        currentValue = null;
+        currentResults = [];
+
+        searchInput.val('');
+        resultsContainer.empty().hide();
+
+        $('#execute-query-btn').hide().prop('disabled', false).text('Execute Query');
+        $(this).hide();
+
+        // Clear the selected key from value search
+        searchInput.removeData('selectedKey');
+
+        console.log('✅ Search cleared');
+    });
+
+    searchInput.on('keydown', function(e) {
+        const highlighted = resultsContainer.find('.highlighted');
+
+        switch(e.keyCode) {
+            case 40: // Down arrow
+                e.preventDefault();
+                if (highlighted.length) {
+                    highlighted.removeClass('highlighted').next().addClass('highlighted');
+                } else {
+                    resultsContainer.find('.value-search-result:first').addClass('highlighted');
+                }
+                break;
+            case 38: // Up arrow
+                e.preventDefault();
+                if (highlighted.length) {
+                    highlighted.removeClass('highlighted').prev().addClass('highlighted');
+                } else {
+                    resultsContainer.find('.value-search-result:last').addClass('highlighted');
+                }
+                break;
+            case 13: // Enter
+                e.preventDefault();
+                if (highlighted.length) {
+                    const result = highlighted.data('result');
+                    console.log('🔍 Enter key value result data:', result);
+                    if (result) {
+                        selectValueResult(result);
+                    } else {
+                        console.error('🔍 No result data found on highlighted value element');
+                    }
+                } else if (currentResults.length > 0) {
+                    // Select first result if none highlighted
+                    console.log('🔍 Enter key selecting first result:', currentResults[0]);
+                    selectValueResult(currentResults[0]);
+                }
+                break;
+            case 27: // Escape
+                resultsContainer.empty().hide();
+                searchInput.blur();
+                break;
+        }
+    });
+
+    function performValueSearch(query, key, useYesCsv = false) {
+        console.log('🔍 performValueSearch called with:', query, 'key:', key, 'useYesCsv:', useYesCsv);
+
+        const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
+
+        // Choose appropriate loaded flag depending on dataset
+        const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
+
+        if (!loadedFlag) {
+            console.log('🔍 Taginfo data for requested dataset not loaded, initializing...');
+            if (ensureLoaded) {
+                ensureLoaded().then(() => {
+                    console.log('🔍 Taginfo API (requested dataset) initialized, retrying search');
+                    performValueSearch(query, key, useYesCsv);
+                }).catch(error => {
+                    console.error('🔍 Failed to initialize taginfo API for requested dataset:', error);
+                });
+            } else {
+                console.error('🔍 No init function for requested taginfo dataset');
+            }
+            return;
+        }
+
+        console.log('🔍 Available values count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.values.size : window.taginfoData.values.size);
+        console.log('🔍 Available keys count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.keys.size : window.taginfoData.keys.size);
+
+        const results = window.searchValues(query, key, 25, useYesCsv);
+        console.log('🔍 Value search results:', results);
+        console.log('🔍 Results length:', results.length);
+
+        currentResults = results;
+        // The display function is part of the original file; call it if defined
+        if (typeof displayValueResults === 'function') {
+            displayValueResults(results, query);
+        } else {
+            // Fallback: show raw results in console and simple container
+            resultsContainer.empty();
+            results.forEach(r => resultsContainer.append($('<div>').text((r.key? r.key + '=' : '') + (r.value || r.tag || ''))));
+            resultsContainer.show();
+        }
+
+        // Trigger custom event for other components
+        searchInput.trigger('valueSearchResults', [results, key]);
+    }
+
+    // Listen for key selection from key search
+    searchInput.on('keySelected', function(e, keyResult) {
+        console.log('🔗 Key selected event received:', keyResult);
+        // Clear value search and results
+        searchInput.val('');
+        resultsContainer.empty().hide();
+    });
+
+    // Hide results when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#value-search-container').length) {
+            resultsContainer.empty().hide();
+        }
+    });
+
+    // Expose clearMapLayers globally for use by overlay system if missing
+    if (!window.clearMapLayers) window.clearMapLayers = function() { console.log('clearMapLayers placeholder'); };
+}
+
+// Initialize when DOM is ready
+$(document).ready(function() {
+    // Wait for map to be ready
+    const waitForMap = () => {
+        if (window.map && typeof window.map.getView === 'function') {
+            initValueSearch();
+        } else {
+            setTimeout(waitForMap, 100);
+        }
+    };
+
+    waitForMap();
+});
+
+// Export for use in other modules
+window.initValueSearch = initValueSearch;
+/**
  * Generate a unique color for a key-value pair using a simple hash function
  */
 function generateUniqueColor(key, value) {
@@ -733,23 +993,34 @@ function initValueSearch() {
 
     function performValueSearch(query, key) {
         console.log('🔍 performValueSearch called with:', query, 'key:', key);
-        console.log('🔍 taginfoData.loaded:', window.taginfoData.loaded);
 
-        if (!window.taginfoData.loaded) {
-            console.log('🔍 Taginfo data not loaded, initializing...');
-            window.initTaginfoAPI().then(() => {
-                console.log('🔍 Taginfo API initialized, retrying search');
-                performValueSearch(query, key);
-            }).catch(error => {
-                console.error('🔍 Failed to initialize taginfo API:', error);
-            });
+        // Read checkbox state (default false)
+        const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
+        console.log('🔍 useYesCsv:', useYesCsv);
+
+        // Choose appropriate loader/init function
+        const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
+        const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
+
+        if (!loadedFlag) {
+            console.log('🔍 Taginfo data for requested dataset not loaded, initializing...');
+            if (ensureLoaded) {
+                ensureLoaded().then(() => {
+                    console.log('🔍 Taginfo API (requested dataset) initialized, retrying search');
+                    performValueSearch(query, key);
+                }).catch(error => {
+                    console.error('🔍 Failed to initialize taginfo API for requested dataset:', error);
+                });
+            } else {
+                console.error('🔍 No init function for requested taginfo dataset');
+            }
             return;
         }
 
-        console.log('🔍 Available values count:', window.taginfoData.values.size);
-        console.log('🔍 Available keys count:', window.taginfoData.keys.size);
+        console.log('🔍 Available values count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.values.size : window.taginfoData.values.size);
+        console.log('🔍 Available keys count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.keys.size : window.taginfoData.keys.size);
 
-        const results = window.searchValues(query, key, 100);
+        const results = window.searchValues(query, key, 100, useYesCsv);
         console.log('🔍 Value search results:', results);
         console.log('🔍 Results length:', results.length);
 

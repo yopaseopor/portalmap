@@ -1,0 +1,711 @@
+key,value,tag,definition_en,definition_ca,definition_es,count_all,count_all_fraction,count_nodes,count_nodes_fraction,count_ways,count_ways_fraction,count_relations,count_relations_fraction,in_wiki,projects,key_ca,value_ca,key_es,value_es,number
+FMMP_modified,no,FMMP_modified=no,,FMMP_modificat	=	no,FMMP_modificado	=	no,17440,,,,16727,,713,0,No,,FMMP_modificat,no,FMMP_modificado,no,15757
+FMMP_reviewed,no,FMMP_reviewed=no,,FMMP_revisat	=	no,FMMP_revisado	=	no,17839,,,,17113,,726,0,No,,FMMP_revisat,no,FMMP_revisado,no,15758
+LINZ:reviewed,no,LINZ:reviewed=no,,,,21872,,,,21872,,,,No,,,,,,6424
+LandPro08:reviewed,no,LandPro08:reviewed=no,,LandPro08: revisat	=	no,LandPro08:revisado	=	no,19498,,,,19109,,389,,Yes,,LandPro08: revisat,no,LandPro08:revisado,no,16754
+access,no,access=no,,accés	=	no,acceso	=	no,1057126,0,231074,0,823112,0,2940,0,Yes,49,accés,no,acceso,no,13438
+access:delivery,no,access:delivery=no,,accés:lliurament	=	no,acceso:entrega	=	no,51870,,50551,0,1319,,,,No,,accés:lliurament,no,acceso:entrega,no,13462
+access:roof,no,access:roof=no,,accés: sostre	=	no,acceso: techo	=	no,38415,,318,,37891,,206,,No,1,accés: sostre,no,acceso: techo,no,13463
+agricultural,no,agricultural=no,,agrícola	=	no,agrícola	=	no,42421,,1278,,41132,,11,,No,4,agrícola,no,agrícola,no,13633
+air_conditioning,no,air_conditioning=no,,,,16876,,12505,,4106,,265,,No,,,,,,8074
+animated,no,animated=no,,animat	=	no,animado	=	no,36253,,34313,0,1938,,2,,No,5,animat,no,animado,no,13974
+area,no,area=no,,àrea	=	no,área	=	no,26977,,171,,26682,,124,,Yes,4,àrea,no,área,no,13997
+armrest,no,armrest=no,,,,98537,,95523,0,3011,,3,,No,8,,,,,1990
+atm,no,,,Caixer automàtic	=	no,Cajero automático	=	no,,,,,,,,,,,Caixer automàtic,no,Cajero automático,no,14043
+automated,no,automated=no,,,,13113,,7054,,6038,,21,,No,4,,,,,10294
+backrest,no,backrest=no,,respatller	=	no,respaldo	=	no,404130,,386269,0,17825,,36,,No,10,respatller,no,respaldo,no,14088
+backup_generator,no,backup_generator=no,,generador_de_respatller	=	no,generador_de_respaldo	=	no,25965,,488,,25336,,141,,No,1,generador_de_respatller,no,generador_de_respaldo,no,14089
+barrier,no,,,barrera	=	no,barrera	=	no,,,,,,,,,,,barrera,no,barrera,no,14139
+bench,no,bench=no,,taula de treball	=	no,mesa de trabajo	=	no,675245,0,628685,0,46362,,198,,Yes,7,taula de treball,no,mesa de trabajo,no,14205
+bicycle,no,bicycle=no,,bicicleta	=	no,bicicleta	=	no,1787622,0,172415,0,1610895,0,4312,0,Yes,14,bicicleta,no,bicicleta,no,14207
+bin,no,bin=no,,compartiment	=	no,compartimiento	=	no,446727,,410731,0,35852,,144,,Yes,6,compartiment,no,compartimiento,no,14233
+boat,no,boat=no,,vaixell	=	no,barco	=	no,384147,,183,,382090,0,1874,0,No,5,vaixell,no,barco,no,14241
+bridge,no,,,pont	=	no,puente	=	no,,,,,,,,,,,pont,no,puente,no,14349
+building,no,building=no,,edifici	=	no,edificio	=	no,11707,,889,,10626,,192,,Yes,6,edifici,no,edificio,no,14445
+building:fireproof,no,building:fireproof=no,,edifici: incombustible	=	no,edificio: incombustible	=	no,11119,,3,,11114,,2,,No,,edifici: incombustible,no,edificio: incombustible,no,14600
+bus,no,bus=no,,autobús	=	no,autobús	=	no,20517,,5679,,14755,,83,,Yes,5,autobús,no,autobús,no,14731
+button_operated,no,button_operated=no,,botó_operat	=	no,botón_operado	=	no,244537,,229731,0,14806,,,,Yes,7,botó_operat,no,botón_operado,no,14743
+canoe,no,canoe=no,,,,16479,,80,,16079,,320,,No,4,,,,,8262
+capacity:disabled,no,capacity:disabled=no,,capacitat: deshabilitat	=	no,capacidad: deshabilitado	=	no,25681,,1845,,23683,,153,,No,8,capacitat: deshabilitat,no,capacidad: deshabilitado,no,14793
+capacity:parent,no,capacity:parent=no,,capacitat: pare	=	no,capacidad: padre	=	no,13275,,976,,12189,,110,,No,4,capacitat: pare,no,capacidad: padre,no,14794
+capacity:women,no,capacity:women=no,,capacitat:dones	=	no,capacidad:mujeres	=	no,13645,,1022,,12507,,116,,No,4,capacitat:dones,no,capacidad:mujeres,no,14797
+car,no,,,auto	=	no,auto	=	no,,,,,,,,,,,auto,no,auto,no,14803
+caravans,no,caravans=no,,,,11871,,6322,,5422,,127,,No,5,,,,,11337
+carriage,no,carriage=no,,carro	=	no,carro	=	no,16302,,247,,16043,,12,,No,2,carro,no,carro,no,14813
+cash_in,no,cash_in=no,,,,23721,,23680,0,41,,,,No,5,,,,,5995
+change:backward,no,change:backward=no,,canvi: al revés	=	no,cambio: al revés	=	no,12679,,2,,12677,,,,No,1,canvi: al revés,no,cambio: al revés,no,14831
+change:forward,no,change:forward=no,,canvi: endavant	=	no,cambio:adelante	=	no,11682,,2,,11680,,,,No,1,canvi: endavant,no,cambio:adelante,no,14832
+change:lanes:backward,no,change:lanes:backward=no,,canviar:carrils:darrere	=	no,cambiar:carriles:atrás	=	no,17828,,11,,17817,,,,No,1,canviar:carrils:darrere,no,cambiar:carriles:atrás,no,14834
+change:lanes:forward,no,change:lanes:forward=no,,canviar: carrils: endavant	=	no,cambiar:carriles:adelante	=	no,16704,,10,,16694,,,,No,1,canviar: carrils: endavant,no,cambiar:carriles:adelante,no,14835
+changing_table,no,changing_table=no,,taula per canviar bolquers	=	no,mesa para cambiar pañales	=	no,42571,,32335,0,10200,,36,,Yes,31,taula per canviar bolquers,no,mesa para cambiar pañales,no,14836
+collection_times:signed,no,,,horaris de recollida:signat	=	no,horarios de recogida:firmado	=	no,,,,,,,,,,,horaris de recollida:signat,no,horarios de recogida:firmado,no,14909
+covered,no,covered=no,,cobert	=	no,cubierto	=	no,1141769,0,728601,0,411311,0,1857,0,Yes,18,cobert,no,cubierto,no,15046
+crop,no,,,cultiu	=	no,cultivo	=	no,,,,,,,,,,,cultiu,no,cultivo,no,15181
+crossing,no,crossing=no,,encreuament	=	no,cruce	=	no,45549,,44915,0,634,,,,Yes,3,encreuament,no,cruce,no,15207
+crossing:barrier,no,crossing:barrier=no,,encreuament:barrera	=	no,cruce:barrera	=	no,127911,,127837,0,74,,,,No,6,encreuament:barrera,no,cruce:barrera,no,15215
+crossing:bell,no,crossing:bell=no,,encreuament:campana	=	no,cruce:campana	=	no,35126,,35117,0,9,,,,No,4,encreuament:campana,no,cruce:campana,no,15219
+crossing:island,no,crossing:island=no,,encreuament: illa	=	no,cruce: isla	=	no,2384983,0,1816410,0,568573,0,,,Yes,5,encreuament: illa,no,cruce: isla,no,15220
+crossing:light,no,crossing:light=no,,encreuament: llum	=	no,cruce: luz	=	no,37354,,37329,0,25,,,,No,4,encreuament: llum,no,cruce: luz,no,15223
+crossing:markings,no,crossing:markings=no,,,,3049508,0,1778457,0,1271050,0,1,,Yes,10,,,,,115
+crossing:signals,no,crossing:signals=no,,,,499147,,388618,0,110529,0,,,Yes,5,,,,,553
+cycleway,no,cycleway=no,,carril bici	=	no,carril bici	=	no,330524,,50,,330422,0,52,,Yes,3,carril bici,no,carril bici,no,15346
+cycleway:both,no,cycleway:both=no,,carril bici:tots dos	=	no,carril bici:ambos	=	no,1809380,0,31,,1809347,0,2,,Yes,1,carril bici:tots dos,no,carril bici:ambos,no,15372
+cycleway:both:buffer,no,cycleway:both:buffer=no,,,,17967,,,,17967,,,,No,2,,,,,7673
+cycleway:foot,no,,,carril bici: peu	=	no,carril bici: pie	=	no,,,,,,,,,,,carril bici: peu,no,carril bici: pie,no,15378
+cycleway:left,no,cycleway:left=no,,ciclovia:esquerra	=	no,ciclovía:izquierda	=	no,252412,,7,,252404,0,1,,Yes,1,ciclovia:esquerra,no,ciclovía:izquierda,no,15380
+cycleway:left:oneway,no,cycleway:left:oneway=no,,,,13060,,2,,13058,,,,Yes,3,,,,,10337
+cycleway:right,no,cycleway:right=no,,carril bici: dreta	=	no,carril bici: derecha	=	no,345223,,9,,345214,0,,,Yes,1,carril bici: dreta,no,carril bici: derecha,no,15387
+cycleway:right:buffer,no,cycleway:right:buffer=no,,ciclovia:dreta:amortidor	=	no,ciclovía:derecha:amortiguador	=	no,30079,,1,,30078,,,,No,2,ciclovia:dreta:amortidor,no,ciclovía:derecha:amortiguador,no,15395
+cycleway:right:oneway,no,cycleway:right:oneway=no,,ciclovia:dreta:sentit únic	=	no,ciclovía:derecha:sentido único	=	no,16998,,7,,16991,,,,Yes,3,ciclovia:dreta:sentit únic,no,ciclovía:derecha:sentido único,no,15398
+cycleway:right:segregated,no,cycleway:right:segregated=no,,,,11574,,1,,11573,,,,No,1,,,,,11617
+delivery,no,delivery=no,,entrega	=	no,entrega	=	no,33863,,23143,0,10635,,85,,No,13,entrega,no,entrega,no,15420
+departures_board,no,departures_board=no,,sortides a bord	=	no,salidas a bordo	=	no,115850,,112745,0,3077,,28,,No,7,sortides a bord,no,salidas a bordo,no,15450
+diet:halal,no,diet:halal=no,,,,10668,,8931,,1729,,8,,No,14,,,,,12614
+diet:kosher,no,diet:kosher=no,,,,10401,,8758,,1636,,7,,No,4,,,,,12890
+diet:vegan,no,diet:vegan=no,,,,12067,,10178,,1880,,9,,No,14,,,,,11140
+dispensing,no,,,dispensant	=	no,dispensando	=	no,,,,,,,,,,,dispensant,no,dispensando,no,15518
+dog,no,dog=no,,gos	=	no,perro	=	no,43150,,5353,,36891,,906,0,Yes,28,gos,no,perro,no,15534
+door,no,door=no,,,,15000,,14881,0,119,,,,No,7,,,,,9051
+drinking_water,no,drinking_water=no,,aigua potable	=	no,agua potable	=	no,80198,,58846,0,21060,,292,,Yes,6,aigua potable,no,agua potable,no,15552
+drive_through,no,drive_through=no,,servei al carro	=	no,servicio al carro	=	no,150524,,131751,0,18666,,107,,Yes,10,servei al carro,no,servicio al carro,no,15554
+dual_carriageway,no,,,autovia	=	no,autovía	=	no,,,,,,,,,,,autovia,no,autovía,no,15559
+electrified,no,electrified=no,,electrificat	=	no,electrificado	=	no,1322084,0,227,,1321191,0,666,,Yes,5,electrificat,no,electrificado,no,15570
+emergency,no,emergency=no,,emergència	=	no,emergencia	=	no,18115,,7020,,10694,,401,,No,5,emergència,no,emergencia,no,15590
+entrance,no,,,entrada	=	no,entrada	=	no,,,,,,,,,,,entrada,no,entrada,no,15662
+expressway,no,expressway=no,,Autopista	=	no,Autopista	=	no,11561,,1,,11559,,1,,Yes,,Autopista,no,Autopista,no,15678
+fee,no,fee=no,,tarifa	=	no,tarifa	=	no,1693005,0,482933,0,1190774,1,19298,0,Yes,48,tarifa,no,tarifa,no,15689
+female,no,female=no,,,,10032,,8925,,1092,,15,,No,3,,,,,13376
+ferry,no,,,transportar	=	no,transportar	=	no,,,,,,,,,,,transportar,no,transportar,no,15707
+fire_hydrant:diameter:signed,no,fire_hydrant:diameter:signed=no,,,,11078,,11078,,,,,,No,,,,,,12157
+flashing_lights,no,flashing_lights=no,,,,20161,,12706,,7455,,,,Yes,3,,,,,6897
+floating,no,floating=no,,,,15034,,182,,14721,,131,,No,2,,,,,9033
+flood_prone,no,flood_prone=no,,propens a inundar-se	=	no,propenso a inundarse	=	no,20174,,4891,,9838,,5445,0,No,1,propens a inundar-se,no,propenso a inundarse,no,15752
+flour_fortified,no,flour_fortified=no,,farina_fortificada	=	no,harina_fortificada	=	no,33092,,33045,0,47,,,,No,,farina_fortificada,no,harina_fortificada,no,15755
+foot,no,foot=no,,peu	=	no,pie	=	no,952224,0,70510,0,881523,0,191,,Yes,19,peu,no,pie,no,15762
+forklift,no,,,màquina elevadora	=	no,máquina elevadora	=	no,,,,,,,,,,,màquina elevadora,no,máquina elevadora,no,15794
+generator:solar:tracking,no,generator:solar:tracking=no,,,,51213,,31308,0,19814,,91,,Yes,2,,,,,3254
+geometry:reviewed,no,geometry:reviewed=no,,,,13105,,,,13104,,1,,No,,,,,,10302
+goods,no,goods=no,,béns	=	no,bienes	=	no,20505,,944,,19552,,9,,No,4,béns,no,bienes,no,16033
+gutter,no,gutter=no,,canal	=	no,canal	=	no,15108,,4,,15104,,,,No,,canal,no,canal,no,16063
+handrail,no,handrail=no,,mural	=	no,pretil	=	no,176157,,243,,175902,0,12,,No,7,mural,no,pretil,no,16068
+hazmat,no,hazmat=no,,materials perillosos	=	no,materiales peligrosos	=	no,19832,,186,,19641,,5,,Yes,4,materials perillosos,no,materiales peligrosos,no,16139
+hgv,no,hgv=no,,vhg	=	no,vhg	=	no,215708,,11354,,204067,0,287,,Yes,7,vhg,no,vhg,no,16318
+hgv:national_network,no,hgv:national_network=no,,,,18668,,,,18668,,,,No,,,,,,7418
+highspeed,no,highspeed=no,,alta velocitat	=	no,alta velocidad	=	no,24934,,,,24931,,3,,No,1,alta velocitat,no,alta velocidad,no,16327
+highway,no,,,autopista	=	no,autopista	=	no,,,,,,,,,,,autopista,no,autopista,no,16379
+historic,no,,,històric	=	no,histórico	=	no,,,,,,,,,,,històric,no,histórico,no,16437
+horse,no,horse=no,,cavall	=	no,caballo	=	no,1182034,0,68609,0,1112596,1,829,0,Yes,9,cavall,no,caballo,no,16505
+indoor,no,indoor=no,,interior	=	no,interior	=	no,150974,,134220,0,16503,,251,,No,17,interior,no,interior,no,16541
+indoor_seating,no,indoor_seating=no,,,,16876,,13690,0,3177,,9,,No,2,,,,,8075
+informal,no,informal=no,,,,24807,,3287,,21487,,33,,Yes,2,,,,,5773
+intermittent,no,intermittent=no,,intermitent	=	no,intermitente	=	no,207335,,7874,,190726,0,8735,0,No,2,intermitent,no,intermitente,no,16626
+internet_access,no,internet_access=no,,accés a Internet	=	no,acceso a Internet	=	no,80205,,60652,0,19039,,514,,Yes,27,accés a Internet,no,acceso a Internet,no,16629
+internet_access:fee,no,internet_access:fee=no,,internet_access:tarifa	=	no,internet_access:tarifa	=	no,108686,,66011,0,40915,,1760,0,No,27,internet_access:tarifa,no,internet_access:tarifa,no,16632
+irrigated,no,,,irrigat	=	no,irrigado	=	no,,,,,,,,,,,irrigat,no,irrigado,no,16634
+kerb,no,kerb=no,,frenar	=	no,frenar	=	no,66194,,61423,0,4769,,2,,Yes,8,frenar,no,frenar,no,16669
+lane_markings,no,lane_markings=no,,marques_de_carril	=	no,marcas_de_carril	=	no,1802926,0,126,,1802792,0,8,,Yes,3,marques_de_carril,no,marcas_de_carril,no,16848
+lit,no,lit=no,,il·luminat	=	no,iluminado	=	no,3116947,0,331229,0,2783776,0,1942,0,Yes,16,il·luminat,no,iluminado,no,17044
+lockable,no,lockable=no,,bloquejable	=	no,bloqueable	=	no,31979,,29578,0,2399,,2,,No,2,bloquejable,no,bloqueable,no,17089
+locked,no,locked=no,,bloquejat	=	no,bloqueado	=	no,34805,,32606,0,2198,,1,,Yes,1,bloquejat,no,bloqueado,no,17091
+luminous,no,luminous=no,,lluminós	=	no,luminoso	=	no,33757,,32620,0,1136,,1,,No,4,lluminós,no,luminoso,no,17098
+managed,no,,,administrat	=	no,administrado	=	no,,,,,,,,,,,administrat,no,administrado,no,17277
+maxheight:signed,no,maxheight:signed=no,,,,46349,,7873,,38476,,,,No,,,,,,3521
+maxspeed,no,,,màxima velocitat	=	no,máxima velocidad	=	no,,,,,,,,,,,màxima velocitat,no,máxima velocidad,no,17464
+maxstay,no,maxstay=no,,,,17459,,3356,,14002,,101,,No,2,,,,,7878
+maxweight:signed,no,maxweight:signed=no,,pes màxim: signat	=	no,peso máximo: firmado	=	no,109924,,,,109911,0,13,,Yes,,pes màxim: signat,no,peso máximo: firmado,no,17504
+median,no,median=no,,mitjana	=	no,mediana	=	no,11779,,,,11779,,,,No,,mitjana,no,mediana,no,17518
+mofa,no,mofa=no,,mofa	=	no,mofa	=	no,80180,,786,,79382,0,12,,No,4,mofa,no,mofa,no,17598
+moped,no,moped=no,,ciclomotor	=	no,ciclomotor	=	no,151987,,1224,,150745,0,18,,No,4,ciclomotor,no,ciclomotor,no,17613
+motor_vehicle,no,motor_vehicle=no,,Vehicle de motor	=	no,Vehículo de motor	=	no,1194506,0,163277,0,1028657,0,2572,0,Yes,13,Vehicle de motor,no,Vehículo de motor,no,17617
+motorboat,no,motorboat=no,,motora	=	no,motora	=	no,18406,,62,,17867,,477,,No,3,motora,no,motora,no,17630
+motorcar,no,motorcar=no,,automòbil	=	no,automóvil	=	no,343634,,26409,0,316940,0,285,,Yes,8,automòbil,no,automóvil,no,17631
+motorcycle,no,motorcycle=no,,motocicleta	=	no,motocicleta	=	no,152020,,14432,0,137500,0,88,,Yes,6,motocicleta,no,motocicleta,no,17638
+motorroad,no,motorroad=no,,carretera	=	no,carretera	=	no,72917,,80,,72821,0,16,,Yes,3,carretera,no,carretera,no,17656
+mtb,no,,,bicicleta de muntanya	=	no,bicicleta de montaña	=	no,,,,,,,,,,,bicicleta de muntanya,no,bicicleta de montaña,no,17661
+name:signed,no,name:signed=no,,nom: signat	=	no,nombre: firmado	=	no,35298,,16480,0,18717,,101,,Yes,4,nom: signat,no,nombre: firmado,no,17709
+naptan:verified,no,naptan:verified=no,,naptan: verificat	=	no,naptán: verificado	=	no,264337,,216594,0,79,,47664,0,Yes,1,naptan: verificat,no,naptán: verificado,no,17722
+noexit,no,,,Sense sortida	=	no,Sin salida	=	no,,,,,,,,,,,Sense sortida,no,Sin salida,no,18180
+oneway,no,oneway=no,,d'una sola mà	=	no,de una sola mano	=	no,4926003,0,1345,,4922326,0,2332,0,Yes,11,d'una sola mà,no,de una sola mano,no,18316
+oneway:bicycle,no,oneway:bicycle=no,,anada: bicicleta	=	no,ida: bicicleta	=	no,247247,,140,,247101,0,6,,Yes,9,anada: bicicleta,no,ida: bicicleta,no,18325
+oneway:bus,no,,,anada: autobús	=	no,ida: autobús	=	no,,,,,,,,,,,anada: autobús,no,ida: autobús,no,18327
+oneway:mofa,no,oneway:mofa=no,,unidireccional: mofa	=	no,unidireccional:mofa	=	no,30183,,12,,30170,,1,,No,2,unidireccional: mofa,no,unidireccional:mofa,no,18328
+oneway:moped,no,oneway:moped=no,,unidireccional: ciclomotor	=	no,unidireccional: ciclomotor	=	no,21265,,2,,21263,,,,Yes,2,unidireccional: ciclomotor,no,unidireccional: ciclomotor,no,18329
+oneway:motorcycle,no,,,anada: motocicleta	=	no,ida: motocicleta	=	no,,,,,,,,,,,anada: motocicleta,no,ida: motocicleta,no,18330
+oneway:psv,no,,,unidireccional: psv	=	no,unidireccional: psv	=	no,,,,,,,,,,,unidireccional: psv,no,unidireccional: psv,no,18331
+opening_hours:signed,no,opening_hours:signed=no,,horari_d'obertura:signat	=	no,horario_de_apertura:firmado	=	no,78709,,65882,0,12736,,91,,Yes,,horari_d'obertura:signat,no,horario_de_apertura:firmado,no,18339
+osmarender:render,no,,,osmarender:renderitzar	=	no,osmarender:renderizar	=	no,,,,,,,,,,,osmarender:renderitzar,no,osmarender:renderizar,no,18402
+osmarender:renderName,no,,,osmarender:representarNom	=	no,osmarender:representarNombre	=	no,,,,,,,,,,,osmarender:representarNom,no,osmarender:representarNombre,no,18403
+osmarender:renderRef,no,,,osmarender:renderRef	=	no,osmarender:renderRef	=	no,,,,,,,,,,,osmarender:renderRef,no,osmarender:renderRef,no,18404
+outdoor_seating,no,outdoor_seating=no,,seients a l'aire lliure	=	no,asientos al aire libre	=	no,112836,,95248,0,17485,,103,,Yes,3,seients a l'aire lliure,no,asientos al aire libre,no,18408
+overtaking,no,overtaking=no,,avançament	=	no,adelantamiento	=	no,93227,,1720,,91504,0,3,,Yes,4,avançament,no,adelantamiento,no,18417
+overtaking:hgv,no,overtaking:hgv=no,,,,10059,,63,,9994,,2,,No,2,,,,,13329
+park_ride,no,park_ride=no,,passeig del Parc	=	no,paseo del Parque	=	no,116050,,5722,,108462,0,1866,0,No,4,passeig del Parc,no,paseo del Parque,no,18428
+parking,no,,,estacionament	=	no,estacionamiento	=	no,,,,,,,,,,,estacionament,no,estacionamiento,no,18441
+parking:both,no,parking:both=no,,estacionament:tots dos	=	no,estacionamiento:ambos	=	no,324097,,85,,324006,0,6,,Yes,2,estacionament:tots dos,no,estacionamiento:ambos,no,18460
+parking:both:fee,no,parking:both:fee=no,,,,15358,,,,15358,,,,No,1,,,,,8843
+parking:fee,no,parking:fee=no,,,,25067,,23628,0,1415,,24,,No,6,,,,,5720
+parking:lane:both,no,parking:lane:both=no,,estacionament:carril:tots dos	=	no,estacionamiento:carril:ambos	=	no,26812,,4,,26808,,,,No,2,estacionament:carril:tots dos,no,estacionamiento:carril:ambos,no,18467
+parking:left,no,parking:left=no,,estacionament: esquerra	=	no,estacionamiento: izquierda	=	no,81522,,9,,81513,0,,,Yes,3,estacionament: esquerra,no,estacionamiento: izquierda,no,18484
+parking:left:fee,no,parking:left:fee=no,,,,14640,,3,,14637,,,,No,1,,,,,9269
+parking:right,no,parking:right=no,,estacionament: dret	=	no,estacionamiento: derecho	=	no,53377,,21,,53355,,1,,Yes,3,estacionament: dret,no,estacionamiento: derecho,no,18490
+parking:right:fee,no,parking:right:fee=no,,,,16669,,8,,16661,,,,No,1,,,,,8170
+passenger,no,,,passatger	=	no,pasajero	=	no,,,,,,,,,,,passatger,no,pasajero,no,18494
+passenger_information_display,no,passenger_information_display=no,,pantalla_d'informació_del_passatger	=	no,pantalla_de_información_del_pasajero	=	no,82690,,68303,0,14346,,41,,No,4,pantalla_d'informació_del_passatger,no,pantalla_de_información_del_pasajero,no,18499
+passing_places,no,,,llocs de pas	=	no,lugares de paso	=	no,,,,,,,,,,,llocs de pas,no,lugares de paso,no,18505
+payment:cards,no,payment:cards=no,,,,25786,,23583,0,2162,,41,,No,2,,,,,5596
+payment:cash,no,payment:cash=no,,Pagament en efectiu	=	no,Pago en efectivo	=	no,35343,,28626,0,3251,,3466,0,No,4,Pagament en efectiu,no,Pago en efectivo,no,18513
+payment:credit_cards,no,payment:credit_cards=no,,pagament:credit_cards	=	no,pago:credit_cards	=	no,32709,,27981,0,4429,,299,,No,4,pagament:credit_cards,no,pago:credit_cards,no,18517
+payment:cryptocurrencies,no,payment:cryptocurrencies=no,,,,10518,,8430,,2047,,41,,No,3,,,,,12764
+payment:debit_cards,no,payment:debit_cards=no,,pagament:targetes_dèbit	=	no,pago:tarjetas_débito	=	no,29263,,24974,0,4001,,288,,No,4,pagament:targetes_dèbit,no,pago:tarjetas_débito,no,18519
+payment:notes,no,payment:notes=no,,,,12651,,12128,,497,,26,,No,3,,,,,10649
+physically_present,no,,,físicament present	=	no,fisicamente presente	=	no,,,,,,,,,,,físicament present,no,fisicamente presente,no,18534
+pole,no,pole=no,,pol	=	no,polo	=	no,12406,,12397,,9,,,,No,4,pol,no,polo,no,18662
+power_supply,no,power_supply=no,,,,10646,,6852,,3718,,76,,No,5,,,,,12640
+psv,no,psv=no,,psv	=	no,psv	=	no,11955,,263,,11675,,17,,Yes,5,psv,no,psv,no,18796
+pump,no,pump=no,,bomba	=	no,bomba	=	no,46200,,45361,0,833,,6,,Yes,5,bomba,no,bomba,no,18809
+railway:atb,no,railway:atb=no,,ferrocarril:atb	=	no,ferrocarril:atb	=	no,12952,,1,,12951,,,,No,1,ferrocarril:atb,no,ferrocarril:atb,no,18928
+railway:atc,no,railway:atc=no,,,,31017,,5,,31012,,,,No,1,,,,,4815
+railway:ballastless,no,railway:ballastless=no,,ferrocarril: sense balast	=	no,ferrocarril: sin balasto	=	no,23838,,,,23838,,,,No,,ferrocarril: sense balast,no,ferrocarril: sin balasto,no,18930
+railway:ctc,no,railway:ctc=no,,,,10911,,1,,10910,,,,No,,,,,,12342
+railway:etcs,no,railway:etcs=no,,ferrocarril:etc.	=	no,ferrocarril:etc.	=	no,208701,,127,,208574,0,,,No,1,ferrocarril:etc.,no,ferrocarril:etc.,no,18934
+railway:evm,no,railway:evm=no,,,,13356,,,,13356,,,,No,,,,,,10101
+railway:gnt,no,railway:gnt=no,,ferrocarril:gnt	=	no,ferrocarril:gnt	=	no,68877,,2,,68875,0,,,No,,ferrocarril:gnt,no,ferrocarril:gnt,no,18937
+railway:kvb,no,railway:kvb=no,,,,19557,,110,,19447,,,,No,1,,,,,7098
+railway:local_operated,no,railway:local_operated=no,,ferrocarril:operat_localment	=	no,ferrocarril:operado_localmente	=	no,46655,,45863,0,740,,52,,No,1,ferrocarril:operat_localment,no,ferrocarril:operado_localmente,no,18939
+railway:ls,no,railway:ls=no,,ferrocarril:ls	=	no,ferrocarril:ls	=	no,39811,,,,39811,,,,No,1,ferrocarril:ls,no,ferrocarril:ls,no,18941
+railway:lzb,no,railway:lzb=no,,ferrocarril: lzb	=	no,ferrocarril: lzb	=	no,155633,,20,,155613,0,,,No,1,ferrocarril: lzb,no,ferrocarril: lzb,no,18942
+railway:milestone:catenary_mast,no,railway:milestone:catenary_mast=no,,ferrocarril: fita: catenary_mast	=	no,ferrocarril: hito: catenary_mast	=	no,19292,,19292,0,,,,,No,1,ferrocarril: fita: catenary_mast,no,ferrocarril: hito: catenary_mast,no,18945
+railway:milestone:emergency_brake_override,no,railway:milestone:emergency_brake_override=no,,ferrocarril: fita: emergency_brake_override	=	no,ferrocarril:hito:emergency_brake_override	=	no,28093,,28093,0,,,,,No,,ferrocarril: fita: emergency_brake_override,no,ferrocarril:hito:emergency_brake_override,no,18946
+railway:ptc,no,railway:ptc=no,,,,26317,,1,,26316,,,,No,1,,,,,5500
+railway:pzb,no,railway:pzb=no,,ferrocarril:pzb	=	no,ferrocarril:pzb	=	no,113575,,62,,113512,0,1,,No,1,ferrocarril:pzb,no,ferrocarril:pzb,no,18952
+railway:switch:electric,no,railway:switch:electric=no,,ferrocarril:interruptor:elèctric	=	no,ferrocarril:interruptor:eléctrico	=	no,28104,,28100,0,4,,,,No,1,ferrocarril:interruptor:elèctric,no,ferrocarril:interruptor:eléctrico,no,18982
+railway:tbl,no,railway:tbl=no,,ferrocarril:tbl	=	no,ferrocarril:tbl	=	no,12983,,15,,12968,,,,No,,ferrocarril:tbl,no,ferrocarril:tbl,no,18983
+railway:tilting,no,railway:tilting=no,,,,11702,,,,11702,,,,No,,,,,,11490
+railway:tvm,no,railway:tvm=no,,,,20015,,110,,19905,,,,No,1,,,,,6937
+ramp,no,ramp=no,,rampa	=	no,rampa	=	no,370266,,9768,,360421,0,77,,Yes,5,rampa,no,rampa,no,18995
+ramp:wheelchair,no,ramp:wheelchair=no,,,,11671,,570,,11095,,6,,No,4,,,,,11523
+recycling:glass,no,recycling:glass=no,,reciclatge:vidre	=	no,reciclaje:vidrio	=	no,16630,,16134,0,493,,3,,No,2,reciclatge:vidre,no,reciclaje:vidrio,no,19016
+recycling:plastic,no,recycling:plastic=no,,,,12313,,12057,,256,,,,Yes,2,,,,,10925
+rednap:nodo,no,,,rednap: node	=	no,rednap: nodo	=	no,,,,,,,,,,,rednap: node,no,rednap: nodo,no,19028
+ref:signed,no,ref:signed=no,,,,18450,,17981,0,328,,141,,No,4,,,,,7512
+reservation,no,reservation=no,,,,19064,,11066,,4364,,3634,0,No,23,,,,,7273
+review,no,review=no,,revisió	=	no,revisión	=	no,102866,,200,,102593,0,73,,No,,revisió,no,revisión,no,19109
+road_marking,no,,,=,=,,,,,,,,,,,,,,,19119
+roof:downpipe,no,roof:downpipe=no,,sostre: baixant	=	no,techo: bajante	=	no,16477,,4,,16469,,4,,No,,sostre: baixant,no,techo: bajante,no,19171
+roundtrip,no,roundtrip=no,,viatge anada i tornada	=	no,viaje ida y vuelta	=	no,33487,,131,,444,,32912,0,No,3,viatge anada i tornada,no,viaje ida y vuelta,no,19254
+salt,no,salt=no,,sal	=	no,sal	=	no,112641,,456,,100834,0,11351,0,No,1,sal,no,sal,no,19310
+school:selective,no,,,escola: selectiva	=	no,escuela: selectiva	=	no,,,,,,,,,,,escola: selectiva,no,escuela: selectiva,no,19328
+seamark:radar_reflector,no,,,marca de mar: reflector de radar	=	no,marca de mar: reflector de radar	=	no,,,,,,,,,,,marca de mar: reflector de radar,no,marca de mar: reflector de radar,no,19614
+seasonal,no,seasonal=no,,estacional	=	no,estacional	=	no,93544,,12834,,80566,0,144,,Yes,11,estacional,no,estacional,no,19836
+segregated,no,segregated=no,,aïllat	=	no,aislado	=	no,1379077,0,5409,,1373586,0,82,,Yes,6,aïllat,no,aislado,no,19853
+self_service,no,self_service=no,,autoservei	=	no,autoservicio	=	no,29508,,16085,0,13331,,92,,No,4,autoservei,no,autoservicio,no,19856
+shelter,no,shelter=no,,refugi	=	no,refugio	=	no,949016,0,896147,0,52334,,535,,Yes,8,refugi,no,refugio,no,19894
+ship,no,ship=no,,Embarcació	=	no,Embarcacion	=	no,24510,,66,,23988,,456,,No,4,Embarcació,no,Embarcacion,no,19910
+shop,no,,,botiga	=	no,tienda	=	no,,,,,,,,,,,botiga,no,tienda,no,20033
+shoulder,no,shoulder=no,,espatlla	=	no,hombro	=	no,253164,,,,253164,0,,,No,3,espatlla,no,hombro,no,20216
+sidewalk,no,sidewalk=no,,vorera	=	no,acera	=	no,1729552,0,72,,1729450,0,30,,Yes,6,vorera,no,acera,no,20226
+sidewalk:both,no,sidewalk:both=no,,,,61677,,10,,61667,0,,,No,1,,,,,2843
+sidewalk:left,no,sidewalk:left=no,,vorera: esquerra	=	no,acera: izquierda	=	no,384812,,36,,384775,0,1,,No,2,vorera: esquerra,no,acera: izquierda,no,20236
+sidewalk:right,no,sidewalk:right=no,,vorera: dreta	=	no,acera: derecha	=	no,113458,,6,,113452,0,,,Yes,2,vorera: dreta,no,acera: derecha,no,20239
+ski,no,ski=no,,esquí	=	no,esquí	=	no,31771,,513,,31243,,15,,No,4,esquí,no,esquí,no,20282
+smoking,no,smoking=no,,de fumar	=	no,de fumar	=	no,139027,,74045,0,61521,0,3461,0,Yes,14,de fumar,no,de fumar,no,20284
+snowmobile,no,snowmobile=no,,motoneu	=	no,motonieve	=	no,42918,,51,,42473,,394,,No,4,motoneu,no,motonieve,no,20296
+supervised,no,supervised=no,,supervisat	=	no,supervisado	=	no,281651,,128702,0,150632,0,2317,0,No,30,supervisat,no,supervisado,no,21017
+survey_point:datum_aligned,no,,,punt d'aixecament: datum alineat	=	no,punto de levantamiento:datum alineado	=	no,,,,,,,,,,,punt d'aixecament: datum alineat,no,punto de levantamiento:datum alineado,no,21099
+tactile_paving,no,tactile_paving=no,,paviment_tactil	=	no,pavimento_tactil	=	no,2798119,0,2234111,0,562848,0,1160,0,Yes,14,paviment_tactil,no,pavimento_tactil,no,21125
+takeaway,no,takeaway=no,,,,10258,,7717,,2519,,22,,No,12,,,,,13078
+tidal,no,tidal=no,,de marea	=	no,de marea	=	no,91051,,2058,,78229,0,10764,0,No,,de marea,no,de marea,no,21168
+tiger:reviewed,no,tiger:reviewed=no,,tigre: revisat	=	no,tigre:revisado	=	no,10511384,0,123,,10509082,0,2179,0,No,,tigre: revisat,no,tigre:revisado,no,21183
+tiger:separated,no,tiger:separated=no,,tigre: separat	=	no,tigre: separado	=	no,1348119,0,,,1348119,0,,,No,,tigre: separat,no,tigre: separado,no,21187
+toilets,no,toilets=no,,banys	=	no,baños	=	no,28270,,19568,0,8566,,136,,No,27,banys,no,baños,no,21197
+toilets:handwashing,no,toilets:handwashing=no,,banys: rentat de mans	=	no,baños: lavado de manos	=	no,24837,,22737,0,2100,,,,No,28,banys: rentat de mans,no,baños: lavado de manos,no,21203
+toilets:wheelchair,no,toilets:wheelchair=no,,lavabos: cadira de rodes	=	no,aseos:silla de ruedas	=	no,86898,,66274,0,20263,,361,,No,30,lavabos: cadira de rodes,no,aseos:silla de ruedas,no,21206
+toll,no,toll=no,,peatge	=	no,peaje	=	no,134121,,324,,133562,0,235,,No,4,peatge,no,peaje,no,21209
+tourist_bus,no,tourist_bus=no,,,,10704,,1221,,9472,,11,,No,5,,,,,12572
+traffic_calming,no,traffic_calming=no,,calmar el trànsit	=	no,calmar el tráfico	=	no,10037,,6374,,3663,,,,No,2,calmar el trànsit,no,calmar el tráfico,no,21322
+traffic_signals:sound,no,traffic_signals:sound=no,,senyals_de_trànsit:so	=	no,señales_de_tráfico:sonido	=	no,213806,,206868,0,6938,,,,Yes,8,senyals_de_trànsit:so,no,señales_de_tráfico:sonido,no,21456
+traffic_signals:vibration,no,traffic_signals:vibration=no,,senyals_de_tràfic: vibració	=	no,señales_de_tráfico:vibración	=	no,232274,,217317,0,14957,,,,No,6,senyals_de_tràfic: vibració,no,señales_de_tráfico:vibración,no,21458
+trail_visibility,no,trail_visibility=no,,rastre_visibilitat	=	no,rastro_visibilidad	=	no,20657,,12,,20642,,3,,No,10,rastre_visibilitat,no,rastro_visibilidad,no,21465
+trailblazed,no,trailblazed=no,,,,10846,,5,,10735,,106,,No,3,,,,,12413
+train,no,,,tren	=	no,tren	=	no,,,,,,,,,,,tren,no,tren,no,21473
+trolley_wire,no,trolley_wire=no,,,,14782,,1,,14780,,1,,No,2,,,,,9183
+tunnel,no,tunnel=no,,túnel	=	no,túnel	=	no,24434,,6,,24423,,5,,No,2,túnel,no,túnel,no,21528
+vehicle,no,vehicle=no,,vehicle	=	no,vehículo	=	no,174306,,25330,0,148700,0,276,,Yes,11,vehicle,no,vehículo,no,21696
+wall,no,wall=no,,paret	=	no,pared	=	no,12177928,0,464,,12170596,0,6868,0,Yes,1,paret,no,pared,no,21775
+wheelchair,no,wheelchair=no,,cadira de rodes	=	no,silla de ruedas	=	no,921324,0,666049,0,250132,0,5143,0,Yes,41,cadira de rodes,no,silla de ruedas,no,21904
+wholesale,no,,,majorista	=	no,mayorista	=	No,,,,,,,,,,,majorista,no,mayorista,No,21939
+winter_service,no,winter_service=no,,servei_d'hivern	=	no,servicio_de_invierno	=	no,15948,,36,,15896,,16,,No,1,servei_d'hivern,no,servicio_de_invierno,no,21955
+4wd_only,yes,4wd_only=yes,,Només 4x4	=	sí,Sólo 4x4	=	sí,40087,,3502,,36578,,7,,Yes,3,Només 4x4,sí,Sólo 4x4,sí,13420
+NHS,yes,NHS=yes,,Servei Nacional de Salut	=	sí,Servicio Nacional de Salud	=	sí,307121,,34,,307059,0,28,,No,,Servei Nacional de Salut,sí,Servicio Nacional de Salud,sí,18175
+abandoned,yes,abandoned=yes,,Abandonat	=	sí,Abandonado	=	sí,130790,,26042,0,103443,0,1305,0,Yes,4,Abandonat,sí,Abandonado,sí,13421
+abandoned:building,yes,abandoned:building=yes,,Abandonat:edifici	=	sí,Abandonado:edificio	=	sí,131992,,327,,131574,0,91,,No,,Abandonat:edifici,sí,Abandonado:edificio,sí,13424
+access,yes,access=yes,,accés	=	sí,acceso	=	sí,2529690,0,776626,0,1734711,0,18353,0,Yes,48,accés,sí,acceso,sí,13436
+addr:contact,yes,addr:contact=yes,,,,10343,,9044,,1190,,109,,No,,,,,,12966
+addr:nostreet,yes,addr:nostreet=yes,,direcció: sense carrer	=	sí,dirección: sin calle	=	sí,70976,,15269,0,55699,,8,,No,,direcció: sense carrer,sí,dirección: sin calle,sí,13513
+agricultural,yes,agricultural=yes,,agrícola	=	sí,agrícola	=	sí,36356,,743,,35525,,88,,Yes,4,agrícola,sí,agrícola,sí,13634
+air_conditioning,yes,air_conditioning=yes,,aire condicionat	=	sí,aire acondicionado	=	sí,104536,,66072,0,36380,,2084,0,No,,aire condicionat,sí,aire acondicionado,sí,13635
+animal_shelter:sanctuary,yes,,,refugi d'animals: santuari	=	si,refugio de animales: santuario	=	si,,,,,,,,,,,refugi d'animals: santuari,si,refugio de animales: santuario,si,13973
+anthropogenic,yes,,,antropogènic	=	si,antropogénico	=	si,,,,,,,,,,,antropogènic,si,antropogénico,si,13977
+area,yes,area=yes,,àrea	=	sí,área	=	sí,1928513,0,657,,1883070,0,44786,0,Yes,20,àrea,sí,área,sí,13996
+area:highway,yes,area:highway=yes,,zona:carretera	=	sí,zona:carretera	=	sí,20633,,,,19961,,672,,No,1,zona:carretera,sí,zona:carretera,sí,14003
+armrest,yes,armrest=yes,,,,44054,,43719,0,335,,,,No,8,,,,,3657
+artist:unknown,yes,,,artista:desconegut	=	si,artista:desconocido	=	si,,,,,,,,,,,artista:desconegut,si,artista:desconocido,si,14013
+assembly_point:earthquake,yes,,,punt de trobada: terratrèmol	=	si,punto de encuentro:terremoto	=	si,,,,,,,,,,,punt de trobada: terratrèmol,si,punto de encuentro:terremoto,si,14023
+assembly_point:fire,yes,,,punt de trobada:foc	=	si,punto de encuentro:fuego	=	si,,,,,,,,,,,punt de trobada:foc,si,punto de encuentro:fuego,si,14024
+assembly_point:flood,yes,,,punt de trobada: inundació	=	si,punto de encuentro:inundación	=	si,,,,,,,,,,,punt de trobada: inundació,si,punto de encuentro:inundación,si,14025
+assembly_point:landslide,yes,,,punt de reunió: lliscament de terra	=	si,punto de reunión: deslizamiento de tierra	=	si,,,,,,,,,,,punt de reunió: lliscament de terra,si,punto de reunión: deslizamiento de tierra,si,14026
+assembly_point:tornado,yes,,,punt de trobada: tornado	=	si,punto de encuentro: tornado	=	si,,,,,,,,,,,punt de trobada: tornado,si,punto de encuentro: tornado,si,14027
+assembly_point:tsunami,yes,,,punt de trobada:tsunami	=	si,punto de encuentro:tsunami	=	si,,,,,,,,,,,punt de trobada:tsunami,si,punto de encuentro:tsunami,si,14028
+atm,yes,atm=yes,,Caixer automàtic	=	sí,Cajero automático	=	sí,186267,,140331,0,45497,,439,,Yes,6,Caixer automàtic,sí,Cajero automático,sí,14042
+authentication:app,yes,authentication:app=yes,,,,51833,,50438,0,1383,,12,,No,7,,,,,3218
+authentication:contactless,yes,authentication:contactless=yes,,,,13502,,13259,,232,,11,,No,2,,,,,9994
+authentication:membership_card,yes,authentication:membership_card=yes,,autenticació: tarjeta_de_membre	=	sí,autenticación: tarjeta_de_miembro	=	sí,25375,,24520,0,847,,8,,No,4,autenticació: tarjeta_de_membre,sí,autenticación: tarjeta_de_miembro,sí,14077
+authoritative,yes,authoritative=yes,,autoritari	=	sí,autoritario	=	sí,11689,,1,,8794,,2894,0,No,,autoritari,sí,autoritario,sí,14078
+automated,yes,automated=yes,,automatitzat	=	si,automatizado	=	si,18063,,8568,,9447,,48,,Yes,4,automatitzat,si,automatizado,si,14079
+baby_hatch,yes,,,escotilla de beu	=	si,escotilla de bebe	=	si,,,,,,,,,,,escotilla de beu,si,escotilla de bebe,si,14085
+backcountry,yes,backcountry=yes,,travessia	=	sí,travesía	=	sí,22284,,20641,0,1572,,71,,No,5,travessia,sí,travesía,sí,14086
+backrest,yes,backrest=yes,,respatller	=	sí,respaldo	=	sí,1617130,0,1605821,0,11296,,13,,No,10,respatller,sí,respaldo,sí,14087
+bar,yes,bar=yes,,,,21697,,14860,0,6645,,192,,No,3,,,,,6473
+barrier,yes,barrier=yes,,barrera	=	sí,barrera	=	sí,151868,,49250,0,102536,0,82,,Yes,12,barrera,sí,barrera,sí,14103
+barrier:keypad,yes,barrier:keypad=yes,,,,23016,,23009,0,7,,,,No,,,,,,6164
+bbq,yes,,,barbacoa	=	si,barbacoa	=	si,,,,,,,,,,,barbacoa,si,barbacoa,si,14187
+bdouble,yes,bdouble=yes,,bdoble	=	sí,bdoble	=	sí,58367,,139,,58149,0,79,,No,1,bdoble,sí,bdoble,sí,14188
+bench,yes,bench=yes,,taula de treball	=	sí,mesa de trabajo	=	sí,1012673,0,816885,3,190821,0,4967,0,Yes,8,taula de treball,sí,mesa de trabajo,sí,14204
+bicycle,yes,bicycle=yes,,bicicleta	=	sí,bicicleta	=	sí,4178799,0,920363,0,3237385,0,21051,0,Yes,21,bicicleta,sí,bicicleta,sí,14206
+bicycle_road,yes,bicycle_road=yes,,bicicleta_carretera	=	sí,bicicleta_carretera	=	sí,20252,,79,,20172,,1,,Yes,12,bicicleta_carretera,sí,bicicleta_carretera,sí,14226
+bin,yes,bin=yes,,compartiment	=	sí,compartimiento	=	sí,624397,0,475436,0,144379,0,4582,0,Yes,9,compartiment,sí,compartimiento,sí,14232
+biosphärenwirt,yes,,,biosphärenwirt	=	si,biosphärenwirt	=	si,,,,,,,,,,,biosphärenwirt,si,biosphärenwirt,si,14234
+boat,yes,boat=yes,,vaixell	=	sí,barco	=	sí,53027,,591,,50839,,1597,0,Yes,9,vaixell,sí,barco,sí,14242
+boat:rental,yes,,,vaixell: lloguer	=,barco: alquiler	=	si,,,,,,,,,,,vaixell: lloguer,,barco: alquiler,si,14244
+bottle,yes,bottle=yes,,ampolla	=	sí,botella	=	sí,27036,,26937,0,97,,2,,No,7,ampolla,sí,botella,sí,14269
+bridge,yes,bridge=yes,,pont	=	sí,puente	=	sí,6793854,0,1652,,6791268,6,934,0,Yes,19,pont,sí,puente,sí,14341
+building,yes,building=yes,"A building is a permanent construction with a roof and walls, used for various purposes","Un edifici és una construcció permanent amb sostre i parets, utilitzat per a diversos propòsits | edifici	=	sí","Un edificio es una construcción permanente con techo y paredes, utilizado para diversos propósitos | edificio	=	sí",524808847,0,305361,0,523828637,0,674849,0,Yes,15,edifici,sí,edificio,sí,14375
+building:fireproof,yes,building:fireproof=yes,,edifici: incombustible	=	sí,edificio: incombustible	=	sí,189075,,5,,189044,0,26,,No,,edifici: incombustible,sí,edificio: incombustible,sí,14599
+building:part,yes,building:part=yes,,edifici:part	=	sí,edificio:parte	=	sí,3249868,0,1256,,3134876,0,113736,0,Yes,6,edifici:part,sí,edificio:parte,sí,14669
+building:prefabricated,yes,building:prefabricated=yes,,edifici: prefabricat	=	si,edificio: prefabricado	=	si,13206,,115,,13085,,6,,Yes,1,edifici: prefabricat,si,edificio: prefabricado,si,14677
+building:use:parking,yes,building:use:parking=yes,,edifici:ús:estacionament	=	sí,edificio:uso:estacionamiento	=	sí,10847,,,,10836,,11,,No,,edifici:ús:estacionament,sí,edificio:uso:estacionamiento,sí,14713
+building:use:residential,yes,building:use:residential=yes,,edifici:ús:residencial	=	sí,edificio:uso:residencial	=	sí,46396,,3,,46383,,10,,No,,edifici:ús:residencial,sí,edificio:uso:residencial,sí,14720
+bulk_purchase,yes,,,a granel	=	sí,a granel	=	sí,,,,,,,,,,,a granel,sí,a granel,sí,14722
+bus,yes,bus=yes,guagua,autobús sí,autobús sí guagua  sí,4575365,0,4289466,0,251936,0,33963,0,Yes,16,autobús,sí,autobús  guagua,guagua  sí,14729
+button_operated,yes,button_operated=yes,,botó_operat	=	sí,botón_operado	=	sí,311461,,270140,1,41321,,,,Yes,7,botó_operat,sí,botón_operado,sí,14742
+cabin:rental,yes,,,cabana:lloguer	=	si,cabaña:alquiler	=	si,,,,,,,,,,,cabana:lloguer,si,cabaña:alquiler,si,14745
+camra,yes,,,càmera	=	si,cámara	=	si,,,,,,,,,,,càmera,si,cámara,si,14778
+canoe,yes,canoe=yes,,,,31243,,1863,,28919,,461,,No,9,,,,,4790
+capacity:disabled,yes,capacity:disabled=yes,,capacitat: deshabilitat	=	sí,capacidad: deshabilitado	=	sí,19051,,3331,,15307,,413,,No,8,capacitat: deshabilitat,sí,capacidad: deshabilitado,sí,14792
+capital,yes,,,capital	=	si,capital	=	si,,,,,,,,,,,capital,si,capital,si,14802
+car,yes,,,auto	=	si,auto	=	si,,,,,,,,,,,auto,si,auto,si,14804
+caravans,yes,caravans=yes,,caravanes	=	sí,caravanas	=	sí,34509,,13954,0,19711,,844,0,No,5,caravanes,sí,caravanas,sí,14809
+cash_in,yes,cash_in=yes,,,,21021,,20948,0,72,,1,,No,5,,,,,6650
+center_turn_lane,yes,,,carril de gir central	=	si,carril de giro central	=	si,,,,,,,,,,,carril de gir central,si,carril de giro central,si,14829
+centre_turn_lane,yes,centre_turn_lane=yes,,,,10513,,4,,10509,,,,No,,,,,,12771
+changing_table,yes,changing_table=yes,,taula per canviar bolquers	=	sí,mesa para cambiar pañales	=	sí,22892,,16227,0,6552,,113,,Yes,32,taula per canviar bolquers,sí,mesa para cambiar pañales,sí,14837
+changing_table:fee,yes,,,canviador: tarifa	=	si,cambiador: tarifa	=	si,,,,,,,,,,,canviador: tarifa,si,cambiador: tarifa,si,14839
+club,yes,club=yes,,,,11558,,5854,,5659,,45,,No,3,,,,,11635
+club-mate,yes,,,company de club	=	si,compañero de club	=	si,,,,,,,,,,,company de club,si,compañero de club,si,14902
+cocktails,yes,,,còctels	=	si,cocteles	=	si,,,,,,,,,,,còctels,si,cocteles,si,14906
+communication:lte,yes,communication:lte=yes,,,,11172,,11086,,86,,,,No,,,,,,12038
+communication:microwave,yes,communication:microwave=yes,,,,12062,,11410,,637,,15,,No,2,,,,,11146
+communication:mobile_phone,yes,communication:mobile_phone=yes,,comunicació:telèfon_mòbil	=	sí,comunicación:teléfono_móvil	=	sí,219035,,216621,0,2397,,17,,No,5,comunicació:telèfon_mòbil,sí,comunicación:teléfono_móvil,sí,14936
+communication:radio,yes,communication:radio=yes,,,,17726,,16478,0,735,,513,,No,4,,,,,7766
+complete,yes,complete=yes,,,,10216,,1,,92,,10123,0,No,1,,,,,13132
+compressed_air,yes,compressed_air=yes,,aire comprimit	=	sí,aire comprimido	=	sí,42592,,23874,0,18620,,98,,No,2,aire comprimit,sí,aire comprimido,sí,14960
+construction,yes,construction=yes,,construcció	=	si,construcción	=	si,259778,,186999,0,72519,0,260,,Yes,2,construcció,si,construcción,si,14997
+consulate,yes,,,consolat	=	si,consulado	=	si,,,,,,,,,,,consolat,si,consulado,si,15013
+conveying,yes,conveying=yes,,transport	=	sí,transporte	=	sí,14945,,153,,14649,,143,,No,6,transport,sí,transporte,sí,15037
+cosmha,yes,cosmha=yes,,cosmha	=	sí,cosmha	=	sí,40127,,2504,,37614,,9,,No,,cosmha,sí,cosmha,sí,15041
+covered,yes,covered=yes,,cobert	=	sí,cubierto	=	sí,876550,0,195119,0,680468,0,963,0,Yes,20,cobert,sí,cubierto,sí,15047
+craft,yes,,,artesania	=	si,artesanía	=	si,,,,,,,,,,,artesania,si,artesanía,si,15077
+crop,yes,,,cultiu	=	si,cultivo	=	si,,,,,,,,,,,cultiu,si,cultivo,si,15173
+crossing:bell,yes,crossing:bell=yes,,encreuament:campana	=	sí,cruce:campana	=	sí,62410,,62392,0,17,,1,,No,4,encreuament:campana,sí,cruce:campana,sí,15218
+crossing:island,yes,crossing:island=yes,,encreuament: illa	=	sí,cruce: isla	=	sí,434350,,318483,0,115844,0,23,,Yes,10,encreuament: illa,sí,cruce: isla,sí,15221
+crossing:light,yes,crossing:light=yes,,encreuament: llum	=	sí,cruce: luz	=	sí,87654,,87543,0,110,,1,,No,5,encreuament: llum,sí,cruce: luz,sí,15222
+crossing:markings,yes,crossing:markings=yes,,,,1635610,0,989138,0,646472,0,,,Yes,11,,,,,223
+crossing:saltire,yes,crossing:saltire=yes,,encreuament: saltir	=	sí,cruce:saltire	=	sí,32063,,32057,0,6,,,,No,1,encreuament: saltir,sí,cruce:saltire,sí,15225
+crossing:signals,yes,crossing:signals=yes,,,,321448,,202977,0,118470,0,1,,Yes,7,,,,,772
+currency:EUR,yes,currency:EUR=yes,,moneda: euros	=	sí,moneda: euros	=	sí,41465,,39295,0,2147,,23,,No,2,moneda: euros,sí,moneda: euros,sí,15321
+currency:USD,yes,currency:USD=yes,,,,13851,,11819,,2010,,22,,No,2,,,,,9764
+currency:XBT,yes,currency:XBT=yes,,,,18060,,16693,0,1344,,23,,No,2,,,,,7641
+cutting,yes,cutting=yes,,tall	=	sí,corte	=	sí,75204,,123,,75065,0,16,,Yes,4,tall,sí,corte,sí,15327
+cycle_highway,yes,,,ciclovia	=	si,ciclovía	=	si,,,,,,,,,,,ciclovia,si,ciclovía,si,15329
+cyclestreet,yes,cyclestreet=yes,,ciclocarrer	=	si,ciclocalle	=	si,18327,,36,,18289,,2,,Yes,10,ciclocarrer,si,ciclocalle,si,15344
+cycleway,yes,,,carril bici	=	si,carril bici	=	si,,,,,,,,,,,carril bici,si,carril bici,si,15356
+cycleway:right:buffer,yes,cycleway:right:buffer=yes,,,,12124,,,,12124,,,,No,2,,,,,11093
+cycleway:right:oneway,yes,cycleway:right:oneway=yes,,,,12997,,2,,12995,,,,Yes,,,,,,10384
+delivery,yes,delivery=yes,,entrega	=	sí,entrega	=	sí,76433,,56822,0,19505,,106,,Yes,14,entrega,sí,entrega,sí,15419
+demolished,yes,,,demolit	=	si,demolido	=	si,,,,,,,,,,,demolit,si,demolido,si,15422
+demolished:building,yes,demolished:building=yes,,demolit: edifici	=	sí,demolido: edificio	=	sí,120287,,925,,119125,0,237,,No,,demolit: edifici,sí,demolido: edificio,sí,15423
+dennert_fir_tree,yes,,,avet denněrt	=	si,abeto dennert	=	si,,,,,,,,,,,avet denněrt,si,abeto dennert,si,15424
+departures_board,yes,departures_board=yes,,sortides a bord	=	sí,salidas a bordo	=	sí,26938,,23498,0,3324,,116,,No,10,sortides a bord,sí,salidas a bordo,sí,15451
+design:incomplete,yes,design:incomplete=yes,,disseny: incomplet	=	sí,diseño: incompleto	=	sí,23397,,23376,0,21,,,,No,2,disseny: incomplet,sí,diseño: incompleto,sí,15469
+destroyed,yes,,,destruït	=	si,destruido	=	si,,,,,,,,,,,destruït,si,destruido,si,15478
+destroyed:building,yes,destroyed:building=yes,,,,40976,,86,,40884,,6,,No,1,,,,,3842
+dibavod:needs:review,yes,dibavod:needs:review=yes,,dibavod:necessitats:revisió	=	sí,dibavod:necesidades:revisión	=	sí,28852,,1,,28757,,94,,No,,dibavod:necessitats:revisió,sí,dibavod:necesidades:revisión,sí,15482
+diet:halal,yes,diet:halal=yes,,,,12411,,10252,,2142,,17,,No,14,,,,,10821
+diet:kosher,yes,,,dieta: kosher	=	si,dieta: kosher	=	si,,,,,,,,,,,dieta: kosher,si,dieta: kosher,si,15483
+diet:meat,yes,,,dieta:carn	=	si,dieta:carne	=	si,,,,,,,,,,,dieta:carn,si,dieta:carne,si,15485
+diet:vegan,yes,diet:vegan=yes,,dieta: vegana	=	sí,dieta: vegana	=	sí,40890,,35338,0,5515,,37,,No,15,dieta: vegana,sí,dieta: vegana,sí,15486
+diet:vegetarian,yes,diet:vegetarian=yes,,dieta: vegetariana	=	sí,dieta: vegetariana	=	sí,85908,,73771,0,12070,,67,,No,15,dieta: vegetariana,sí,dieta: vegetariana,sí,15487
+dispensing,yes,dispensing=yes,,dispensant	=	sí,dispensando	=	sí,138421,,118520,0,19803,,98,,Yes,4,dispensant,sí,dispensando,sí,15517
+disused,yes,disused=yes,,en desús	=	sí,en desuso	=	sí,96882,,38444,0,57431,0,1007,0,Yes,8,en desús,sí,en desuso,sí,15521
+disused:shop,yes,disused:shop=yes,,en desús: botiga	=	sí,en desuso: tienda	=	sí,43639,,36842,0,6778,,19,,No,,en desús: botiga,sí,en desuso: tienda,sí,15529
+dog,yes,dog=yes,,gos	=	sí,perro	=	sí,35195,,5431,,29167,,597,,Yes,27,gos,sí,perro,sí,15535
+door,yes,door=yes,,porta	=	sí,puerta	=	sí,117011,,116642,0,366,,3,,No,6,porta,sí,puerta,sí,15540
+drink:viez,yes,,,beguda: vez	=	si,bebida: viez	=	si,,,,,,,,,,,beguda: vez,si,bebida: viez,si,15549
+drinking_water,yes,drinking_water=yes,,aigua potable	=	sí,agua potable	=	sí,94393,,79747,0,14212,,434,,Yes,12,aigua potable,sí,agua potable,sí,15551
+drive_through,yes,drive_through=yes,,servei al carro	=	sí,servicio al carro	=	sí,93871,,36091,0,57467,0,313,,Yes,12,servei al carro,sí,servicio al carro,sí,15555
+dual_carriageway,yes,dual_carriageway=yes,,autovia	=	sí,autovía	=	sí,165795,,11,,165783,0,1,,Yes,2,autovia,sí,autovía,sí,15558
+edit_group,yes,,,editar grup	=	si,editar grupo	=	si,,,,,,,,,,,editar grup,si,editar grupo,si,15560
+electricity,yes,,,electricitat	=	si,electricidad	=	si,,,,,,,,,,,electricitat,si,electricidad,si,15568
+embankment,yes,embankment=yes,,terraplè	=	sí,terraplén	=	sí,276697,,119,,276518,0,60,,Yes,10,terraplè,sí,terraplén,sí,15575
+embassy,yes,,,ambaixada	=	si,embajada	=	si,,,,,,,,,,,ambaixada,si,embajada,si,15583
+emergency,yes,emergency=yes,,emergència	=	sí,emergencia	=	sí,127234,,16877,0,108907,0,1450,0,Yes,7,emergència,sí,emergencia,sí,15586
+entrance,yes,entrance=yes,,entrada	=	sí,entrada	=	sí,2680262,0,2677259,0,2971,,32,,Yes,11,entrada,sí,entrada,sí,15651
+ephemeral,yes,ephemeral=yes,,efímer	=	sí,efímero	=	sí,41386,,4,,41372,,10,,No,,efímer,sí,efímero,sí,15666
+esperanto,yes,,,esperanto	=	si,esperanto	=	si,,,,,,,,,,,esperanto,si,esperanto,si,15668
+estuary,yes,,,estuari	=	si,estuario	=	si,,,,,,,,,,,estuari,si,estuario,si,15671
+european_cultural_path,yes,,,camí cultural europeu	=	si,camino cultural europeo	=	si,,,,,,,,,,,camí cultural europeu,si,camino cultural europeo,si,15672
+exit,yes,exit=yes,,sortida	=	sí,salida	=	sí,24741,,24344,0,397,,,,No,,sortida,sí,salida,sí,15674
+expressway,yes,expressway=yes,,Autopista	=	sí,Autopista	=	sí,209911,,34,,209876,0,1,,Yes,2,Autopista,sí,Autopista,sí,15677
+fallow,yes,,,guaret	=,barbecho	=	si,,,,,,,,,,,guaret,,barbecho,si,15681
+fdot:sis,yes,fdot:sis=yes,,fdot: germana	=	sí,fdot: hermana	=	sí,17759,,,,17759,,,,No,,fdot: germana,sí,fdot: hermana,sí,15688
+fee,yes,fee=yes,,tarifa	=	sí,tarifa	=	sí,551396,,225974,0,283140,0,42282,0,Yes,42,tarifa,sí,tarifa,sí,15690
+female,yes,female=yes,,femení	=	sí,femenino	=	sí,81470,,66463,0,14808,,199,,Yes,20,femení,sí,femenino,sí,15691
+fenced,yes,,,tancat	=	si,cercado	=	si,,,,,,,,,,,tancat,si,cercado,si,15702
+ferry,yes,ferry=yes,,transportar	=	sí,transportar	=	sí,27153,,23502,0,3381,,270,,Yes,5,transportar,sí,transportar,sí,15703
+fire_hydrant:pressure,yes,fire_hydrant:pressure=yes,,hidrant_d'incendi:pressió	=	sí,hidrante_de_incendio:presión	=	sí,31485,,31484,0,1,,,,No,3,hidrant_d'incendi:pressió,sí,hidrante_de_incendio:presión,sí,15722
+fire_path,yes,,,camí de foc	=	si,camino de fuego	=	si,,,,,,,,,,,camí de foc,si,camino de fuego,si,15730
+fireplace,yes,fireplace=yes,,xemeneia	=	sí,chimenea	=	sí,20468,,15142,0,5294,,32,,No,4,xemeneia,sí,chimenea,sí,15731
+fixme,yes,fixme=yes,,,,21843,,5553,,16031,,259,,No,2,,,,,6434
+flat_steps,yes,,,passos plans	=	si,pasos planos	=	si,,,,,,,,,,,passos plans,si,pasos planos,si,15747
+floating,yes,floating=yes,,flotant	=	sí,flotante	=	sí,116108,,392,,115531,0,185,,Yes,3,flotant,sí,flotante,sí,15748
+flood_prone,yes,flood_prone=yes,,propens a inundar-se	=	sí,propenso a inundarse	=	sí,29336,,3411,,21822,,4103,0,Yes,7,propens a inundar-se,sí,propenso a inundarse,sí,15751
+foot,yes,foot=yes,,peu	=	sí,pie	=	sí,4068125,0,764717,0,3286228,0,17180,0,Yes,16,peu,sí,pie,sí,15760
+footway,yes,,,senda	=	si,senda	=	si,,,,,,,,,,,senda,si,senda,si,15780
+ford,yes,ford=yes,,gual	=	sí,vado	=	sí,1436575,0,1308616,0,127956,0,3,,Yes,12,gual,sí,vado,sí,15790
+forklift,yes,,,màquina elevadora	=	si,máquina elevadora	=	si,,,,,,,,,,,màquina elevadora,si,máquina elevadora,si,15795
+frontage_road,yes,frontage_road=yes,,front_carretera	=	sí,frente_carretera	=	sí,28667,,4,,28663,,,,Yes,1,front_carretera,sí,frente_carretera,sí,15817
+fuel:GTL_diesel,yes,fuel:GTL_diesel=yes,,,,10494,,6771,,3699,,24,,No,3,,,,,12796
+fuel:diesel,yes,fuel:diesel=yes,,combustible: dièsel	=	sí,combustible: diesel	=	sí,116857,,71881,0,44326,,650,,No,7,combustible: dièsel,sí,combustible: diesel,sí,15818
+fuel:e10,yes,fuel:e10=yes,,combustible: e10	=	sí,combustible: e10	=	sí,17512,,10171,,7303,,38,,No,3,combustible: e10,sí,combustible: e10,sí,15819
+fuel:lpg,yes,fuel:lpg=yes,,combustible:glp	=	sí,combustible:glp	=	sí,31502,,20914,0,10477,,111,,No,7,combustible:glp,sí,combustible:glp,sí,15820
+fuel:octane_91,yes,fuel:octane_91=yes,,,,10398,,5133,,5165,,100,,No,3,,,,,12893
+fuel:octane_92,yes,fuel:octane_92=yes,,combustible: octano_92	=	sí,combustible: octano_92	=	sí,19353,,11453,,7643,,257,,No,3,combustible: octano_92,sí,combustible: octano_92,sí,15821
+fuel:octane_95,yes,fuel:octane_95=yes,,combustible: octanatge_95	=	sí,combustible: octanaje_95	=	sí,86017,,54777,0,30759,,481,,No,3,combustible: octanatge_95,sí,combustible: octanaje_95,sí,15822
+fuel:octane_98,yes,fuel:octane_98=yes,,combustible: octano_98	=	sí,combustible: octano_98	=	sí,43576,,26533,0,16883,,160,,No,3,combustible: octano_98,sí,combustible: octano_98,sí,15823
+generator:output:electricity,yes,generator:output:electricity=yes,,generador:sortida:electricitat	=	sí,generador:salida:electricidad	=	sí,4746074,0,784821,0,3954975,0,6278,0,No,5,generador:sortida:electricitat,sí,generador:salida:electricidad,sí,15850
+glideslope,yes,,,pendent de planeig	=	si,pendiente de planeo	=	si,,,,,,,,,,,pendent de planeig,si,pendiente de planeo,si,16008
+golf_cart,yes,golf_cart=yes,,carro de golf	=	sí,carro de golf	=	sí,99867,,186,,99678,0,3,,No,1,carro de golf,sí,carro de golf,sí,16031
+goods,yes,goods=yes,,béns	=	sí,bienes	=	sí,21794,,398,,21372,,24,,Yes,4,béns,sí,bienes,sí,16032
+grande_circulation,yes,grande_circulation=yes,,,,27068,,,,27068,,,,No,,,,,,5368
+handrail,yes,handrail=yes,,pretil	=	sí,pretil	=	sí,427597,,1034,,426554,0,9,,Yes,7,pretil,sí,pretil,sí,16067
+handrail:left,yes,handrail:left=yes,,passamans:esquerra	=	sí,pasamanos:izquierdo	=	sí,38613,,1394,,37215,,4,,No,3,passamans:esquerra,sí,pasamanos:izquierdo,sí,16069
+handrail:right,yes,handrail:right=yes,,passamans: dret	=	sí,pasamanos: derecho	=	sí,38757,,1396,,37354,,7,,No,3,passamans: dret,sí,pasamanos: derecho,sí,16070
+harbour,yes,,,port	=	si,puerto	=	si,,,,,,,,,,,port,si,puerto,si,16072
+hazard_prone,yes,,,propens a perills	=	si,propenso a peligros	=	si,,,,,,,,,,,propens a perills,si,propenso a peligros,si,16134
+healthcare,yes,healthcare=yes,,cura de la salut	=	sí,cuidado de la salud	=	sí,21086,,13193,,7716,,177,,Yes,6,cura de la salut,sí,cuidado de la salud,sí,16157
+hearing_loop,yes,,,bucle auditiu	=	si,bucle auditivo	=	si,,,,,,,,,,,bucle auditiu,si,bucle auditivo,si,16286
+heritage,yes,heritage=yes,,herència	=	sí,herencia	=	sí,40153,,7107,,32368,,678,,No,4,herència,sí,herencia,sí,16291
+hgv,yes,hgv=yes,,vhg	=	sí,vhg	=	sí,206322,,10319,,195700,0,303,,Yes,9,vhg,sí,vhg,sí,16319
+hgv:national_network,yes,hgv:national_network=yes,,hgv:xarxa_nacional	=	sí,hgv:red_nacional	=	sí,366337,,,,366337,0,,,No,,hgv:xarxa_nacional,sí,hgv:red_nacional,sí,16323
+hgv:state_network,yes,hgv:state_network=yes,,hgv: xarxa_estat	=	sí,hgv: red_estado	=	sí,75763,,,,75763,0,,,No,,hgv: xarxa_estat,sí,hgv: red_estado,sí,16325
+highspeed,yes,highspeed=yes,,alta velocitat	=	sí,alta velocidad	=	sí,147650,,174,,147169,0,307,,No,2,alta velocitat,sí,alta velocidad,sí,16326
+highway,yes,,,autopista	=	si,autopista	=	si,,,,,,,,,,,autopista,si,autopista,si,16408
+hiking,yes,hiking=yes,,senderisme	=	sí,senderismo	=	sí,396140,,358547,0,35611,,1982,0,No,8,senderisme,sí,senderismo,sí,16415
+historic,yes,historic=yes,,històric	=	sí,histórico	=	sí,183616,,43281,0,134063,0,6272,0,Yes,6,històric,sí,histórico,sí,16419
+horse,yes,horse=yes,,cavall	=	sí,caballo	=	sí,564525,,80297,0,483951,0,277,,No,12,cavall,sí,caballo,sí,16506
+hov,yes,,,hov	=	si,hov	=	si,,,,,,,,,,,hov,si,hov,si,16518
+ice_road,yes,ice_road=yes,,camí_gel	=	sí,camino_hielo	=	sí,13107,,84,,13018,,5,,Yes,3,camí_gel,sí,camino_hielo,sí,16522
+implicit,yes,implicit=yes,,implícit	=	sí,implícito	=	sí,28057,,230,,25,,27802,2,No,,implícit,sí,implícito,sí,16524
+import,yes,import=yes,,importar	=	sí,importar	=	sí,2272917,0,354,,2266208,2,6355,0,Yes,,importar,sí,importar,sí,16525
+indoor,yes,indoor=yes,,interior	=	sí,interior	=	sí,327603,,134950,0,191812,0,841,0,Yes,21,interior,sí,interior,sí,16539
+indoor_seating,yes,indoor_seating=yes,,seients_interiors	=	sí,asientos_interiores	=	sí,160528,,137317,0,23172,,39,,No,19,seients_interiors,sí,asientos_interiores,sí,16548
+informal,yes,informal=yes,,informal	=	sí,informal	=	sí,338755,,6339,,332278,0,138,,Yes,8,informal,sí,informal,sí,16595
+intermittent,yes,intermittent=yes,,intermitent	=	sí,intermitente	=	sí,6583430,0,25491,0,6520474,0,37465,0,Yes,14,intermitent,sí,intermitente,sí,16625
+internet_access,yes,internet_access=yes,,accés a Internet	=	sí,acceso a Internet	=	sí,65393,,37926,0,26350,,1117,0,Yes,27,accés a Internet,sí,acceso a Internet,sí,16628
+internet_access:fee,yes,internet_access:fee=yes,,,,10207,,5637,,4397,,173,,No,27,,,,,13144
+irrigated,yes,,,irrigat	=	si,irrigado	=	si,,,,,,,,,,,irrigat,si,irrigado,si,16635
+irrigation,yes,,,irrigació	=	si,irrigación	=	si,,,,,,,,,,,irrigació,si,irrigación,si,16637
+is_sidepath,yes,is_sidepath=yes,,ca_sidepath	=	sí,es_sidepath	=	sí,34493,,8,,34484,,1,,No,4,ca_sidepath,sí,es_sidepath,sí,16640
+jeepney,yes,,,taxi col·lectiu	=	si,taxi colectivo	=	si,,,,,,,,,,,taxi col·lectiu,si,taxi colectivo,si,16651
+jetski:rental,yes,,,jetski:lloguer	=	si,jetski:alquiler	=	si,,,,,,,,,,,jetski:lloguer,si,jetski:alquiler,si,16652
+junction,yes,junction=yes,,unió	=	sí,unión	=	sí,123411,,81176,0,40713,,1522,0,Yes,11,unió,sí,unión,sí,16654
+karst,yes,,,càrstic	=	si,kárstico	=	si,,,,,,,,,,,càrstic,si,kárstico,si,16665
+kerb,yes,kerb=yes,,frenar	=	sí,frenar	=	sí,47788,,36889,0,10887,,12,,No,8,frenar,sí,frenar,sí,16670
+ladder,yes,,,escala	=	si,escalera	=	si,,,,,,,,,,,escala,si,escalera,si,16676
+landuse,yes,,,ús del sòl	=	si,uso del suelo	=	si,,,,,,,,,,,ús del sòl,si,uso del suelo,si,16797
+lane_markings,yes,lane_markings=yes,,marques_de_carril	=	sí,marcas_de_carril	=	sí,149211,,50,,149142,0,19,,Yes,2,marques_de_carril,sí,marcas_de_carril,sí,16849
+language:en,yes,language:en=yes,,,,14112,,13344,,736,,32,,No,2,,,,,9577
+lcn,yes,lcn=yes,,lcn	=	sí,lcn	=	sí,208132,,3279,,204497,0,356,,Yes,3,lcn,sí,lcn,sí,16874
+light_rail,yes,light_rail=yes,,Tren Lleuger	=	sí,Tren Ligero	=	sí,23594,,15883,0,6391,,1320,0,No,9,Tren Lleuger,sí,Tren Ligero,sí,16983
+lit,yes,lit=yes,,il·luminat	=	sí,iluminado	=	sí,10470604,0,485538,0,9964791,0,20275,0,Yes,17,il·luminat,sí,iluminado,sí,17043
+living_street,yes,living_street=yes,,viure_carrer	=	sí,vivir_calle	=	sí,321596,,36,,321545,0,15,,Yes,2,viure_carrer,sí,vivir_calle,sí,17060
+localizer,yes,,,localitzador	=	si,localizador	=	si,,,,,,,,,,,localitzador,si,localizador,si,17067
+location:transition,yes,location:transition=yes,,ubicació: transició	=	sí,ubicación: transición	=	sí,174059,,173798,0,261,,,,Yes,2,ubicació: transició,sí,ubicación: transición,sí,17087
+lock,yes,lock=yes,,tancar	=	sí,cerrar	=	sí,11604,,307,,11273,,24,,Yes,8,tancar,sí,cerrar,sí,17088
+lockable,yes,lockable=yes,,,,12557,,4893,,7660,,4,,No,2,,,,,10715
+locked,yes,locked=yes,,bloquejat	=	sí,bloqueado	=	sí,128510,,117602,0,10906,,2,,Yes,4,bloquejat,sí,bloqueado,sí,17090
+lottery,yes,,,loteria	=	si,lotería	=	si,,,,,,,,,,,loteria,si,lotería,si,17096
+love_locks,yes,,,cadenats d'amor	=	si,candados de amor	=	si,,,,,,,,,,,cadenats d'amor,si,candados de amor,si,17097
+luminous,yes,luminous=yes,,,,14811,,14137,0,674,,,,No,4,,,,,9163
+magic_wand,yes,magic_wand=yes,,,,18905,,,,18464,,441,,No,,,,,,7335
+male,yes,male=yes,,masculí	=	sí,masculino	=	sí,92806,,76784,0,15814,,208,,No,20,masculí,sí,masculino,sí,17101
+man_made,yes,man_made=yes,,artificial	=	sí,artificial	=	sí,15814,,5339,,10363,,112,,Yes,1,artificial,sí,artificial,sí,17137
+managed,yes,managed=yes,,administrat	=	si,administrado	=	si,11527,,43,,11197,,287,,Yes,3,administrat,si,administrado,si,17278
+manhole,yes,manhole=yes,,forat dhome	=	sí,agujero de hombre	=	sí,24111,,24095,0,16,,,,No,1,forat dhome,sí,agujero de hombre,sí,17281
+maritime,yes,maritime=yes,,marítim	=	sí,marítimo	=	sí,22176,,2926,,18432,,818,0,Yes,4,marítim,sí,marítimo,sí,17291
+marker,yes,marker=yes,,,,20269,,20243,0,26,,,,No,3,,,,,6866
+maxspeed:variable,yes,maxspeed:variable=yes,,velocitat màxima: variable	=	sí,velocidad máxima:variable	=	sí,18607,,812,,17746,,49,,No,,velocitat màxima: variable,sí,velocidad máxima:variable,sí,17502
+mechanical,yes,mechanical=yes,,mecànic	=	sí,mecánico	=	sí,17080,,3,,17076,,1,,No,,mecànic,sí,mecánico,sí,17512
+medical_system:western,yes,,,sistema mèdic:occidental	=	si,sistema medico:occidental	=	si,,,,,,,,,,,sistema mèdic:occidental,si,sistema medico:occidental,si,17520
+memorial,yes,,,monument	=	si,monumento	=	si,,,,,,,,,,,monument,si,monumento,si,17543
+microbrewery,yes,,,microcerveseria	=	si,microcervecería	=	si,,,,,,,,,,,microcerveseria,si,microcervecería,si,17566
+military,yes,,,militar	=	si,militar	=	si,,,,,,,,,,,militar,si,militar,si,17577
+mofa,yes,mofa=yes,,mofa	=	sí,mofa	=	sí,101940,,5163,,96762,0,15,,No,5,mofa,sí,mofa,sí,17597
+monitoring:water_level,yes,monitoring:water_level=yes,,,,19258,,18563,0,690,,5,,No,5,,,,,7210
+monitoring:weather,yes,monitoring:weather=yes,,,,11597,,9502,,2068,,27,,No,6,,,,,11590
+mooring,yes,mooring=yes,,amarrador	=	sí,amarradero	=	sí,35938,,7877,,27940,,121,,Yes,5,amarrador,sí,amarradero,sí,17601
+moped,yes,moped=yes,,ciclomotor	=	sí,ciclomotor	=	sí,48510,,4801,,43682,,27,,No,3,ciclomotor,sí,ciclomotor,sí,17615
+motor_vehicle,yes,motor_vehicle=yes,,Vehicle de motor	=	sí,Vehículo de motor	=	sí,408289,,60530,0,346436,0,1323,0,Yes,7,Vehicle de motor,sí,Vehículo de motor,sí,17618
+motorboat,yes,motorboat=yes,,motora	=	sí,motora	=	sí,24346,,54,,23950,,342,,Yes,5,motora,sí,motora,sí,17629
+motorcar,yes,motorcar=yes,,automòbil	=	sí,automóvil	=	sí,230550,,139636,0,90513,0,401,,Yes,10,automòbil,sí,automóvil,sí,17632
+motorcycle,yes,motorcycle=yes,,motocicleta	=	sí,motocicleta	=	sí,623554,0,65981,0,556933,0,640,,Yes,4,motocicleta,sí,motocicleta,sí,17637
+motorcycle:clothes,yes,,,motocicleta:roba	=	si,motocicleta:ropa	=	si,,,,,,,,,,,motocicleta:roba,si,motocicleta:ropa,si,17644
+motorcycle:parts,yes,,,parts de motocicleta	=	si,partes de motocicleta	=	si,,,,,,,,,,,parts de motocicleta,si,partes de motocicleta,si,17645
+motorcycle:rental,yes,,,moto:lloguer	=	si,moto:alquiler	=	si,,,,,,,,,,,moto:lloguer,si,moto:alquiler,si,17646
+motorcycle:repair,yes,,,motocicleta: reparació	=	si,motocicleta: reparación	=	si,,,,,,,,,,,motocicleta: reparació,si,motocicleta: reparación,si,17647
+motorcycle:sales,yes,,,motocicleta:vendes	=	si,motocicleta:ventas	=	si,,,,,,,,,,,motocicleta:vendes,si,motocicleta:ventas,si,17648
+motorcycle:theme,yes,,,motocicleta: tema	=	si,motocicleta: tema	=	si,,,,,,,,,,,motocicleta: tema,si,motocicleta: tema,si,17649
+motorcycle:tyres,yes,,,motocicleta: pneumàtics	=	si,motocicleta: neumáticos	=	si,,,,,,,,,,,motocicleta: pneumàtics,si,motocicleta: neumáticos,si,17654
+motorroad,yes,motorroad=yes,,carretera	=	sí,carretera	=	sí,186868,,68,,186792,0,8,,Yes,7,carretera,sí,carretera,sí,17655
+mountain_pass,yes,mountain_pass=yes,,Port de muntanya	=	sí,Puerto de montaña	=	sí,37765,,37600,0,161,,4,,Yes,7,Port de muntanya,sí,Puerto de montaña,sí,17657
+mtb,yes,mtb=yes,,bicicleta de muntanya	=	sí,bicicleta de montaña	=	sí,76407,,26643,0,49332,,432,,No,7,bicicleta de muntanya,sí,bicicleta de montaña,sí,17659
+naptan:verified,yes,naptan:verified=yes,,naptan: verificat	=	sí,naptán: verificado	=	sí,15248,,15136,0,5,,107,,No,1,naptan: verificat,sí,naptán: verificado,sí,17723
+narrow,yes,narrow=yes,,estreta	=	sí,angosto	=	sí,39674,,1756,,37916,,2,,Yes,2,estreta,sí,angosto,sí,17724
+natural,yes,,,natural	=	si,natural	=	si,,,,,,,,,,,natural,si,natural,si,17765
+nest_platform,yes,,,plataforma niu	=	si,plataforma nido	=	si,,,,,,,,,,,plataforma niu,si,plataforma nido,si,17835
+noaddress,yes,noaddress=yes,,sense adreça	=	sí,sin dirección	=	sí,60702,,88,,60558,0,56,,Yes,,sense adreça,sí,sin dirección,sí,18178
+noexit,yes,noexit=yes,,Sense sortida	=	sí,Sin salida	=	sí,2257576,0,2166823,0,90748,0,5,,Yes,8,Sense sortida,sí,Sin salida,sí,18179
+nohousenumber,yes,nohousenumber=yes,,sense número de casa	=	sí,sin número de casa	=	sí,111411,,15022,0,95361,0,1028,0,Yes,8,sense número de casa,sí,sin número de casa,sí,18181
+noname,yes,noname=yes,,sense nom	=	sí,sin nombre	=	sí,919629,0,21183,0,895338,0,3108,0,Yes,20,sense nom,sí,sin nombre,sí,18182
+nonsquare,yes,,,no quadrat	=	si,no cuadrado	=	si,,,,,,,,,,,no quadrat,si,no cuadrado,si,18183
+noref,yes,noref=yes,,noref	=	sí,noref	=	sí,116339,,35873,0,79801,0,665,,Yes,9,noref,sí,noref,sí,18184
+obstacle:parking,yes,obstacle:parking=yes,,,,13454,,13240,,214,,,,No,,,,,,10022
+ocean,yes,ocean=yes,,Oceà	=	sí,Oceano	=	sí,12574,,10,,8,,12556,0,No,,Oceà,sí,Oceano,sí,18203
+office,yes,office=yes,,oficina	=	sí,oficina	=	sí,90675,,47906,0,42253,,516,,Yes,5,oficina,sí,oficina,sí,18207
+offshore,yes,offshore=yes,,,,11400,,11380,,13,,7,,No,1,,,,,11801
+on_demand,yes,,,Sota demanda	=,Bajo demanda	=	si,,,,,,,,,,,Sota demanda,,Bajo demanda,si,18315
+oneway,yes,oneway=yes,,d'una sola mà	=	sí,de una sola mano	=	sí,19334055,0,745,,19331037,17,2273,0,Yes,18,d'una sola mà,sí,de una sola mano,sí,18317
+oneway:bicycle,yes,oneway:bicycle=yes,,anada: bicicleta	=	sí,ida: bicicleta	=	sí,85641,,27,,85601,0,13,,Yes,7,anada: bicicleta,sí,ida: bicicleta,sí,18326
+organic,yes,organic=yes,,,,13648,,10088,,3514,,46,,No,24,,,,,9903
+outdoor_seating,yes,outdoor_seating=yes,,seients a l'aire lliure	=	sí,asientos al aire libre	=	sí,282808,,227988,0,54448,,372,,Yes,23,seients a l'aire lliure,sí,asientos al aire libre,sí,18407
+overtaking,yes,overtaking=yes,,avançament	=	sí,adelantamiento	=	sí,25866,,276,,25589,,1,,Yes,3,avançament,sí,adelantamiento,sí,18418
+parcel_mail_in,yes,parcel_mail_in=yes,,paquet_correu_en	=	sí,paquete_correo_en	=	sí,53680,,52806,0,864,,10,,No,5,paquet_correu_en,sí,paquete_correo_en,sí,18426
+parcel_pickup,yes,parcel_pickup=yes,,recollida_paquet	=	sí,recogida_paquete	=	sí,51486,,50645,0,832,,9,,No,6,recollida_paquet,sí,recogida_paquete,sí,18427
+park_ride,yes,park_ride=yes,,passeig del Parc	=	sí,paseo del Parque	=	sí,19907,,1519,,17825,,563,,No,7,passeig del Parc,sí,paseo del Parque,sí,18429
+parking,yes,parking=yes,,estacionament	=	si,estacionamiento	=	si,10187,,6346,,3819,,22,,No,,estacionament,si,estacionamiento,si,18437
+parking:both,yes,parking:both=yes,,,,13248,,5,,13243,,,,Yes,2,,,,,10171
+parking:both:staggered,yes,,,estacionament:tots dos:escalonats	=	si,estacionamiento:ambos:escalonados	=	si,,,,,,,,,,,estacionament:tots dos:escalonats,si,estacionamiento:ambos:escalonados,si,18461
+parking:left,yes,parking:left=yes,,,,10346,,13,,10333,,,,No,3,,,,,12960
+parking:right,yes,parking:right=yes,,,,11791,,6,,11785,,,,No,3,,,,,11402
+passenger,yes,,,passatger	=	si,pasajero	=	si,,,,,,,,,,,passatger,si,pasajero,si,18496
+passenger_information_display,yes,passenger_information_display=yes,,pantalla_d'informació_del_passatger	=	sí,pantalla_de_información_del_pasajero	=	sí,41362,,28374,0,12121,,867,0,No,9,pantalla_d'informació_del_passatger,sí,pantalla_de_información_del_pasajero,sí,18500
+passing_places,yes,passing_places=yes,,llocs de pas	=	si,lugares de paso	=	si,10692,,107,,10584,,1,,Yes,2,llocs de pas,si,lugares de paso,si,18506
+payment:american_express,yes,payment:american_express=yes,,pagament: american_express	=	sí,pago: american_express	=	sí,41285,,31728,0,9384,,173,,No,3,pagament: american_express,sí,pago: american_express,sí,18510
+payment:app,yes,payment:app=yes,,,,43417,,38402,0,4617,,398,,No,6,,,,,3689
+payment:apple_pay,yes,payment:apple_pay=yes,,,,17786,,12992,,4394,,400,,No,1,,,,,7748
+payment:cards,yes,payment:cards=yes,,pagament: targetes	=	sí,pago: tarjetas	=	sí,37285,,29320,0,6450,,1515,0,No,33,pagament: targetes,sí,pago: tarjetas,sí,18511
+payment:cash,yes,payment:cash=yes,,Pagament en efectiu	=	sí,Pago en efectivo	=	sí,347062,,258193,0,78436,0,10433,0,No,37,Pagament en efectiu,sí,Pago en efectivo,sí,18512
+payment:coins,yes,payment:coins=yes,,pagament:monedes	=	sí,pago:monedas	=	sí,117541,,96617,0,14116,,6808,0,No,32,pagament:monedes,sí,pago:monedas,sí,18514
+payment:contactless,yes,payment:contactless=yes,,pagament: sense contacte	=	sí,pago: sin contacto	=	sí,74936,,58402,0,12462,,4072,0,No,4,pagament: sense contacte,sí,pago: sin contacto,sí,18515
+payment:credit_cards,yes,payment:credit_cards=yes,,pagament:credit_cards	=	sí,pago:credit_cards	=	sí,251153,,197651,0,49904,,3598,0,No,33,pagament:credit_cards,sí,pago:credit_cards,sí,18516
+payment:debit_cards,yes,payment:debit_cards=yes,,pagament:targetes_dèbit	=	sí,pago:tarjetas_débito	=	sí,204887,,160096,0,41608,,3183,0,No,32,pagament:targetes_dèbit,sí,pago:tarjetas_débito,sí,18518
+payment:diners_club,yes,payment:diners_club=yes,,pagament:diners_club	=	sí,pago:diners_club	=	sí,18053,,14316,0,3659,,78,,No,3,pagament:diners_club,sí,pago:diners_club,sí,18520
+payment:discover_card,yes,payment:discover_card=yes,,pagament:descobrir_targeta	=	sí,pago:descubrir_tarjeta	=	sí,22247,,17408,0,4736,,103,,No,3,pagament:descobrir_targeta,sí,pago:descubrir_tarjeta,sí,18521
+payment:ep_easycard,yes,payment:ep_easycard=yes,,pagament:ep_easycard	=	sí,pago:ep_easycard	=	sí,15401,,14912,0,481,,8,,No,,pagament:ep_easycard,sí,pago:ep_easycard,sí,18522
+payment:ep_ipass,yes,payment:ep_ipass=yes,,pagament:ep_ipass	=	sí,pago:ep_ipass	=	sí,15190,,14728,0,455,,7,,No,,pagament:ep_ipass,sí,pago:ep_ipass,sí,18523
+payment:girocard,yes,payment:girocard=yes,,pagament:girocard	=	sí,pago:girocard	=	sí,15122,,11685,,3397,,40,,No,3,pagament:girocard,sí,pago:girocard,sí,18524
+payment:google_pay,yes,payment:google_pay=yes,,,,15188,,11116,,3673,,399,,No,1,,,,,8939
+payment:jcb,yes,payment:jcb=yes,,pagament: jcb	=	sí,pago: jcb	=	sí,19922,,17776,0,2071,,75,,No,3,pagament: jcb,sí,pago: jcb,sí,18525
+payment:lightning,yes,payment:lightning=yes,,,,12616,,11506,,1093,,17,,No,1,,,,,10678
+payment:maestro,yes,payment:maestro=yes,,pagament:mestre	=	sí,pago:maestro	=	sí,46872,,37185,0,9467,,220,,No,4,pagament:mestre,sí,pago:maestro,sí,18526
+payment:mastercard,yes,payment:mastercard=yes,,pagament:mastercard	=	sí,pago:mastercard	=	sí,151057,,120651,0,29792,,614,,No,4,pagament:mastercard,sí,pago:mastercard,sí,18527
+payment:notes,yes,payment:notes=yes,,pagament:notes	=	sí,pago:notas	=	sí,39798,,32860,0,6844,,94,,No,32,pagament:notes,sí,pago:notas,sí,18528
+payment:onchain,yes,payment:onchain=yes,,,,10776,,9839,,921,,16,,No,1,,,,,12488
+payment:telephone_cards,yes,,,pagament:telefon_targetes	=	sí,pago:telefono_tarjetas	=	sí,,,,,,,,,,,pagament:telefon_targetes,sí,pago:telefono_tarjetas,sí,18529
+payment:unionpay,yes,payment:unionpay=yes,,,,14821,,9251,,1582,,3988,0,No,1,,,,,9157
+payment:visa,yes,payment:visa=yes,,pagament:visat	=	sí,pago:visado	=	sí,157367,,125876,0,30857,,634,,No,4,pagament:visat,sí,pago:visado,sí,18530
+payment:visa_debit,yes,payment:visa_debit=yes,,pagament: visa_debit	=	sí,pago: visa_debit	=	sí,16392,,11809,,4496,,87,,No,3,pagament: visa_debit,sí,pago: visa_debit,sí,18531
+payment:visa_electron,yes,payment:visa_electron=yes,,pagament: visa_electron	=	sí,pago: visa_electron	=	sí,21900,,17124,0,4630,,146,,No,4,pagament: visa_electron,sí,pago: visa_electron,sí,18532
+pilgrimage,yes,,,pelegrinatge	=	si,peregrinaje	=	si,,,,,,,,,,,pelegrinatge,si,peregrinaje,si,18535
+piste:oneway,yes,piste:oneway=yes,,pista: anada	=	sí,pista: ida	=	sí,17253,,12,,16619,,622,,No,2,pista: anada,sí,pista: ida,sí,18552
+place_of_mourning,yes,,,lloc de dol	=	si,lugar de luto	=	si,,,,,,,,,,,lloc de dol,si,lugar de luto,si,18598
+plant:output:electricity,yes,plant:output:electricity=yes,,planta:producte:electricitat	=	sí,planta:producto:electricidad	=	sí,58313,,91,,56239,,1983,0,No,4,planta:producte:electricitat,sí,planta:producto:electricidad,sí,18619
+playground,yes,,,parc infantil	=	si,parque infantil	=	si,,,,,,,,,,,parc infantil,si,parque infantil,si,18648
+pole,yes,pole=yes,,,,12182,,12141,,41,,,,No,1,,,,,11022
+police,yes,,,policia	=	si,policía	=	si,,,,,,,,,,,policia,si,policía,si,18676
+power_supply,yes,power_supply=yes,,font d'alimentació	=	sí,fuente de alimentación	=	sí,28493,,12138,,15860,,495,,No,5,font d'alimentació,sí,fuente de alimentación,sí,18744
+preschool,yes,preschool=yes,,,,11331,,3096,,8056,,179,,No,2,,,,,11873
+priority_road,yes,priority_road=yes,,,,26777,,,,26777,,,,No,,,,,,5426
+project:eurosha_2012,yes,project:eurosha_2012=yes,,projecte:eurosha_2012	=	sí,proyecto:eurosha_2012	=	sí,188720,,4097,,184568,0,55,,No,,projecte:eurosha_2012,sí,proyecto:eurosha_2012,sí,18771
+project:mappingforniger,yes,project:mappingforniger=yes,,projecte:mappingforniger	=	sí,proyecto:mappingforniger	=	sí,12166,,2967,,9193,,6,,No,,projecte:mappingforniger,sí,proyecto:mappingforniger,sí,18772
+protected,yes,protected=yes,,protegit	=	sí,protegido	=	sí,27687,,27347,0,306,,34,,No,,protegit,sí,protegido,sí,18786
+pseudo,yes,,,pseudo	=	si,seudo	=	si,,,,,,,,,,,pseudo,si,seudo,si,18793
+psv,yes,psv=yes,,psv	=	sí,psv	=	sí,93243,,1089,,92076,0,78,,Yes,7,psv,sí,psv,sí,18794
+pump,yes,pump=yes,,bomba	=	sí,bomba	=	sí,21686,,21502,0,184,,,,No,5,bomba,sí,bomba,sí,18810
+radio_transponder:AIS,yes,,,transponedor de ràdio: AIS	=	si,transpondedor de radio: AIS	=	si,,,,,,,,,,,transponedor de ràdio: AIS,si,transpondedor de radio: AIS,si,18839
+railway:asfa,yes,railway:asfa=yes,,,,19465,,,,19465,,,,No,1,,,,,7129
+railway:atb,yes,railway:atb=yes,,ferrocarril:atb	=	sí,ferrocarril:atb	=	sí,17852,,,,17852,,,,No,1,ferrocarril:atb,sí,ferrocarril:atb,sí,18927
+railway:atc,yes,railway:atc=yes,,ferrocarril:atc	=	sí,ferrocarril:atc	=	sí,38037,,127,,37795,,115,,No,1,ferrocarril:atc,sí,ferrocarril:atc,sí,18929
+railway:aws,yes,railway:aws=yes,,,,36645,,357,,36288,,,,No,1,,,,,4210
+railway:ctc,yes,railway:ctc=yes,,,,36261,,31,,36229,,1,,No,,,,,,4247
+railway:etms,yes,railway:etms=yes,,,,21218,,1,,21217,,,,No,1,,,,,6590
+railway:kvb,yes,railway:kvb=yes,,ferrocarril:kvb	=	sí,ferrocarril:kvb	=	sí,64001,,3,,63983,0,15,,No,1,ferrocarril:kvb,sí,ferrocarril:kvb,sí,18938
+railway:local_operated,yes,railway:local_operated=yes,,ferrocarril:operat_localment	=	sí,ferrocarril:operado_localmente	=	sí,38538,,36892,0,1630,,16,,No,1,ferrocarril:operat_localment,sí,ferrocarril:operado_localmente,sí,18940
+railway:ls,yes,railway:ls=yes,,,,12583,,1,,12582,,,,No,1,,,,,10703
+railway:lzb,yes,railway:lzb=yes,,ferrocarril: lzb	=	sí,ferrocarril: lzb	=	sí,12992,,4,,12984,,4,,No,1,ferrocarril: lzb,sí,ferrocarril: lzb,sí,18943
+railway:milestone:catenary_mast,yes,railway:milestone:catenary_mast=yes,,ferrocarril: fita: catenary_mast	=	sí,ferrocarril: hito: catenary_mast	=	sí,60216,,60216,0,,,,,No,1,ferrocarril: fita: catenary_mast,sí,ferrocarril: hito: catenary_mast,sí,18944
+railway:preserved,yes,railway:preserved=yes,,ferrocarril: conservat	=	sí,ferrocarril: conservado	=	sí,21566,,85,,21481,,,,No,7,ferrocarril: conservat,sí,ferrocarril: conservado,sí,18950
+railway:ptc,yes,railway:ptc=yes,,,,79883,,2,,79760,0,121,,No,1,,,,,2346
+railway:pzb,yes,railway:pzb=yes,,ferrocarril:pzb	=	sí,ferrocarril:pzb	=	sí,181764,,101,,181662,0,1,,No,1,ferrocarril:pzb,sí,ferrocarril:pzb,sí,18951
+railway:scmt,yes,railway:scmt=yes,,ferrocarril: scmt	=	sí,ferrocarril: scmt	=	sí,47861,,1,,47860,,,,No,1,ferrocarril: scmt,sí,ferrocarril: scmt,sí,18957
+railway:shp,yes,railway:shp=yes,,,,15882,,26,,15856,,,,No,1,,,,,8577
+railway:switch:electric,yes,railway:switch:electric=yes,,ferrocarril:interruptor:elèctric	=	sí,ferrocarril:interruptor:eléctrico	=	sí,60954,,60932,0,22,,,,No,1,ferrocarril:interruptor:elèctric,sí,ferrocarril:interruptor:eléctrico,sí,18981
+railway:switch:heated,yes,railway:switch:heated=yes,,,,13968,,13962,0,6,,,,No,1,,,,,9683
+railway:tpws,yes,railway:tpws=yes,,,,36009,,357,,35652,,,,No,1,,,,,4274
+ramp,yes,ramp=yes,,rampa	=	sí,rampa	=	sí,66553,,718,,65792,0,43,,Yes,5,rampa,sí,rampa,sí,18996
+ramp:bicycle,yes,ramp:bicycle=yes,,rampa:bicicleta	=	sí,rampa:bicicleta	=	sí,18356,,65,,18289,,2,,No,5,rampa:bicicleta,sí,rampa:bicicleta,sí,18998
+ramp:stroller,yes,ramp:stroller=yes,,rampa:cotxet	=	sí,rampa:cochecito	=	sí,29548,,98,,29449,,1,,No,4,rampa:cotxet,sí,rampa:cochecito,sí,18999
+ramp:wheelchair,yes,ramp:wheelchair=yes,,,,19315,,809,,18500,,6,,No,6,,,,,7188
+ramsar,yes,,,Ramsar	=	si,Ramsar	=	si,,,,,,,,,,,Ramsar,si,Ramsar,si,19000
+razed:building,yes,razed:building=yes,,arrasat: edifici	=	sí,arrasado: edificio	=	sí,25338,,66,,25228,,44,,No,,arrasat: edifici,sí,arrasado: edificio,sí,19001
+rcn,yes,rcn=yes,,rcn	=	sí,rcn	=	sí,15031,,1286,,13571,,174,,No,3,rcn,sí,rcn,sí,19003
+real_ale,yes,,,cervesa de veritat	=	si,cerveza de verdad	=	si,,,,,,,,,,,cervesa de veritat,si,cerveza de verdad,si,19004
+real_cider,yes,,,sidra de veritat	=	si,sidra de verdad	=	si,,,,,,,,,,,sidra de veritat,si,sidra de verdad,si,19005
+reclaimed,yes,,,regenerat	=	si,regenerado	=	si,,,,,,,,,,,regenerat,si,regenerado,si,19006
+recycling:batteries,yes,recycling:batteries=yes,,reciclatge: piles	=	sí,reciclaje:pilas	=	sí,13989,,10211,,3699,,79,,No,6,reciclatge: piles,sí,reciclaje:pilas,sí,19011
+recycling:beverage_cartons,yes,recycling:beverage_cartons=yes,,,,20214,,19613,0,596,,5,,No,5,,,,,6882
+recycling:cans,yes,recycling:cans=yes,,reciclatge: llaunes	=	sí,reciclaje: latas	=	sí,75809,,69550,0,6188,,71,,No,5,reciclatge: llaunes,sí,reciclaje: latas,sí,19012
+recycling:cardboard,yes,recycling:cardboard=yes,,reciclatge:cartró	=	sí,reciclaje:cartón	=	sí,33585,,29531,0,4003,,51,,No,3,reciclatge:cartró,sí,reciclaje:cartón,sí,19013
+recycling:clothes,yes,recycling:clothes=yes,,reciclatge: roba	=	sí,reciclaje:ropa	=	sí,81748,,77788,0,3900,,60,,No,8,reciclatge: roba,sí,reciclaje:ropa,sí,19014
+recycling:glass,yes,recycling:glass=yes,,reciclatge:vidre	=	sí,reciclaje:vidrio	=	sí,74713,,69097,0,5534,,82,,No,5,reciclatge:vidre,sí,reciclaje:vidrio,sí,19015
+recycling:glass_bottles,yes,recycling:glass_bottles=yes,,reciclatge:ampolles_de_vidre	=	sí,reciclaje:botellas_de_vidrio	=	sí,188362,,182163,0,6144,,55,,No,6,reciclatge:ampolles_de_vidre,sí,reciclaje:botellas_de_vidrio,sí,19017
+recycling:green_waste,yes,recycling:green_waste=yes,,reciclatge:green_waste	=	sí,reciclaje:green_waste	=	sí,25387,,21258,0,4075,,54,,Yes,5,reciclatge:green_waste,sí,reciclaje:green_waste,sí,19018
+recycling:magazines,yes,recycling:magazines=yes,,,,14174,,13012,,1144,,18,,No,4,,,,,9528
+recycling:newspaper,yes,recycling:newspaper=yes,,,,14703,,13343,,1335,,25,,No,3,,,,,9231
+recycling:organic,yes,recycling:organic=yes,,,,11077,,10638,,431,,8,,No,2,,,,,12160
+recycling:paper,yes,recycling:paper=yes,,paper reciclat	=	sí,papel reciclado	=	sí,147348,,138757,0,8481,,110,,No,7,paper reciclat,sí,papel reciclado,sí,19019
+recycling:paper_packaging,yes,recycling:paper_packaging=yes,,reciclatge:paper_embalatge	=	sí,reciclaje:papel_embalaje	=	sí,23064,,21656,0,1387,,21,,No,2,reciclatge:paper_embalatge,sí,reciclaje:papel_embalaje,sí,19020
+recycling:plastic,yes,recycling:plastic=yes,,reciclatge:plàstic	=	sí,reciclaje:plástico	=	sí,87085,,82354,0,4669,,62,,Yes,6,reciclatge:plàstic,sí,reciclaje:plástico,sí,19021
+recycling:plastic_bottles,yes,recycling:plastic_bottles=yes,,reciclatge:ampolles_de_plastico	=	sí,reciclaje:botellas_de_plastico	=	sí,49081,,45810,0,3239,,32,,No,7,reciclatge:ampolles_de_plastico,sí,reciclaje:botellas_de_plastico,sí,19022
+recycling:plastic_packaging,yes,recycling:plastic_packaging=yes,,reciclatge:plastic_packaging	=	sí,reciclaje:plastic_packaging	=	sí,46462,,43774,0,2652,,36,,No,6,reciclatge:plastic_packaging,sí,reciclaje:plastic_packaging,sí,19023
+recycling:scrap_metal,yes,recycling:scrap_metal=yes,,reciclatge:xatarra_metal	=	sí,reciclaje:chatarra_metal	=	sí,17376,,12632,,4654,,90,,No,5,reciclatge:xatarra_metal,sí,reciclaje:chatarra_metal,sí,19024
+recycling:shoes,yes,recycling:shoes=yes,,reciclatge: sabates	=	sí,reciclaje:zapatos	=	sí,31670,,30518,0,1131,,21,,No,7,reciclatge: sabates,sí,reciclaje:zapatos,sí,19025
+recycling:waste,yes,recycling:waste=yes,,reciclatge de residus	=	sí,reciclaje de residuos	=	sí,34197,,31786,0,2375,,36,,No,4,reciclatge de residus,sí,reciclaje de residuos,sí,19026
+reference_point,yes,,,punt de referència	=	si,punto de referencia	=	si,,,,,,,,,,,punt de referència,si,punto de referencia,si,19039
+refitted,yes,,,recondicionat	=	si,reacondicionado	=	si,,,,,,,,,,,recondicionat,si,reacondicionado,si,19040
+refrigerated,yes,,,refrigerat	=	si,refrigerado	=	si,,,,,,,,,,,refrigerat,si,refrigerado,si,19041
+refugee,yes,,,refugiat	=	si,refugiado	=	si,,,,,,,,,,,refugiat,si,refugiado,si,19042
+removed:building,yes,removed:building=yes,,eliminat: edifici	=	sí,eliminado: edificio	=	sí,25091,,98,,24971,,22,,No,,eliminat: edifici,sí,eliminado: edificio,sí,19069
+repair,yes,,,reparar	=	si,reparar	=	si,,,,,,,,,,,reparar,si,reparar,si,19080
+request_stop,yes,,,sol·licitud de parada	=	si,solicitud de parada	=	si,,,,,,,,,,,sol·licitud de parada,si,solicitud de parada,si,19081
+reservation,yes,reservation=yes,,reserva	=	sí,reserva	=	sí,24281,,17615,0,6235,,431,,No,23,reserva,sí,reserva,sí,19083
+review_requested,yes,,,revisió sol·licitada	=	si,revisión solicitada	=	si,,,,,,,,,,,revisió sol·licitada,si,revisión solicitada,si,19110
+road_marking,yes,,,=,=,,,,,,,,,,,,,,,19134
+room,yes,,,habitació	=	si,habitación	=	si,,,,,,,,,,,habitació,si,habitación,si,19241
+roundtrip,yes,roundtrip=yes,,viatge anada i tornada	=	sí,viaje ida y vuelta	=	sí,56753,,69,,506,,56178,0,Yes,4,viatge anada i tornada,sí,viaje ida y vuelta,sí,19253
+ruins,yes,ruins=yes,,restes	=	sí,restos	=	sí,123820,,17307,0,104972,0,1541,0,Yes,8,restes,sí,restos,sí,19302
+ruins:building,yes,ruins:building=yes,,,,11937,,558,,11325,,54,,No,3,,,,,11278
+sailing:tours,yes,,,vela:excursions	=	si,vela:excursiones	=	si,,,,,,,,,,,vela:excursions,si,vela:excursiones,si,19309
+salt,yes,salt=yes,,sal	=	sí,sal	=	sí,52064,,290,,48711,,3063,0,No,3,sal,sí,sal,sí,19311
+sanitary_dump_station,yes,sanitary_dump_station=yes,,,,12582,,2799,,9492,,291,,No,6,,,,,10704
+scenic,yes,scenic=yes,,,,11122,,29,,10725,,368,,No,,,,,,12091
+school:selective,yes,,,escola: selectiva	=	si,escuela: selectiva	=	si,,,,,,,,,,,escola: selectiva,si,escuela: selectiva,si,19329
+seamark:fog_signal,yes,,,marca de mar: senyal de boira	=	si,marca de mar: señal de niebla	=	si,,,,,,,,,,,marca de mar: senyal de boira,si,marca de mar: señal de niebla,si,19492
+seamark:radar_reflector,yes,,,marca de mar: reflector de radar	=	si,marca de mar: reflector de radar	=	si,,,,,,,,,,,marca de mar: reflector de radar,si,marca de mar: reflector de radar,si,19615
+seasonal,yes,seasonal=yes,,estacional	=	sí,estacional	=	sí,468336,,16717,0,440868,0,10751,0,Yes,5,estacional,sí,estacional,sí,19835
+second_hand,yes,second_hand=yes,,segona mà	=	sí,segunda mano	=	sí,19482,,11787,,7584,,111,,Yes,19,segona mà,sí,segunda mano,sí,19852
+segregated,yes,segregated=yes,,aïllat	=	sí,aislado	=	sí,299022,,9998,,289006,0,18,,Yes,9,aïllat,sí,aislado,sí,19854
+self_service,yes,self_service=yes,,autoservei	=	sí,autoservicio	=	sí,72550,,40846,0,31370,,334,,No,6,autoservei,sí,autoservicio,sí,19855
+service:bicycle:pump,yes,service:bicycle:pump=yes,,,,18258,,17547,0,707,,4,,No,17,,,,,7570
+service:bicycle:repair,yes,service:bicycle:repair=yes,,servei:bicicleta:reparació	=	sí,servicio:bicicleta:reparación	=	sí,18202,,15497,0,2691,,14,,No,18,servei:bicicleta:reparació,sí,servicio:bicicleta:reparación,sí,19887
+service:bicycle:retail,yes,service:bicycle:retail=yes,,,,11914,,9700,,2203,,11,,No,17,,,,,11288
+service:bicycle:tools,yes,service:bicycle:tools=yes,,,,10177,,10015,,161,,1,,No,3,,,,,13180
+service:vehicle:car_repair,yes,service:vehicle:car_repair=yes,,,,14672,,8516,,6093,,63,,No,4,,,,,9244
+service:vehicle:tyres,yes,service:vehicle:tyres=yes,,servei:vehicle:pneumàtics	=	si,servicio:vehiculo:neumaticos	=	si,11061,,7491,,3552,,18,,Yes,4,servei:vehicle:pneumàtics,si,servicio:vehiculo:neumaticos,si,19888
+share_taxi,yes,share_taxi=yes,,compartir_taxi	=	sí,compartir_taxi	=	sí,34075,,31927,0,1546,,602,,No,5,compartir_taxi,sí,compartir_taxi,sí,19892
+shelter,yes,shelter=yes,,refugi	=	sí,refugio	=	sí,1076154,0,923886,0,147560,0,4708,0,Yes,11,refugi,sí,refugio,sí,19893
+shop,yes,shop=yes,,botiga	=	sí,tienda	=	sí,193993,,119588,0,71508,0,2897,0,Yes,9,botiga,sí,tienda,sí,19917
+shoulder,yes,shoulder=yes,,espatlla	=	sí,hombro	=	sí,32304,,,,32304,,,,No,6,espatlla,sí,hombro,sí,20217
+shoulder:right,yes,shoulder:right=yes,,espatlla: dret	=	sí,hombro: derecho	=	sí,11851,,,,11851,,,,No,4,espatlla: dret,sí,hombro: derecho,sí,20220
+shower,yes,shower=yes,,,,15113,,3824,,10848,,441,,No,5,,,,,8979
+sidewalk:both,yes,sidewalk:both=yes,,,,17134,,22,,17112,,,,No,4,,,,,7980
+sidewalk:left,yes,sidewalk:left=yes,,,,40640,,2,,40638,,,,No,6,,,,,3870
+sidewalk:right,yes,sidewalk:right=yes,,,,51001,,15,,50985,,1,,No,6,,,,,3262
+signal_station,yes,,,estació de senyals	=	si,estación de señales	=	si,,,,,,,,,,,estació de senyals,si,estación de señales,si,20248
+ski,yes,ski=yes,,esquí	=	sí,esquí	=	sí,29693,,8720,,20882,,91,,No,8,esquí,sí,esquí,sí,20283
+smoking,yes,smoking=yes,,de fumar	=	sí,de fumar	=	sí,17310,,10916,,6300,,94,,Yes,14,de fumar,sí,de fumar,sí,20286
+snowmobile,yes,snowmobile=yes,,motoneu	=	sí,motonieve	=	sí,26835,,3617,,23151,,67,,No,4,motoneu,sí,motonieve,sí,20298
+snowplowing,yes,snowplowing=yes,,traient la neu	=	sí,quitando la nieve	=	sí,47940,,7,,47909,,24,,No,,traient la neu,sí,quitando la nieve,sí,20299
+source_type_imagery,yes,source_type_imagery=yes,,source_type_imagery	=	sí,source_type_imagery	=	sí,30175,,2214,,27957,,4,,No,,source_type_imagery,sí,source_type_imagery,sí,20427
+stairs,yes,stairs=yes,,,,10090,,343,,9266,,481,,No,1,,,,,13287
+stilts,yes,stilts=yes,,,,21108,,2,,21103,,3,,No,,,,,,6624
+street_vendor,yes,,,venedor ambulant	=	si,vendedor ambulante	=	si,,,,,,,,,,,venedor ambulant,si,vendedor ambulante,si,20980
+stroller,yes,stroller=yes,,passejant	=	sí,paseante	=	sí,47884,,9929,,37713,,242,,No,2,passejant,sí,paseante,sí,20981
+submarine,yes,,,submarí	=	si,submarino	=	si,,,,,,,,,,,submarí,si,submarino,si,20991
+substation,yes,,,subestació	=	si,subestación	=	si,,,,,,,,,,,subestació,si,subestación,si,21008
+subway,yes,subway=yes,,subterrani	=	sí,subterraneo	=	sí,69437,,52052,0,15011,,2374,0,No,11,subterrani,sí,subterraneo,sí,21015
+summit:cross,yes,,,cimera: creu	=	si,cumbre: cruz	=	si,,,,,,,,,,,cimera: creu,si,cumbre: cruz,si,21016
+supervised,yes,supervised=yes,,supervisat	=	sí,supervisado	=	sí,46870,,14045,0,31693,,1132,0,Yes,30,supervisat,sí,supervisado,sí,21018
+survey_point:datum_aligned,yes,,,punt d'aixecament: datum alineat	=	si,punto de levantamiento:datum alineado	=	si,,,,,,,,,,,punt d'aixecament: datum alineat,si,punto de levantamiento:datum alineado,si,21100
+swimming_pool,yes,,,piscina	=	si,piscina	=	si,,,,,,,,,,,piscina,si,piscina,si,21119
+switch,yes,,,canviar	=	si,cambiar	=	si,,,,,,,,,,,canviar,si,cambiar,si,21123
+tactile_paving,yes,tactile_paving=yes,,paviment_tactil	=	sí,pavimento_tactil	=	sí,2346544,0,1949954,0,392882,0,3708,0,Yes,13,paviment_tactil,sí,pavimento_tactil,sí,21126
+takeaway,yes,takeaway=yes,,treure	=	sí,quitar	=	sí,419336,,298925,0,119793,0,618,,Yes,13,treure,sí,quitar,sí,21129
+taxi,yes,taxi=yes,,taxi	=	sí,taxi	=	sí,22017,,497,,21446,,74,,No,5,taxi,sí,taxi,sí,21132
+tents,yes,tents=yes,,carpes	=	sí,carpas	=	sí,41700,,21851,0,18837,,1012,0,No,5,carpes,sí,carpas,sí,21158
+tickets:public_transport_subscription,yes,,,bitllets: abonament transport públic	=	si,billetes: abono transporte público	=	si,,,,,,,,,,,bitllets: abonament transport públic,si,billetes: abono transporte público,si,21167
+tidal,yes,tidal=yes,,de marea	=	sí,de marea	=	sí,75475,,2152,,67165,0,6158,0,Yes,5,de marea,sí,de marea,sí,21169
+tiger:reviewed,yes,tiger:reviewed=yes,,tigre: revisat	=	sí,tigre:revisado	=	sí,167457,,118,,167325,0,14,,No,,tigre: revisat,sí,tigre:revisado,sí,21184
+toilets,yes,toilets=yes,,banys	=	sí,baños	=	sí,110489,,61588,0,47476,,1425,0,Yes,28,banys,sí,baños,sí,21196
+toilets:access,yes,,,lavabos:accés	=,aseos:acceso	=	si,,,,,,,,,,,lavabos:accés,,aseos:acceso,si,21200
+toilets:handwashing,yes,toilets:handwashing=yes,,,,16757,,13175,,3568,,14,,No,28,,,,,8136
+toilets:wheelchair,yes,toilets:wheelchair=yes,,lavabos: cadira de rodes	=	sí,aseos:silla de ruedas	=	sí,65448,,38221,0,26217,,1010,0,No,27,lavabos: cadira de rodes,sí,aseos:silla de ruedas,sí,21207
+toll,yes,toll=yes,,peatge	=	sí,peaje	=	sí,478459,,1527,,476095,0,837,0,Yes,7,peatge,sí,peaje,sí,21208
+toll:N3,yes,,,peatge:N3	=	sí,peaje:N3	=	sí,,,,,,,,,,,peatge:N3,sí,peaje:N3,sí,21213
+toll:bus,yes,toll:bus=yes,,peatge: autobús	=	sí,peaje: autobús	=	sí,42415,,,,42414,,1,,No,,peatge: autobús,sí,peaje: autobús,sí,21210
+toll:designated,yes,,,peatge: designat	=	si,peaje: designado	=	si,,,,,,,,,,,peatge: designat,si,peaje: designado,si,21211
+toll:hgv,yes,toll:hgv=yes,,peatge:hgv	=	sí,peaje:hgv	=	sí,89393,,1239,,88023,0,131,,No,2,peatge:hgv,sí,peaje:hgv,sí,21212
+tourism,yes,,,turisme	=	si,turismo	=	si,,,,,,,,,,,turisme,si,turismo,si,21248
+traffic_calming,yes,traffic_calming=yes,,calmar el trànsit	=	sí,calmar el tráfico	=	sí,12923,,10495,,2428,,,,Yes,3,calmar el trànsit,sí,calmar el tráfico,sí,21320
+traffic_sign,yes,traffic_sign=yes,,senyal de trànsit	=	sí,señal de tráfico	=	sí,23084,,22887,0,195,,2,,No,1,senyal de trànsit,sí,señal de tráfico,sí,21330
+traffic_signals:countdown,yes,traffic_signals:countdown=yes,,,,13816,,9492,,4324,,,,No,,,,,,9790
+traffic_signals:sound,yes,traffic_signals:sound=yes,,senyals_de_trànsit:so	=	sí,señales_de_tráfico:sonido	=	sí,199373,,180312,0,19061,,,,Yes,8,senyals_de_trànsit:so,sí,señales_de_tráfico:sonido,sí,21457
+traffic_signals:vibration,yes,traffic_signals:vibration=yes,,senyals_de_tràfic: vibració	=	sí,señales_de_tráfico:vibración	=	sí,100619,,95642,0,4977,,,,No,6,senyals_de_tràfic: vibració,sí,señales_de_tráfico:vibración,sí,21459
+trailblazed,yes,trailblazed=yes,,pioner	=	sí,pionero	=	sí,42525,,56,,40855,,1614,0,No,3,pioner,sí,pionero,sí,21466
+train,yes,train=yes,,tren	=	sí,tren	=	sí,278259,,180415,0,89245,0,8599,0,Yes,10,tren,sí,tren,sí,21472
+tram,yes,tram=yes,,tramvia	=	sí,tranvía	=	sí,99758,,65880,0,31508,,2370,0,Yes,8,tramvia,sí,tranvía,sí,21481
+transformer,yes,,,transformador	=	si,transformador	=	si,,,,,,,,,,,transformador,si,transformador,si,21489
+trees,yes,,,arbres	=	si,árboles	=	si,,,,,,,,,,,arbres,si,árboles,si,21507
+triangulation_point,yes,,,punt_de_triangulació	=	sí,punto_de_triangulación	=	sí,,,,,,,,,,,punt_de_triangulació,sí,punto_de_triangulación,sí,21519
+triple_tower,yes,triple_tower=yes,,torre_triple	=	sí,torre_triple	=	sí,18309,,18308,0,1,,,,No,2,torre_triple,sí,torre_triple,sí,21520
+trolley_wire,yes,trolley_wire=yes,,trolley_wire	=	sí,trolley_wire	=	sí,96123,,,,96122,0,1,,Yes,3,trolley_wire,sí,trolley_wire,sí,21521
+trolleybus,yes,trolleybus=yes,,trolebús	=	sí,trolebús	=	sí,48853,,45714,0,2333,,806,0,No,7,trolebús,sí,trolebús,sí,21522
+tunnel,yes,tunnel=yes,,túnel	=	sí,túnel	=	sí,1242642,0,701,,1241148,0,793,0,Yes,23,túnel,sí,túnel,sí,21525
+two_sided,yes,two_sided=yes,,dues cares	=	si,dos caras	=	si,12105,,1211,,10878,,16,,Yes,10,dues cares,si,dos caras,si,21576
+typhoon:damage,yes,typhoon:damage=yes,,tifó: mal	=	sí,tifón: daño	=	sí,17021,,15,,16910,,96,,No,,tifó: mal,sí,tifón: daño,sí,21644
+typhoon:reviewed,yes,typhoon:reviewed=yes,,tifó: revisat	=	sí,tifón:revisado	=	sí,15388,,877,,14510,,1,,No,,tifó: revisat,sí,tifón:revisado,sí,21645
+unisex,yes,unisex=yes,,unisexe	=	sí,unisexo	=	sí,84322,,65614,0,18663,,45,,No,2,unisexe,sí,unisexo,sí,21646
+unsigned,yes,,,no signat	=	si,no firmado	=	si,,,,,,,,,,,no signat,si,no firmado,si,21647
+vehicle,yes,vehicle=yes,,vehicle	=	sí,vehículo	=	sí,54123,,8223,,45827,,73,,Yes,4,vehicle,sí,vehículo,sí,21699
+wall,yes,wall=yes,,paret	=	sí,pared	=	sí,58373,,795,,57528,0,50,,No,,paret,sí,pared,sí,21777
+was:building,yes,was:building=yes,,era: edifici	=	sí,era: edificio	=	sí,37068,,68,,36957,,43,,No,,era: edifici,sí,era: edificio,sí,21795
+water,yes,,,aigua	=	si,agua	=	si,,,,,,,,,,,aigua,si,agua,si,21819
+waterway,yes,,,camí aquàtic	=	si,camino acuático	=	si,,,,,,,,,,,camí aquàtic,si,camino acuático,si,21866
+wheelchair,yes,wheelchair=yes,,cadira de rodes	=	sí,silla de ruedas	=	sí,2160262,0,1412768,0,712071,0,35423,0,Yes,43,cadira de rodes,sí,silla de ruedas,sí,21903
+wholesale,yes,,,majorista	=	sí,mayorista	=	Sí,,,,,,,,,,,majorista,sí,mayorista,Sí,21916
+windings:auto,yes,,,bobinats: automàtic	=	si,bobinados: automático	=	si,,,,,,,,,,,bobinats: automàtic,si,bobinados: automático,si,21952
+winter_road,yes,,,camí d'hivern	=	si,camino de invierno	=	si,,,,,,,,,,,camí d'hivern,si,camino de invierno,si,21953
+winter_service,yes,winter_service=yes,,servei_d'hivern	=	sí,servicio_de_invierno	=	sí,19966,,44,,19913,,9,,No,,servei_d'hivern,sí,servicio_de_invierno,sí,21954
+working,yes,working=yes,,laboral	=	sí,laboral	=	sí,31853,,31850,0,3,,,,No,,laboral,sí,laboral,sí,21976
+wheelchair,yes,,,cadira de rodes = sí,silla de ruedas = sí ,,,,,,,,,,,cadira de rodes,sí,silla de ruedas,sí,21907
+wheelchair,no,,,cadira de rodes = no,silla de ruedas =no,,,,,,,,,,,cadira de rodes,no,silla de ruedas,no,21907
