@@ -310,24 +310,17 @@ function searchValues(query, key = null, limit = 100) {
                 searchTexts.push(removeDiacritics(`${value}`.toLowerCase()));  // Value name gets highest weight
                 searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));     // Key name gets high weight
 
-                    // Add definition columns with same weight for search
-                    const defEn = removeDiacritics(`${valueData.definition_en || ''}`.toLowerCase());
-                    const defCa = removeDiacritics(`${valueData.definition_ca || ''}`.toLowerCase());
-                    const defEs = removeDiacritics(`${valueData.definition_es || ''}`.toLowerCase());
-                    const valCa = removeDiacritics(`${valueData.value_ca || ''}`.toLowerCase());
-                    const valEs = removeDiacritics(`${valueData.value_es || ''}`.toLowerCase());
+                // Add definition columns with lower weight
+                searchTexts.push(removeDiacritics(`${valueData.definition_en || ''}`.toLowerCase()));
+                searchTexts.push(removeDiacritics(`${valueData.definition_ca || ''}`.toLowerCase()));
+                searchTexts.push(removeDiacritics(`${valueData.definition_es || ''}`.toLowerCase()));
+                searchTexts.push(removeDiacritics(`${valueData.value_ca || ''}`.toLowerCase()));
+                searchTexts.push(removeDiacritics(`${valueData.value_es || ''}`.toLowerCase()));
 
-                    searchTexts.push(defEn);
-                    searchTexts.push(defCa);
-                    searchTexts.push(defEs);
-                    searchTexts.push(valCa);
-                    searchTexts.push(valEs);
+                let matchFound = false;
+                let matchScore = 0;
 
-                    let matchFound = false;
-                    let matchScore = 0;
-                    
-                    // First check for exact word matches in any field
-                    const wordRegex = new RegExp(`\\b${queryNormalized}\\b`, 'i');                for (const searchText of searchTexts) {
+                for (const searchText of searchTexts) {
                     // For 'yes' and 'no' values, only show when explicitly searching for them
                     if ((value === 'yes' || value === 'no') && queryNormalized !== 'yes' && queryNormalized !== 'no') {
                         continue;
@@ -406,11 +399,6 @@ function searchValues(query, key = null, limit = 100) {
             // Search in value, keys, and all definition columns for each key that uses this value
             let matchFound = false;
             let matchScore = 0;
-            // Skip yes/no values unless specifically searching for them
-            if ((value === 'yes' || value === 'no') && queryNormalized !== value) {
-                continue;
-            }
-
             const searchTexts = [];
 
             // Prioritize value and key names much higher than descriptions
@@ -443,12 +431,12 @@ function searchValues(query, key = null, limit = 100) {
             }
 
             for (const searchText of searchTexts) {
+                // For 'yes' and 'no' values, only show when explicitly searching for them
+                if ((value === 'yes' || value === 'no') && queryNormalized !== 'yes' && queryNormalized !== 'no') {
+                    continue;
+                }
+
                 if (searchText.includes(queryNormalized)) {
-                    // For 'yes' and 'no' values, only show when explicitly searching for them
-                    if ((value === 'yes' || value === 'no') && queryNormalized !== value) {
-                        continue;
-                    }
-                    
                     matchFound = true;
                     console.log('🔍 Match found! searchText:', searchText, 'query:', queryNormalized);
                     // Give much higher scores to exact matches vs partial matches
@@ -478,46 +466,18 @@ function searchValues(query, key = null, limit = 100) {
                     } else {
                         // For description matches, be more flexible - allow partial matches in descriptions
                         // This helps find values like "churro" when searching for "churrería" (which appears in descriptions)
-                        // Also helps find values mentioned in descriptions like "guagua"
-                        const regex = new RegExp(`\\b${queryNormalized}\\b|${queryNormalized}`, 'i');
+                        const regex = new RegExp(`${queryNormalized}`, 'i');
                         if (regex.test(searchText)) {
                             // Description matches - include for relevant values
                             if (value !== 'yes' && value !== 'no') {
-                                if (regex.test(removeDiacritics(`${valueData.definition_en || ''}`.toLowerCase())) ||
-                                    regex.test(removeDiacritics(`${valueData.definition_ca || ''}`.toLowerCase())) ||
-                                    regex.test(removeDiacritics(`${valueData.definition_es || ''}`.toLowerCase()))) {
-                                    matchScore += 25;   // Higher priority for description matches
-                                } else {
-                                    matchScore += 15;   // Lower priority for other text matches
-                                }
+                                matchScore += 15;   // Higher priority for description matches
                             }
                         }
                     }
                 }
             }
 
-            // Special handling for definition matches
-            if (!matchFound && queryNormalized.length >= 3) {
-                // Check definitions separately for word matches
-                const wordRegex = new RegExp(`\\b${queryNormalized}\\b`, 'i');
-                for (const valueKey of keysWithValue) {
-                    const keyData = window.taginfoData.keys.get(valueKey);
-                    if (keyData && keyData.values.has(value)) {
-                        const entries = keyData.values.get(value);
-                        for (const entry of entries) {
-                            if (wordRegex.test(removeDiacritics(entry.definition_en || '')) ||
-                                wordRegex.test(removeDiacritics(entry.definition_ca || '')) ||
-                                wordRegex.test(removeDiacritics(entry.definition_es || ''))) {
-                                matchFound = true;
-                                matchScore += 50; // Good score for definition matches
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (matchFound && matchScore >= 1) {  // Lower threshold to catch all matches
+            if (matchFound && matchScore >= 5) {  // Lower threshold but still filter very weak matches
                 // For each key that uses this value, create a result for each duplicate entry
                 for (const valueKey of keysWithValue) {
                     const keyData = window.taginfoData.keys.get(valueKey);
