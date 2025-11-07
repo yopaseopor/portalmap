@@ -7,7 +7,8 @@ window.taginfoData = {
     keys: new Map(),
     values: new Map(),
     definitions: new Map(),
-    loaded: false
+    loaded: false,
+    language: 'ca' // Default language
 };
 
 // Alternate dataset focused on yes/no definitions
@@ -15,8 +16,39 @@ window.taginfoDataYes = {
     keys: new Map(),
     values: new Map(),
     definitions: new Map(),
-    loaded: false
+    loaded: false,
+    language: 'ca' // Default language
 };
+
+// Get the current language from the i18n module if available
+function getCurrentLanguage() {
+    try {
+        // Try to get language from URL first
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'ca';
+        
+        // Validate language
+        if (['ca', 'es', 'en'].includes(lang)) {
+            return lang;
+        }
+        
+        // Fallback to i18n if available
+        if (window.i18n && typeof window.i18n.getCurrentLanguage === 'function') {
+            return window.i18n.getCurrentLanguage();
+        }
+    } catch (e) {
+        console.error('Error getting current language:', e);
+    }
+    // Default to Catalan
+    return 'ca';
+}
+
+// Get the appropriate CSV file name based on language
+function getTaginfoCsvPath(isYesNo = false) {
+    const lang = getCurrentLanguage();
+    const suffix = isYesNo ? '_yes' : '';
+    return `taginfo_simple_${lang}${suffix}.csv`;
+}
 
 /**
  * Load taginfo definitions from CSV file
@@ -31,7 +63,9 @@ function loadTaginfoDefinitions() {
         }
 
         console.log('📊 Loading taginfo definitions from CSV...');
-        fetch('taginfo_definitions.csv')
+        const csvPath = getTaginfoCsvPath(false);
+        console.log('📊 Loading CSV from:', csvPath);
+        fetch(csvPath)
             .then(response => {
                 console.log('📊 CSV fetch response:', response.status);
                 if (!response.ok) {
@@ -41,7 +75,7 @@ function loadTaginfoDefinitions() {
             })
             .then(csvText => {
                 console.log('📊 CSV loaded, length:', csvText.length);
-                parseCSVData(csvText, window.taginfoData);
+                parseCSVDataSimple(csvText, window.taginfoData);
                 window.taginfoData.loaded = true;
                 console.log('📊 Taginfo data loaded successfully');
                 resolve();
@@ -63,7 +97,9 @@ function loadTaginfoDefinitionsYes() {
         }
 
         console.log('📊 Loading yes/no-focused taginfo definitions from CSV...');
-        fetch('taginfo_definitions_yes.csv')
+        const csvPath = getTaginfoCsvPath(true);
+        console.log('📊 Loading YES/NO CSV from:', csvPath);
+        fetch(csvPath)
             .then(response => {
                 console.log('📊 YES CSV fetch response:', response.status);
                 if (!response.ok) {
@@ -73,7 +109,7 @@ function loadTaginfoDefinitionsYes() {
             })
             .then(csvText => {
                 console.log('📊 YES CSV loaded, length:', csvText.length);
-                parseCSVData(csvText, window.taginfoDataYes);
+                parseCSVDataSimple(csvText, window.taginfoDataYes);
                 window.taginfoDataYes.loaded = true;
                 console.log('📊 Taginfo YES data loaded successfully');
                 resolve();
@@ -83,6 +119,107 @@ function loadTaginfoDefinitionsYes() {
                 reject(error);
             });
     });
+}
+
+/**
+ * Parse simplified CSV data (key, value, definition_ca) and organize it for fast searching
+ */
+function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
+    console.log('📊 Parsing simplified CSV data...');
+    const lines = csvText.split('\n');
+
+    if (lines.length === 0) {
+        console.error('❌ CSV file is empty!');
+        return;
+    }
+
+    console.log('📊 CSV has', lines.length, 'lines');
+
+    // Parse header
+    const headers = lines[0].split(',');
+    console.log('📊 CSV headers:', headers);
+
+    // Process data rows (limit for performance)
+    for (let i = 1; i < lines.length && i < 50000; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const values = parseCSVLine(line);
+        if (values.length >= 3) {  // Simplified structure (3 columns)
+            const key = values[0];
+            const value = values[1];
+            // Fix encoding issues in the definition
+            let definition = values[2];
+            // Replace common encoding issues
+            definition = definition
+                .replace(/Ã³/g, 'ó')
+                .replace(/Ã©/g, 'é')
+                .replace(/Ã¨/g, 'è')
+                .replace(/Ã /g, 'à')
+                .replace(/Ã¯/g, 'ï')
+                .replace(/Ã±/g, 'ñ')
+                .replace(/Ã§/g, 'ç')
+                .replace(/Ã/g, 'í');
+
+            // Add to keys map
+            if (!targetData.keys.has(key)) {
+                targetData.keys.set(key, {
+                    definition: definition || '',
+                    definition_ca: definition || '',
+                    totalCount: 0,
+                    values: new Map() // Map<value, Array<entries>>
+                });
+            }
+
+            const keyData = targetData.keys.get(key);
+
+            // Allow multiple entries for the same key=value pair
+            if (!keyData.values.has(value)) {
+                keyData.values.set(value, []);
+            }
+
+            // Get the current language and store the definition in the appropriate field
+            const lang = getCurrentLanguage();
+            const entry = {
+                definition: definition || '',
+                countAll: 0 // No count data in simplified CSV
+            };
+            
+            // Store the definition in the language-specific field
+            entry[`definition_${lang}`] = definition || '';
+            
+            // Add the entry to the array for this value
+            keyData.values.get(value).push(entry);
+
+            keyData.totalCount += 1; // Increment by 1 for each entry
+
+            // Add to values map (for global value search)
+            if (!targetData.values.has(value)) {
+                targetData.values.set(value, {
+                    totalCount: 0
+                });
+            }
+            targetData.values.get(value).totalCount += 1;
+
+            // Add to definitions
+            const tag = `${key}=${value}`;
+            if (tag) {
+                targetData.definitions.set(tag, definition || '');
+            }
+
+            // Debug first few entries
+            if (i <= 3) {
+                console.log('📊 Sample entry:', {
+                    key,
+                    value,
+                    definition: definition ? 'present' : 'empty'
+                });
+            }
+        }
+    }
+
+    console.log('📊 Parsed keys:', targetData.keys.size);
+    console.log('📊 Parsed values:', targetData.values.size);
 }
 
 /**
@@ -173,11 +310,7 @@ function parseCSVData(csvText, targetData = window.taginfoData) {
                 console.log('📊 Sample entry:', {
                     key,
                     value,
-                    count_all: parseInt(count_all) || 0,
-                    count_ways: parseInt(count_ways) || 0,
-                    definition_en: definition_en ? 'present' : 'empty',
-                    definition_ca: definition_ca ? 'present' : 'empty',
-                    definition_es: definition_es ? 'present' : 'empty'
+                    definition: definition ? 'present' : 'empty'
                 });
             }
         }
@@ -331,15 +464,78 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
 
     // Select dataset to use (default or yes/no-focused)
     const data = useYesCsv ? window.taginfoDataYes : window.taginfoData;
-
+    
+    // If in yes/no mode and no key is provided, find all keys that match the query
+    if (useYesCsv && !key) {
+        // Search through all keys in the yes/no dataset
+        for (const [currentKey, keyData] of data.keys) {
+            // Only process yes/no values
+            for (const [value, valueEntries] of keyData.values) {
+                if (value !== 'yes' && value !== 'no') continue;
+                
+                // Check if the key matches the query
+                const keyMatch = currentKey.toLowerCase().includes(queryNormalized);
+                let definitionMatch = false;
+                
+                // Check all entries for a matching definition
+                for (const valueData of valueEntries) {
+                    if (valueData.definition && 
+                        removeDiacritics(valueData.definition.toLowerCase()).includes(queryNormalized)) {
+                        definitionMatch = true;
+                        break;
+                    }
+                }
+                
+                if (keyMatch || definitionMatch) {
+                    // Add to results
+                    results.push({
+                        key: currentKey,
+                        value: value,
+                        definition: valueEntries[0]?.definition || '',
+                        totalCount: keyData.totalCount || 0,
+                        matchScore: keyMatch ? 1000 : 100  // Higher score for key matches
+                    });
+                }
+            }
+        }
+        
+        // Sort and limit results
+        return results
+            .sort((a, b) => b.matchScore - a.matchScore || b.totalCount - a.totalCount)
+            .slice(0, limit);
+    }
+    
     if (key && data.keys.has(key)) {
         // Search values for specific key
         const keyData = data.keys.get(key);
 
         // Iterate over all values for this key
         for (const [value, valueEntries] of keyData.values) {
+            // In yes/no mode, only process 'yes' and 'no' values
+            if (useYesCsv) {
+                if (value !== 'yes' && value !== 'no') {
+                    continue;
+                }
+                
+                // Only proceed if the search term is in the key or definition
+                const keyMatch = key.toLowerCase().includes(queryNormalized);
+                let definitionMatch = false;
+                
+                // Check all entries for a matching definition
+                for (const valueData of valueEntries) {
+                    if (valueData.definition && 
+                        removeDiacritics(valueData.definition.toLowerCase()).includes(queryNormalized)) {
+                        definitionMatch = true;
+                        break;
+                    }
+                }
+                
+                if (!keyMatch && !definitionMatch) {
+                    continue;
+                }
+            } 
             // Skip generic values (containing *) unless explicitly searching for *
-            if (value.includes('*') && !queryNormalized.includes('*')) {
+            else if (value.includes('*') && !queryNormalized.includes('*')) {
                 continue;
             }
 
@@ -353,19 +549,28 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
                 searchTexts.push(removeDiacritics(`${value}`.toLowerCase()));  // Value name gets highest weight
                 searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));     // Key name gets high weight
 
-                // Add definition columns with lower weight
-                searchTexts.push(removeDiacritics(`${valueData.definition_en || ''}`.toLowerCase()));
-                searchTexts.push(removeDiacritics(`${valueData.definition_ca || ''}`.toLowerCase()));
-                searchTexts.push(removeDiacritics(`${valueData.definition_es || ''}`.toLowerCase()));
-                searchTexts.push(removeDiacritics(`${valueData.value_ca || ''}`.toLowerCase()));
-                searchTexts.push(removeDiacritics(`${valueData.value_es || ''}`.toLowerCase()));
+                // Get all possible definition fields to search in
+                const searchFields = [
+                    valueData.definition,
+                    valueData.definition_ca,
+                    valueData.definition_es,
+                    valueData.definition_en
+                ].filter(Boolean); // Remove any undefined/null values
+                
+                // Add all available definitions to search text
+                searchFields.forEach(definition => {
+                    if (definition) {
+                        searchTexts.push(removeDiacritics(definition.toLowerCase()));
+                    }
+                });
 
                 let matchFound = false;
                 let matchScore = 0;
 
                 for (const searchText of searchTexts) {
-                    // For 'yes' and 'no' values, only show when explicitly searching for them
-                    if ((value === 'yes' || value === 'no') && queryNormalized !== 'yes' && queryNormalized !== 'no') {
+                    // For 'yes' and 'no' values in non-yes/no mode, only show when explicitly searching for them
+                    if (!useYesCsv && (value === 'yes' || value === 'no') && 
+                        queryNormalized !== 'yes' && queryNormalized !== 'no') {
                         continue;
                     }
 
@@ -474,8 +679,8 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
             }
 
             for (const searchText of searchTexts) {
-                // For 'yes' and 'no' values, only show when explicitly searching for them
-                if ((value === 'yes' || value === 'no') && queryNormalized !== 'yes' && queryNormalized !== 'no') {
+                // For 'yes' and 'no' values in non-yes/no mode, only show when explicitly searching for them
+                if (!useYesCsv && (value === 'yes' || value === 'no') && queryNormalized !== 'yes' && queryNormalized !== 'no') {
                     continue;
                 }
 

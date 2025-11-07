@@ -4,7 +4,7 @@
 //import { bn } from './bn.js';
 import { ca } from './ca.js';
 //import { da } from './da.js';
-//import { de } from './de.js';
+import { de } from './de.js';
 import { en } from './en.js';
 import { es } from './es.js';
 //import { eu } from './eu.js';
@@ -37,6 +37,7 @@ import { es } from './es.js';
 export const languages = (() => {
     const langEntries = [
         { code: 'ca', native: 'Català', en: 'Catalan', translations: ca },
+        { code: 'de', native: 'Deutsch', en: 'German', translations: de },
         { code: 'en', native: 'English', en: 'English', translations: en },
         { code: 'es', native: 'Español', en: 'Spanish', translations: es }
     ];

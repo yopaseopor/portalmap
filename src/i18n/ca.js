@@ -2,6 +2,7 @@ export const ca = {
     // UI Elements
     layersLabel: 'Capes',
     overlaysLabel: 'Superposicions',
+    useYesNoDefinitions: 'Utilitzar definicions sí/no (centrat en definicions)',
     completeWith: 'Completar amb:',
     editWith: 'Editar amb:',
     openWith: 'Obrir amb:',

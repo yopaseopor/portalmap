@@ -1,6 +1,7 @@
 export const en = {
     layersLabel: 'Layers',
     overlaysLabel: 'Overlays',
+    useYesNoDefinitions: 'Use yes/no definitions (focus on definitions)',
     completeWith: 'Complete with:',
     editWith: 'Edit with:',
     openWith: 'Open with:',

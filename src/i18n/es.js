@@ -2,6 +2,7 @@ export const es = {
     // UI Elements
     layersLabel: 'Capas',
     overlaysLabel: 'Superposiciones',
+    useYesNoDefinitions: 'Usar definiciones sí/no (enfoque en definiciones)',
     completeWith: 'Completar con:',
     editWith: 'Editar con:',
     openWith: 'Abrir con:',

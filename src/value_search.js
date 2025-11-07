@@ -4,21 +4,238 @@
  * between the default taginfo CSV and a yes/no-focused CSV.
  */
 
+/**
+ * Find or create a layer group for tag query overlays
+ */
+function findOrCreateTagOverlaysGroup() {
+    console.log('🔍 Looking for Tag Queries group');
+
+    // SINGLE CHECK: First check if group already exists in map (fastest)
+    if (window.map) {
+        const existingLayers = window.map.getLayers().getArray();
+        for (let i = 0; i < existingLayers.length; i++) {
+            const layer = existingLayers[i];
+            if (layer.get && layer.get('type') === 'tag-query' && layer.get('title') === 'Tag Queries') {
+                console.log('🔍 Found existing Tag Queries group in map');
+                return layer;
+            }
+        }
+    }
+
+    // SINGLE CHECK: If not in map, check config.layers (fallback)
+    console.log('🔍 Checking config.layers for Tag Queries group');
+    console.log('🔍 Total layers in config:', config.layers.length);
+
+    for (let i = 0; i < config.layers.length; i++) {
+        const layer = config.layers[i];
+
+        if (layer.get && layer.get('type') === 'tag-query' && layer.get('title') === 'Tag Queries') {
+            console.log('🔍 Found existing Tag Queries group at index', i);
+
+            // If map exists, ensure layer group is in it
+            if (window.map && !window.map.getLayers().getArray().includes(layer)) {
+                console.log('🔍 Layer group not in map, adding it');
+                window.map.addLayer(layer);
+            }
+
+            return layer;
+        }
+    }
+
+    // If we get here, the group doesn't exist, so create it
+    console.log('🔍 Creating new Tag Queries group');
+    const overlaysGroup = new ol.layer.Group({
+        title: 'Tag Queries',
+        type: 'tag-query',
+        visible: true,
+        zIndex: 1000, // Ensure it's on top of other layers
+        layers: []
+    });
+
+    // Add to config.layers
+    config.layers.push(overlaysGroup);
+
+    if (window.map) {
+        window.map.addLayer(overlaysGroup);
+    }
+
+    return overlaysGroup;
+}
+
+/**
+ * Format a detailed count of elements
+ * @param {Object} counts - Object containing count information
+ * @param {number} counts.nodes - Number of nodes
+ * @param {number} counts.ways - Number of ways
+ * @param {number} counts.relations - Number of relations
+ * @param {boolean} [detailedSummary=false] - Whether to show detailed summary
+ * @returns {string} Formatted count string
+ */
+function formatDetailedCount(counts, detailedSummary = false) {
+    const parts = [];
+    
+    if (counts.nodes) parts.push(`${counts.nodes} ${window.getTranslation ? window.getTranslation('nodes') : 'nodes'}`);
+    if (counts.ways) parts.push(`${counts.ways} ${window.getTranslation ? window.getTranslation('ways') : 'ways'}`);
+    if (counts.relations) parts.push(`${counts.relations} ${window.getTranslation ? window.getTranslation('relations') : 'relations'}`);
+    
+    if (parts.length === 0) return `0 ${window.getTranslation ? window.getTranslation('features') : 'features'}`;
+    return parts.join(', ');
+}
+
+/**
+ * Format a detailed count of elements with node separation
+ * @param {Object} nodeStats - Object containing node statistics
+ * @param {number} nodeStats.standaloneNodes - Number of standalone nodes
+ * @param {number} nodeStats.polygonNodes - Number of polygon nodes
+ * @param {number} nodeStats.ways - Number of ways
+ * @param {number} nodeStats.polygons - Number of polygons
+ * @param {boolean} [detailedSummary=false] - Whether to show detailed summary
+ * @returns {string} Formatted count string with node separation
+ */
+function formatDetailedCountWithNodeSeparation(nodeStats, detailedSummary = false) {
+    const parts = [];
+
+    // Show standalone nodes and polygon nodes separately
+    if (nodeStats.standaloneNodes) parts.push(`${nodeStats.standaloneNodes} ${window.getTranslation ? window.getTranslation('standaloneNodes') : 'standalone nodes'}`);
+    if (nodeStats.polygonNodes) parts.push(`${nodeStats.polygonNodes} ${window.getTranslation ? window.getTranslation('polygonNodes') : 'polygon nodes'}`);
+
+    if (nodeStats.ways) parts.push(`${nodeStats.ways} ${window.getTranslation ? window.getTranslation('ways') : 'ways'}`);
+    if (nodeStats.polygons) parts.push(`${nodeStats.polygons} ${window.getTranslation ? window.getTranslation('relations') : 'relations'}`);
+
+    if (parts.length === 0) return `0 ${window.getTranslation ? window.getTranslation('features') : 'features'}`;
+    return parts.join(', ');
+}
+
+/**
+ * Format bytes into a human-readable string
+ * @param {number} bytes - The number of bytes to format
+ * @returns {string} Formatted string with appropriate unit (B, KB, MB, GB)
+ */
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+/**
+ * Escape HTML special characters to prevent XSS
+ * @param {string} text - The text to escape
+ * @returns {string} Escaped HTML string
+ */
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Format a value count with appropriate text based on the count
+ * @param {number} count - The count of occurrences
+ * @param {string} definition - The definition or description of the value
+ * @returns {string} Formatted count or description
+ */
+function formatValueCount(count, definition) {
+    if (count > 0) {
+        const numberPart = formatNumber(count);
+        return `${numberPart} ${window.getTranslation ? window.getTranslation('uses') : 'uses'}`;
+    } else {
+        // For values with 0 uses, show a brief description instead
+        return definition 
+            ? definition.substring(0, 60) + (definition.length > 60 ? '...' : '') 
+            : `${window.getTranslation ? window.getTranslation('noDescriptionAvailable') : 'No description available'}`;
+    }
+}
+
+/**
+ * Update query statistics display
+ * @param {Object} stats - Statistics to display
+ */
+function updateQueryStatistics(stats) {
+    console.log('📊 Updating query statistics:', stats);
+
+    // Show the statistics container
+    const statsContainer = $('#query-statistics');
+    if (statsContainer.length > 0) {
+        statsContainer.show();
+
+        // Update execution time
+        $('#execution-time').text(stats.executionTime || '0.000s');
+
+        // Update data size
+        $('#data-size').text(stats.dataSize);
+
+        // Update element counts
+        $('#nodes-count').text(formatNumber(stats.nodes));
+        $('#polygon-nodes-count').text(formatNumber(stats.polygonNodes));
+        $('#ways-count').text(formatNumber(stats.ways));
+        $('#relations-count').text(formatNumber(stats.relations));
+        $('#polygons-count').text(formatNumber(stats.polygons));
+
+        // Update color indicators
+        $('.stat-value').removeClass('color-indicator');
+        $('#execution-time, #data-size, #nodes-count, #polygon-nodes-count, #ways-count, #relations-count, #polygons-count')
+            .addClass('color-indicator')
+            .css('background-color', `rgba(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]}, 0.1)`)
+            .css('border-left', `3px solid rgb(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]})`);
+
+        // Apply the color as background for the color indicators
+        $('.stat-value.color-indicator').each(function() {
+            const $this = $(this);
+            $this.css({
+                'background-color': `rgba(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]}, 0.1)`,
+                'border-left': `3px solid rgb(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]})`,
+                'padding-left': '16px'
+            });
+        });
+
+        console.log('📊 Query statistics updated successfully');
+    }
+}
+
+/**
+ * Format a number with commas as thousand separators
+ * @param {number} number - The number to format
+ * @returns {string} Formatted number string
+ */
+function formatNumber(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+/**
+ * Get the currently selected element types from checkboxes
+ * @returns {string[]} Array of selected element types (node, way, relation)
+ */
+function getSelectedElementTypes() {
+    // Get selected element types from checkboxes or default to all
+    const elementTypesCheckboxes = $('.element-type-checkbox:checked');
+    console.log('🔍 getSelectedElementTypes: Found', elementTypesCheckboxes.length, 'checked checkboxes');
+
+    if (elementTypesCheckboxes.length > 0) {
+        const values = elementTypesCheckboxes.map((i, el) => $(el).val()).get();
+        console.log('🔍 getSelectedElementTypes: Selected values:', values);
+        return values;
+    }
+
+    console.log('🔍 getSelectedElementTypes: No checkboxes found, returning defaults');
+    return ['node', 'way', 'relation'];
+}
+
 function initValueSearch() {
-    console.log('🔍 initValueSearch called');
     const searchInput = $('#value-search');
     const resultsContainer = $('#value-search-dropdown');
 
-    console.log('🔍 Value search input found:', searchInput.length);
-    console.log('🔍 Value search dropdown found:', resultsContainer.length);
-
     if (!searchInput.length) {
-        console.error('🔍 Value search input not found!');
+        console.error('Value search input not found!');
         return;
     }
 
     if (!resultsContainer.length) {
-        console.error('🔍 Value search dropdown not found!');
+        console.error('Value search dropdown not found!');
         return;
     }
 
@@ -44,15 +261,12 @@ function initValueSearch() {
     // Initialize search input
     searchInput.on('input', function() {
         const query = $(this).val().trim();
-        console.log('🔍 Value search input:', query);
 
         // Get the selected key from key search
         const selectedKey = $(this).data('selectedKey');
-        console.log('🔍 Selected key:', selectedKey);
 
         // Read checkbox state
         const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
-        console.log('🔍 useYesCsv:', useYesCsv);
 
         // Clear previous timeout
         if (searchTimeout) {
@@ -67,13 +281,26 @@ function initValueSearch() {
 
         // Debounce search - use selected key if available
         searchTimeout = setTimeout(() => {
-            console.log('🔍 Performing value search for:', query, 'with key:', selectedKey, 'useYesCsv:', useYesCsv);
             performValueSearch(query, selectedKey, useYesCsv);
         }, 300);
     });
 
     // Handle result selection
     resultsContainer.on('click', '.value-search-result', function() {
+        // Check if this is a custom value option
+        const customValue = $(this).data('custom-value');
+        if (customValue) {
+            currentKey = $('#value-search').data('selectedKey');
+            if (currentKey) {
+                // Handle custom value selection
+                currentValue = customValue;
+                $('#value-search').val(customValue);
+                resultsContainer.empty().hide();
+                showExecuteButton(currentKey, customValue);
+                return;
+            }
+        }
+
         let result = $(this).data('result');
 
         // If jQuery data didn't work, try the attribute
@@ -83,19 +310,15 @@ function initValueSearch() {
                 try {
                     result = JSON.parse(attrData);
                 } catch (e) {
-                    console.error('🔍 Failed to parse result attribute:', e);
+                    console.error('Failed to parse result attribute:', e);
                 }
             }
         }
 
-        console.log('🔍 Clicked result data:', result);
         if (result) {
             selectValueResult(result);
         } else {
-            console.error('🔍 No result data found on clicked element');
-            console.log('🔍 Element HTML:', $(this).html());
-            console.log('🔍 Element data:', $(this).data());
-            console.log('🔍 Element attributes:', $(this).attr());
+            console.error('No result data found on clicked element');
         }
     });
 
@@ -109,8 +332,6 @@ function initValueSearch() {
 
     // Handle clear button click
     $('#clear-search-btn').on('click', function() {
-        console.log('🧹 Clear button clicked');
-
         // Clear map layers first
         clearMapLayers();
 
@@ -159,15 +380,13 @@ function initValueSearch() {
                 e.preventDefault();
                 if (highlighted.length) {
                     const result = highlighted.data('result');
-                    console.log('🔍 Enter key value result data:', result);
                     if (result) {
                         selectValueResult(result);
                     } else {
-                        console.error('🔍 No result data found on highlighted value element');
+                        console.error('No result data found on highlighted value element');
                     }
                 } else if (currentResults.length > 0) {
                     // Select first result if none highlighted
-                    console.log('🔍 Enter key selecting first result:', currentResults[0]);
                     selectValueResult(currentResults[0]);
                 }
                 break;
@@ -179,34 +398,25 @@ function initValueSearch() {
     });
 
     function performValueSearch(query, key, useYesCsv = false) {
-        console.log('🔍 performValueSearch called with:', query, 'key:', key, 'useYesCsv:', useYesCsv);
-
         const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
 
         // Choose appropriate loaded flag depending on dataset
         const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
 
         if (!loadedFlag) {
-            console.log('🔍 Taginfo data for requested dataset not loaded, initializing...');
             if (ensureLoaded) {
                 ensureLoaded().then(() => {
-                    console.log('🔍 Taginfo API (requested dataset) initialized, retrying search');
                     performValueSearch(query, key, useYesCsv);
                 }).catch(error => {
-                    console.error('🔍 Failed to initialize taginfo API for requested dataset:', error);
+                    console.error('Failed to initialize taginfo API for requested dataset:', error);
                 });
             } else {
-                console.error('🔍 No init function for requested taginfo dataset');
+                console.error('No init function for requested taginfo dataset');
             }
             return;
         }
 
-        console.log('🔍 Available values count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.values.size : window.taginfoData.values.size);
-        console.log('🔍 Available keys count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.keys.size : window.taginfoData.keys.size);
-
         const results = window.searchValues(query, key, 25, useYesCsv);
-        console.log('🔍 Value search results:', results);
-        console.log('🔍 Results length:', results.length);
 
         currentResults = results;
         // The display function is part of the original file; call it if defined
@@ -225,7 +435,6 @@ function initValueSearch() {
 
     // Listen for key selection from key search
     searchInput.on('keySelected', function(e, keyResult) {
-        console.log('🔗 Key selected event received:', keyResult);
         // Clear value search and results
         searchInput.val('');
         resultsContainer.empty().hide();
@@ -239,7 +448,7 @@ function initValueSearch() {
     });
 
     // Expose clearMapLayers globally for use by overlay system if missing
-    if (!window.clearMapLayers) window.clearMapLayers = function() { console.log('clearMapLayers placeholder'); };
+    if (!window.clearMapLayers) window.clearMapLayers = function() {};
 }
 
 // Initialize when DOM is ready
@@ -286,6 +495,26 @@ function generateUniqueColor(key, value) {
 }
 
 /**
+ * Generate a consistent color based on overlay ID hash
+ */
+function generateQueryColor(overlayId, isFixed = false) {
+    // Generate a consistent color based on overlay ID hash
+    let hash = 0;
+    for (let i = 0; i < overlayId.length; i++) {
+        const char = overlayId.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+
+    // Generate vibrant colors using HSL color space
+    const hue = Math.abs(hash) % 360;
+    const saturation = 70 + (Math.abs(hash * 7) % 20); // 70-90%
+    const lightness = isFixed ? 45 : 55; // Slightly darker for fixed geometries
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+/**
  * Generate a unique color for a key-value pair using a simple hash function
  */
 function generateUniqueColor(key, value) {
@@ -322,8 +551,7 @@ window.tagQueryLegend = {
      * Add or update a query in the legend
      */
     addQuery(overlayId, key, value, color, count = 0, visible = true) {
-        console.log('📝 addQuery called with:', { overlayId, key, value, color, count, visible });
-        const queryObject = {
+            const queryObject = {
             key,
             value,
             color,
@@ -331,9 +559,7 @@ window.tagQueryLegend = {
             visible,
             timestamp: Date.now()
         };
-        console.log('📝 Query object to add:', queryObject);
         this.queries.set(overlayId, queryObject);
-        console.log('📝 Query added to legend, total queries:', this.queries.size);
         this.updateLegendDisplay();
     },
 
@@ -384,13 +610,8 @@ window.tagQueryLegend = {
      * Get all visible queries
      */
     getVisibleQueries() {
-        console.log('🔍 getVisibleQueries called');
-        console.log('🔍 Total queries in legend:', this.queries.size);
         const allQueries = Array.from(this.queries.values());
-        console.log('🔍 All queries:', allQueries);
-        const visibleQueries = Array.from(this.queries.values()).filter(query => query.visible);
-        console.log('🔍 Visible queries:', visibleQueries);
-        console.log('🔍 Filtered count:', visibleQueries.length);
+        const visibleQueries = allQueries.filter(query => query.visible);
         return visibleQueries;
     },
 
@@ -398,24 +619,21 @@ window.tagQueryLegend = {
      * Generate and display the legend - DISABLED
      */
     updateLegendDisplay() {
-        // Legend display is disabled - do nothing
-        console.log('📋 Legend display disabled');
+        // Legend display is disabled
     },
 
     /**
      * Create the legend container if it doesn't exist - DISABLED
      */
     createLegendContainer() {
-        // Legend container creation is disabled - do nothing
-        console.log('📋 Legend container creation disabled');
+        // Legend container creation is disabled
     },
 
     /**
      * Add CSS styles for the legend - DISABLED
      */
     addLegendStyles() {
-        // Legend styles are disabled - do nothing
-        console.log('📋 Legend styles disabled');
+        // Legend styles are disabled
     },
 };
 
@@ -423,14 +641,11 @@ window.tagQueryLegend = {
 if (!window._runningTagQueries) window._runningTagQueries = new Set();
 
 function executeTagQuery(key, value) {
-    console.log('🚀 executeTagQuery called with:', key, value);
-    console.log('🚀 Current legend queries before execution:', window.tagQueryLegend.queries.size);
 
     // Prevent duplicate concurrent executions for the same key/value
     try {
         const overlayKey = `tag_${key}_${value}`;
         if (window._runningTagQueries && window._runningTagQueries.has(overlayKey)) {
-            console.log('🚫 executeTagQuery skipped - already running for', overlayKey);
             return;
         }
         window._runningTagQueries.add(overlayKey);
@@ -444,42 +659,27 @@ function executeTagQuery(key, value) {
     const existingQuery = window.tagQueryLegend.queries.get(`tag_${key}_${value}`);
 
     if (existingQuery) {
-        console.log('🚀 Query already exists, replacing existing overlay');
         // Remove the existing query from legend
         window.tagQueryLegend.removeQuery(`tag_${key}_${value}`);
     }
     if (!window.map) {
-        console.log('🚀 Map not ready, retrying in 500ms');
         setTimeout(() => executeTagQuery(key, value), 500);
         return;
     }
 
     if (typeof window.map.getView !== 'function') {
-        console.log('🚀 Map view not ready, retrying in 500ms');
         setTimeout(() => executeTagQuery(key, value), 500);
         return;
     }
-
-    console.log('🚀 Map is ready, getting bbox');
 
     // Get current map bbox
     const view = window.map.getView();
     const extent = view.calculateExtent();
     const bbox = ol.proj.transformExtent(extent, view.getProjection(), 'EPSG:4326');
 
-    console.log('🚀 Map extent:', extent);
-    console.log('🚀 Map projection:', view.getProjection());
-    console.log('🚀 Map bbox:', bbox);
-    console.log('🚀 Bbox formatted:', `${bbox[1]},${bbox[0]},${bbox[3]},${bbox[2]}`);
-
-    // Log zoom level and area info
-    const zoom = view.getZoom();
-    const area = (extent[2] - extent[0]) * (extent[3] - extent[1]);
-    console.log('🚀 Zoom level:', zoom, 'Area:', area.toFixed(2), 'square units');
-
     // Validate bbox coordinates
     if (bbox.some(coord => isNaN(coord) || Math.abs(coord) > 180)) {
-        console.error('🚀 Invalid bbox coordinates:', bbox);
+        console.error('Invalid bbox coordinates');
         $('#execute-query-btn').prop('disabled', false).text(`${window.getTranslation ? window.getTranslation('invalidLocation') : 'Invalid Location'}`);
         return;
     }
@@ -522,19 +722,14 @@ function executeTagQuery(key, value) {
     // Also update permalink directly after a short delay
     setTimeout(() => {
         if (window.updatePermalink) {
-            console.log('🚀 Calling updatePermalink directly');
             window.updatePermalink();
         }
     }, 100);
 }
 
 function createTagOverlay(key, value, query) {
-    console.log('🎯 createTagOverlay called with:', key, value);
-    console.log('🎯 Query:', query);
-
     // Generate unique color for this key-value pair (same as map uses for base color)
     const uniqueColor = generateQueryColor(key, value, false);
-    console.log('🎯 Generated unique color:', uniqueColor);
 
     // Create a unique overlay for this tag query
     const overlayId = `tag_${key}_${value}`;
@@ -751,14 +946,11 @@ function createTagOverlay(key, value, query) {
     // Find or create the Tag Queries group and add the layer to it
     const tagQueriesGroup = findOrCreateTagOverlaysGroup();
     if (tagQueriesGroup) {
-        console.log('🔍 Adding vector layer to Tag Queries group');
-
         // Check if this specific overlay already exists in the group - OPTIMIZED
         const existingLayers = tagQueriesGroup.getLayers().getArray();
         const existingOverlay = existingLayers.find(layer => layer.get('id') === overlayId);
 
         if (existingOverlay) {
-            console.log('🔍 Overlay already exists in group, removing and recreating for fresh query');
             // Remove the existing overlay to allow fresh query
             tagQueriesGroup.getLayers().remove(existingOverlay);
 
@@ -770,29 +962,22 @@ function createTagOverlay(key, value, query) {
 
         // Add the vector layer to the Tag Queries group
         tagQueriesGroup.getLayers().push(vectorLayer);
-        console.log('🔍 Vector layer added to Tag Queries group, total layers:', tagQueriesGroup.getLayers().getLength());
-
-        // If the map already exists, ensure the group is in it
-        if (window.map) {
-            const mapLayers = window.map.getLayers().getArray();
-            const groupInMap = mapLayers.some(layer => layer === tagQueriesGroup);
-
-            if (!groupInMap) {
-                console.log('🔍 Adding Tag Queries group to existing map');
-                window.map.addLayer(tagQueriesGroup);
-            }
-        }
     }
 
-    console.log('🔍 Overlay layer added successfully');
+    // If the map already exists, ensure the group is in it
+    if (window.map) {
+        const mapLayers = window.map.getLayers().getArray();
+        const groupInMap = mapLayers.some(layer => layer === tagQueriesGroup);
+
+        if (!groupInMap) {
+            window.map.addLayer(tagQueriesGroup);
+        }
+    }
 }
 
 function initValueSearch() {
-    console.log('🔍 initValueSearch called');
-
     // Wait for translations to be available
     if (typeof window.getTranslation !== 'function') {
-        console.log('🔍 Waiting for translations to be initialized...');
         setTimeout(initValueSearch, 100);
         return;
     }
@@ -800,16 +985,13 @@ function initValueSearch() {
     const searchInput = $('#value-search');
     const resultsContainer = $('#value-search-dropdown');
 
-    console.log('🔍 Value search input found:', searchInput.length);
-    console.log('🔍 Value search dropdown found:', resultsContainer.length);
-
     if (!searchInput.length) {
-        console.error('🔍 Value search input not found!');
+        console.error('Value search input not found!');
         return;
     }
 
     if (!resultsContainer.length) {
-        console.error('🔍 Value search dropdown not found!');
+        console.error('Value search dropdown not found!');
         return;
     }
 
@@ -821,11 +1003,9 @@ function initValueSearch() {
     // Initialize search input
     searchInput.on('input', function() {
         const query = $(this).val().trim();
-        console.log('🔍 Value search input:', query);
 
         // Get the selected key from key search
         const selectedKey = $(this).data('selectedKey');
-        console.log('🔍 Selected key:', selectedKey);
 
         // Check if query is in key=value format and no key is selected
         let parsedKey = selectedKey;
@@ -837,7 +1017,6 @@ function initValueSearch() {
             if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
                 parsedKey = parts[0].trim();
                 parsedValue = parts[1].trim();
-                console.log('🔍 Parsed key=value format:', { key: parsedKey, value: parsedValue });
                 // Store the parsed key for later use
                 $(this).data('selectedKey', parsedKey);
                 $(this).val(parsedValue); // Update input to show only the value
@@ -868,7 +1047,6 @@ function initValueSearch() {
 
         // Debounce search - use selected key if available
         searchTimeout = setTimeout(() => {
-            console.log('🔍 Performing value search for:', parsedValue, 'with key:', parsedKey);
             performValueSearch(parsedValue, parsedKey);
         }, 300);
     });
@@ -884,7 +1062,7 @@ function initValueSearch() {
                 try {
                     result = JSON.parse(attrData);
                 } catch (e) {
-                    console.error('🔍 Failed to parse result attribute:', e);
+                    console.error('Failed to parse result attribute:', e);
                 }
             }
         }
@@ -892,7 +1070,6 @@ function initValueSearch() {
         // Check if this is a custom value option
         const customValue = $(this).attr('data-custom-value');
         if (customValue) {
-            console.log('🔍 Custom value clicked:', customValue);
             // Set current value and show execute button
             currentValue = customValue;
             if (currentKey) {
@@ -904,14 +1081,10 @@ function initValueSearch() {
             return;
         }
 
-        console.log('🔍 Clicked result data:', result);
         if (result) {
             selectValueResult(result);
         } else {
-            console.error('🔍 No result data found on clicked element');
-            console.log('🔍 Element HTML:', $(this).html());
-            console.log('🔍 Element data:', $(this).data());
-            console.log('🔍 Element attributes:', $(this).attr());
+            console.error('No result data found on clicked element');
         }
     });
 
@@ -925,16 +1098,12 @@ function initValueSearch() {
             executeTagQuery(selectedKey, valueInput);
             $(this).prop('disabled', true).text('Executing...');
         } else {
-            console.error('❌ Execute button clicked but missing key or value');
-            console.log('Selected key:', selectedKey);
-            console.log('Value input:', valueInput);
+            console.error('Execute button clicked but missing key or value');
         }
     });
 
     // Handle clear button click
     $('#clear-search-btn').on('click', function() {
-        console.log('🧹 Clear button clicked');
-
         // Clear UI state
         $('#value-search').val('');
         $('#value-search-dropdown').empty().hide();
@@ -944,8 +1113,6 @@ function initValueSearch() {
 
         // Clear the selected key from value search
         $('#value-search').removeData('selectedKey');
-
-        console.log('✅ Search cleared');
     });
 
     searchInput.on('keydown', function(e) {
@@ -972,15 +1139,13 @@ function initValueSearch() {
                 e.preventDefault();
                 if (highlighted.length) {
                     const result = highlighted.data('result');
-                    console.log('🔍 Enter key value result data:', result);
                     if (result) {
                         selectValueResult(result);
                     } else {
-                        console.error('🔍 No result data found on highlighted value element');
+                        console.error('No result data found on highlighted value element');
                     }
                 } else if (currentResults.length > 0) {
                     // Select first result if none highlighted
-                    console.log('🔍 Enter key selecting first result:', currentResults[0]);
                     selectValueResult(currentResults[0]);
                 }
                 break;
@@ -992,38 +1157,29 @@ function initValueSearch() {
     });
 
     function performValueSearch(query, key) {
-        console.log('🔍 performValueSearch called with:', query, 'key:', key);
-
         // Read checkbox state (default false)
         const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
-        console.log('🔍 useYesCsv:', useYesCsv);
 
         // Choose appropriate loader/init function
         const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
         const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
 
         if (!loadedFlag) {
-            console.log('🔍 Taginfo data for requested dataset not loaded, initializing...');
+            console.log('Taginfo data for requested dataset not loaded, initializing...');
             if (ensureLoaded) {
                 ensureLoaded().then(() => {
-                    console.log('🔍 Taginfo API (requested dataset) initialized, retrying search');
+                    console.log('Taginfo API (requested dataset) initialized, retrying search');
                     performValueSearch(query, key);
                 }).catch(error => {
-                    console.error('🔍 Failed to initialize taginfo API for requested dataset:', error);
+                    console.error('Failed to initialize taginfo API for requested dataset:', error);
                 });
             } else {
-                console.error('🔍 No init function for requested taginfo dataset');
+                console.error('No init function for requested taginfo dataset');
             }
             return;
         }
 
-        console.log('🔍 Available values count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.values.size : window.taginfoData.values.size);
-        console.log('🔍 Available keys count:', (useYesCsv && window.taginfoDataYes) ? window.taginfoDataYes.keys.size : window.taginfoData.keys.size);
-
         const results = window.searchValues(query, key, 100, useYesCsv);
-        console.log('🔍 Value search results:', results);
-        console.log('🔍 Results length:', results.length);
-
         currentResults = results;
         displayValueResults(results, query);
 
@@ -1032,15 +1188,13 @@ function initValueSearch() {
     }
 
     function displayValueResults(results, query) {
-        console.log('🔍 displayValueResults called with:', results.length, 'results');
         resultsContainer.empty();
 
         if (results.length === 0) {
-            console.log('🔍 No results to display');
             // Show option to execute custom value
             const customValueOption = `
                 <div class="value-search-result custom-value-option" data-custom-value="${escapeHtml(query)}">
-                    <div class="value-name">🔍 "${escapeHtml(query)}"</div>
+                    <div class="value-name">"${escapeHtml(query)}"</div>
                     <div class="value-definition">${window.getTranslation ? window.getTranslation('customValueQuery') : 'Custom value - execute direct query'}</div>
                     <div class="value-count">${window.getTranslation ? window.getTranslation('clickToExecute') : 'Click to execute'}</div>
                 </div>
@@ -1050,20 +1204,11 @@ function initValueSearch() {
             return;
         }
 
-        console.log('🔍 Displaying results...');
         results.forEach((result, index) => {
-            console.log('🔍 result.countAll:', result.countAll, 'type:', typeof result.countAll);
-            console.log('🔍 result.totalCount:', result.totalCount, 'type:', typeof result.totalCount);
-            console.log('🔍 result.tag:', result.tag);
-            console.log('🔍 Result definition_en exists:', !!result.definition_en);
-            console.log('🔍 Result definition_en value:', result.definition_en);
-            console.log('🔍 Result definition exists:', !!result.definition);
-            console.log('🔍 Result definition value:', result.definition);
             let countToUse = result.countAll || result.totalCount || 0;
             if (typeof countToUse === 'string') {
                 countToUse = parseInt(countToUse) || 0;
             }
-            console.log('🔍 Count to use for formatting:', countToUse, 'type:', typeof countToUse, 'is > 0:', countToUse > 0);
             if (typeof countToUse !== 'number' || countToUse <= 0) {
                 countToUse = 0;
             }
@@ -1078,13 +1223,9 @@ function initValueSearch() {
                     if (keyData.values.has(result.value)) {
                         const valueData = keyData.values.get(result.value);
                         definitionToUse = valueData.definition_en || valueData.definition_ca || valueData.definition_es || valueData.definition || '';
-                        console.log('🔍 Got definition from key data:', definitionToUse);
                     }
                 }
             }
-
-            console.log('🔍 Count to use for formatting:', countToUse);
-            console.log('🔍 Definition to use for formatting:', definitionToUse);
 
             // Apply highlighting to search query
             const highlightedValue = highlightText(result.value || result.key || 'No value', query);
@@ -1114,15 +1255,6 @@ function initValueSearch() {
 
             const valueCountHtml = `<div class="value-count">${formatValueCount(countToUse, definitionToUse)}</div>`;
 
-            console.log('🔍 HTML parts:');
-            console.log('  - valueNameHtml:', valueNameHtml);
-            console.log('  - valueKeyHtml:', valueKeyHtml);
-            console.log('  - valueTagHtml:', valueTagHtml);
-            console.log('  - defEnHtml:', defEnHtml);
-            console.log('  - defCaHtml:', defCaHtml);
-            console.log('  - defEsHtml:', defEsHtml);
-            console.log('  - valueCountHtml:', valueCountHtml);
-
             const html = `
                 ${valueNameHtml}
                 ${valueKeyHtml}
@@ -1133,33 +1265,21 @@ function initValueSearch() {
                 ${valueCountHtml}
             `;
 
-            console.log('🔍 Complete HTML structure:', html);
-            console.log('🔍 HTML length:', html.length);
-
             const resultElement = $('<div>')
                 .addClass('value-search-result')
                 .attr('data-result', JSON.stringify(result))  // Store as attribute as well
                 .data('result', result)
                 .html(html);
 
-            // Debug: check if data was stored correctly
-            const storedData = resultElement.data('result');
-            const attrData = resultElement.attr('data-result');
-            console.log('🔍 Stored result data check:', storedData);
-            console.log('🔍 Attribute data check:', attrData);
-
             resultsContainer.append(resultElement);
         });
 
-        console.log('🔍 Results displayed, showing container');
         resultsContainer.show();
     }
 
     function selectValueResult(result) {
-        console.log('🔍 selectValueResult called with:', result);
-
         if (!result) {
-            console.error('🔍 selectValueResult: result is undefined or null');
+            console.error('selectValueResult: result is undefined or null');
             return;
         }
 
@@ -1181,7 +1301,7 @@ function initValueSearch() {
             // Just a value selected (no specific key) - use current key if available
             const currentKey = $('#value-search').data('selectedKey');
             if (!currentKey) {
-                console.warn('🔍 No key available for value selection');
+                console.warn('No key available for value selection');
                 return;
             }
             $('#value-search').val(result.value);
@@ -1189,7 +1309,7 @@ function initValueSearch() {
 
             showExecuteButton(currentKey, result.value);
         } else {
-            console.error('🔍 selectValueResult: result missing required properties:', result);
+            console.error('selectValueResult: result missing required properties:', result);
         }
     }
 
@@ -1206,66 +1326,37 @@ function initValueSearch() {
     }
 
     function clearMapLayers() {
-        console.log('🗑️ clearMapLayers CALLED');
-        console.log('🗑️ Map exists:', !!window.map);
-
         if (!window.map) {
-            console.log('🗑️ No map available');
             return;
         }
-
-        console.log('🗑️ Map layers before clear:', window.map.getLayers().getLength());
 
         // Find the Tag Queries group
         const tagQueriesGroup = findOrCreateTagOverlaysGroup();
         if (!tagQueriesGroup) {
-            console.log('🗑️ No Tag Queries group found');
             return;
         }
-
-        console.log('🗑️ Found Tag Queries group:', tagQueriesGroup.get('title'));
-        console.log('🗑️ Group layers count:', tagQueriesGroup.getLayers().getLength());
 
         // Check if group is in map
         const mapLayers = window.map.getLayers();
         const existingLayers = mapLayers.getArray();
-        console.log('🗑️ Map layers array length:', existingLayers.length);
-
-        // Log all layers in the map
-        console.log('🗑️ All layers in map:');
-        existingLayers.forEach((layer, index) => {
-            console.log(`  Layer ${index}:`, {
-                title: layer.get ? layer.get('title') : 'no title',
-                type: layer.get ? layer.get('type') : 'no type',
-                id: layer.get ? layer.get('id') : 'no id',
-                visible: layer.getVisible ? layer.getVisible() : 'no visible'
-            });
-        });
-
         const groupInMap = existingLayers.some(layer => layer === tagQueriesGroup);
-        console.log('🗑️ Group in map (=== comparison):', groupInMap);
 
-        // Also check if group is in map by title (in case object references don't match)
-        const groupByTitle = existingLayers.find(layer =>
-            layer.get && layer.get('title') === 'Tag Queries' && layer.get('type') === 'overlay'
-        );
-        console.log('🗑️ Group in map (by title):', !!groupByTitle);
-        if (groupByTitle) {
-            console.log('🗑️ Found group by title, using it instead');
+        if (!groupInMap) {
+            return;
         }
 
         // Try to find and remove by title if direct comparison fails
-        if (!groupInMap && !groupByTitle) {
-            console.log('🗑️ Group not in map, nothing to remove');
-            return;
+        if (!groupInMap) {
+            const groupByTitle = existingLayers.find(layer =>
+                layer.get && layer.get('title') === 'Tag Queries' && layer.get('type') === 'overlay'
+            );
+            if (groupByTitle) {
+                console.log('Found group by title, using it instead');
+            }
         }
 
         // Use either the original group or the title-based group for removal
         const groupToRemove = groupInMap ? tagQueriesGroup : groupByTitle;
-        console.log('🗑️ Using group for removal:', groupToRemove.get ? groupToRemove.get('title') : 'no title');
-
-        // Try a completely different approach - hide and clear instead of remove
-        console.log('🗑️ Using alternative approach: hide and clear...');
 
         // Find all Tag Queries layers and hide them
         const allLayers = window.map.getLayers().getArray();
@@ -1277,18 +1368,14 @@ function initValueSearch() {
             )
         );
 
-        console.log('🗑️ Found', tagQueryLayers.length, 'Tag Queries layers to hide');
-
         // Hide all Tag Queries layers
         tagQueryLayers.forEach((layer, index) => {
-            console.log('🗑️ Hiding layer', index, ':', layer.get ? layer.get('title') : 'no title');
             layer.setVisible(false);
 
             // Also clear the vector source if it's a vector layer
             if (layer instanceof ol.layer.Vector) {
                 const source = layer.getSource();
                 if (source && typeof source.clear === 'function') {
-                    console.log('🗑️ Clearing source for hidden layer');
                     source.clear();
                 }
             }
@@ -1299,13 +1386,10 @@ function initValueSearch() {
             layer instanceof ol.layer.Vector && layer.getSource
         );
 
-        console.log('🗑️ Found', vectorLayers.length, 'vector layers to check');
-
         vectorLayers.forEach((layer, index) => {
             const source = layer.getSource();
             if (source && source.getFeatures) {
                 const featureCount = source.getFeatures().length;
-                console.log('🗑️ Vector layer', index, 'has', featureCount, 'features');
 
                 // If this layer has features and might be from our queries, clear it
                 if (featureCount > 0 && (
@@ -1313,29 +1397,20 @@ function initValueSearch() {
                     layer.get('group') === 'Tag Queries' ||
                     layer.get('id')?.startsWith('tag_')
                 )) {
-                    console.log('🗑️ Clearing query result layer:', layer.get ? layer.get('title') : 'no title');
                     source.clear();
                     layer.setVisible(false);
                 }
             }
         });
 
-        console.log('🗑️ Map layers after hiding and clearing:', window.map.getLayers().getLength());
-
         // Force immediate map re-render
         if (window.map) {
-            console.log('🗑️ Forcing immediate map render after hiding...');
             window.map.renderSync();
         }
-
-        // Don't trigger overlay update event immediately to prevent re-integration
-        // The overlay system will update itself if needed
     }
 
     function executeSingleQuery(query, queryType) {
         return new Promise((resolve, reject) => {
-            console.log('🚀 Executing single query of type:', queryType);
-
             const client = new XMLHttpRequest();
             client.open('POST', config.overpassApi());
             client.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
@@ -1349,21 +1424,20 @@ function initValueSearch() {
                         const remark = xml.find('remark');
 
                         if (remark.length !== 0) {
-                            console.error('🚀 Overpass error:', remark.text());
+                            console.error('Overpass error:', remark.text());
                             reject(new Error(`Overpass error: ${remark.text()}`));
                         } else {
                             const features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
                                 featureProjection: window.map.getView().getProjection()
                             });
-                            console.log(`🚀 Query ${queryType} returned ${features.length} features`);
                             resolve(features);
                         }
                     } catch (parseError) {
-                        console.error('🚀 Error parsing XML response:', parseError);
+                        console.error('Error parsing XML response:', parseError);
                         reject(parseError);
                     }
                 } else {
-                    console.error('🚀 Request failed with status:', client.status);
+                    console.error('Request failed with status:', client.status);
                     if (client.status === 504) {
                         reject(new Error(`Timeout: Server overloaded (${queryType} query)`));
                     } else {
@@ -1373,12 +1447,12 @@ function initValueSearch() {
             };
 
             client.onerror = function() {
-                console.error('🚀 Network error');
+                console.error('Network error');
                 reject(new Error(`Network error (${queryType} query)`));
             };
 
             client.ontimeout = function() {
-                console.error('🚀 Request timed out');
+                console.error('Request timed out');
                 reject(new Error(`Timeout: Server overloaded (${queryType} query)`));
             };
 
@@ -1387,8 +1461,6 @@ function initValueSearch() {
     }
 
     function processQueryResults(allFeatures, key, value) {
-        console.log('🚀 Processing', allFeatures.length, 'features from all queries');
-
         // Calculate execution time
         const endTime = performance.now();
         const executionTime = ((endTime - window.queryStartTime) / 1000).toFixed(3) + 's';
@@ -1841,22 +1913,18 @@ function initValueSearch() {
         // Start timing the query execution
         window.queryStartTime = performance.now();
 
-        console.log('🚀 About to execute query...');
-
         // Execute single unified query
         executeSingleQuery(query, 'unified')
             .then(features => {
-                console.log(`✅ Query succeeded with ${features.length} features`);
-                processQueryResults(features, key, value);
+                    processQueryResults(features, key, value);
             })
             .catch(error => {
-                console.error('❌ Query failed:', error.message);
+                console.error('Query failed:', error.message);
                 $('#execute-query-btn').prop('disabled', false).text('Query Failed');
             });
 
         // Update button state
         $('#execute-query-btn').prop('disabled', true).text(`${window.getTranslation ? window.getTranslation('executing') : 'Executing...'}`);
-        console.log('🚀 Button state updated to executing');
 
         // Dispatch tagQueryAdded event immediately after creating overlay
         console.log('🚀 Dispatching tagQueryAdded event from executeTagQuery');
@@ -1928,7 +1996,8 @@ function findOrCreateTagOverlaysGroup() {
     return overlaysGroup;
 }
 
-    function generateQueryColor(overlayId, isFixed = false) {
+// Generate a consistent color based on overlay ID hash
+function generateQueryColor(overlayId, isFixed = false) {
         // Generate a consistent color based on overlay ID hash
         let hash = 0;
         for (let i = 0; i < overlayId.length; i++) {
@@ -1979,34 +2048,9 @@ function findOrCreateTagOverlaysGroup() {
         return hslToRgb(hue, saturation, lightness);
     }
 
-    function formatDetailedCountWithNodeSeparation(nodeStats, detailedSummary) {
-        const parts = [];
+    // formatDetailedCountWithNodeSeparation function moved to global scope
 
-        // Show standalone nodes and polygon nodes separately
-        if (nodeStats.standaloneNodes) parts.push(`${nodeStats.standaloneNodes} ${window.getTranslation ? window.getTranslation('standaloneNodes') : 'standalone nodes'}`);
-        if (nodeStats.polygonNodes) parts.push(`${nodeStats.polygonNodes} ${window.getTranslation ? window.getTranslation('polygonNodes') : 'polygon nodes'}`);
-
-        if (nodeStats.ways) parts.push(`${nodeStats.ways} ${window.getTranslation ? window.getTranslation('ways') : 'ways'}`);
-        if (nodeStats.polygons) parts.push(`${nodeStats.polygons} ${window.getTranslation ? window.getTranslation('relations') : 'relations'}`);
-
-        if (parts.length === 0) return `0 ${window.getTranslation ? window.getTranslation('features') : 'features'}`;
-        return parts.join(', ');
-    }
-
-    function getSelectedElementTypes() {
-        // Get selected element types from checkboxes or default to all
-        const elementTypesCheckboxes = $('.element-type-checkbox:checked');
-        console.log('🔍 getSelectedElementTypes: Found', elementTypesCheckboxes.length, 'checked checkboxes');
-
-        if (elementTypesCheckboxes.length > 0) {
-            const values = elementTypesCheckboxes.map((i, el) => $(el).val()).get();
-            console.log('🔍 getSelectedElementTypes: Selected values:', values);
-            return values;
-        }
-
-        console.log('🔍 getSelectedElementTypes: No checkboxes found, returning defaults');
-        return ['node', 'way', 'relation'];
-    }
+    // getSelectedElementTypes function moved to global scope
 
     function formatNumber(num) {
         if (num >= 1000000) {
@@ -2017,11 +2061,7 @@ function findOrCreateTagOverlaysGroup() {
         return num.toString();
     }
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    // escapeHtml function moved to global scope
 
     function highlightText(text, query) {
         if (!query || !text) return escapeHtml(text);
@@ -2055,23 +2095,7 @@ function findOrCreateTagOverlaysGroup() {
         return parts.join('');
     }
 
-    function formatValueCount(count, definition) {
-        console.log('🔍 formatValueCount called with count:', count, 'definition:', definition);
-        console.log('🔍 formatValueCount - count > 0:', count > 0);
-
-        if (count > 0) {
-            const numberPart = formatNumber(count);
-            const formatted = `${numberPart} ${window.getTranslation ? window.getTranslation('uses') : 'uses'}`;
-            console.log('🔍 formatValueCount - numberPart:', numberPart);
-            console.log('🔍 formatValueCount - returning formatted count:', formatted);
-            return formatted;
-        } else {
-            // For values with 0 uses, show a brief description instead
-            const shortDesc = definition ? definition.substring(0, 60) + (definition.length > 60 ? '...' : '') : `${window.getTranslation ? window.getTranslation('noDescriptionAvailable') : 'No description available'}`;
-            console.log('🔍 formatValueCount - returning description:', shortDesc);
-            return shortDesc;
-        }
-    }
+    // formatValueCount function moved to global scope
 
     // Listen for key selection from key search
     searchInput.on('keySelected', function(e, keyResult) {
@@ -2099,57 +2123,6 @@ function findOrCreateTagOverlaysGroup() {
     window.clearMapLayers = clearMapLayers;
 
     // Query Statistics Functions
-    function updateQueryStatistics(stats) {
-        console.log('📊 Updating query statistics:', stats);
-
-        // Show the statistics container
-        const statsContainer = $('#query-statistics');
-        if (statsContainer.length > 0) {
-            statsContainer.show();
-
-            // Update execution time
-            $('#execution-time').text(stats.executionTime || '0.000s');
-
-            // Update data size
-            $('#data-size').text(stats.dataSize);
-
-            // Update element counts
-            $('#nodes-count').text(formatNumber(stats.nodes));
-            $('#polygon-nodes-count').text(formatNumber(stats.polygonNodes));
-            $('#ways-count').text(formatNumber(stats.ways));
-            $('#relations-count').text(formatNumber(stats.relations));
-            $('#polygons-count').text(formatNumber(stats.polygons));
-
-            // Update color indicators
-            $('.stat-value').removeClass('color-indicator');
-            $('#execution-time, #data-size, #nodes-count, #polygon-nodes-count, #ways-count, #relations-count, #polygons-count')
-                .addClass('color-indicator')
-                .css('background-color', `rgba(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]}, 0.1)`)
-                .css('border-left', `3px solid rgb(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]})`);
-
-            // Apply the color as background for the color indicators
-            $('.stat-value.color-indicator').each(function() {
-                const $this = $(this);
-                $this.css({
-                    'background-color': `rgba(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]}, 0.1)`,
-                    'border-left': `3px solid rgb(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]})`,
-                    'padding-left': '16px'
-                });
-            });
-
-            console.log('📊 Query statistics updated successfully');
-        }
-    }
-
-    function formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
 
     // Hide statistics when clearing searches
     function hideQueryStatistics() {
