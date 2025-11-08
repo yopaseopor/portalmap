@@ -104,15 +104,15 @@ export function getTranslation(key) {
 }
 
 export function updateTranslations() {
-    console.log('🔄 updateTranslations called');
+    // console.log('🔄 updateTranslations called');
     // Find all elements with data-i18n attribute
     const elements = document.querySelectorAll('[data-i18n]');
-    console.log('🔄 Found', elements.length, 'elements with data-i18n');
+    // console.log('🔄 Found', elements.length, 'elements with data-i18n');
 
     elements.forEach(element => {
         const key = element.getAttribute('data-i18n');
         const translation = getTranslation(key);
-        console.log('🔄 Translating', key, '->', translation);
+        // console.log('🔄 Translating', key, '->', translation);
 
         if (element.tagName === 'INPUT' && element.type === 'text') {
             element.placeholder = translation;
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function translateElementTypeCheckboxes() {
-    console.log('🔄 Translating element type checkboxes');
+    // console.log('🔄 Translating element type checkboxes');
     const startTime = performance.now();
     // Translate the label text for element type checkboxes
     $('.element-type-filter label').each(function() {
@@ -242,13 +242,13 @@ function translateElementTypeCheckboxes() {
             }
 
             const translation = getTranslation(translationKey);
-            console.log(`🔄 Translating checkbox ${value} -> ${translation}`);
+            // console.log(`🔄 Translating checkbox ${value} -> ${translation}`);
 
             // Simply replace the text content of the label
             const originalText = $label.text();
-            console.log(`🔄 Label text before: "${originalText}"`);
+            // console.log(`🔄 Label text before: "${originalText}"`);
             $label.text(translation);
-            console.log(`🔄 Label text after: "${$label.text()}"`);
+            // console.log(`🔄 Label text after: "${$label.text()}"`);
         }
     });
 } 

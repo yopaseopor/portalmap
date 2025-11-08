@@ -11,7 +11,7 @@ window.config.overlays = overlayConfig.overlays;
 
 // Function to parse and load shared URLs
 function loadSharedUrl() {
-    console.log('🔗 Loading shared URL parameters');
+    // console.log('🔗 Loading shared URL parameters');
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -25,22 +25,22 @@ function loadSharedUrl() {
     });
 
     if (tagQueries.length > 0) {
-        console.log('🔗 Found tag queries in URL:', tagQueries);
+        // console.log('🔗 Found tag queries in URL:', tagQueries);
 
         // Wait for map and value search to be ready
         const waitForDependencies = () => {
-            console.log('🔗 Checking dependencies...');
-            console.log('🔗 Map exists:', !!window.map);
-            console.log('🔗 executeTagQuery exists:', !!window.executeTagQuery);
-            console.log('🔗 tagQueryLegend exists:', !!window.tagQueryLegend);
+            // console.log('🔗 Checking dependencies...');
+            // console.log('🔗 Map exists:', !!window.map);
+            // console.log('🔗 executeTagQuery exists:', !!window.executeTagQuery);
+            // console.log('🔗 tagQueryLegend exists:', !!window.tagQueryLegend);
 
             if (window.map && window.executeTagQuery && window.tagQueryLegend) {
-                console.log('🔗 Dependencies ready, executing tag queries');
+                // console.log('🔗 Dependencies ready, executing tag queries');
 
                 // Execute each tag query
                 tagQueries.forEach((query, index) => {
                     setTimeout(() => {
-                        console.log('🔗 Executing tag query:', query.key, query.value);
+                        // console.log('🔗 Executing tag query:', query.key, query.value);
                         window.executeTagQuery(query.key, query.value);
                     }, index * 1500); // 1.5 second delay between queries to avoid overwhelming the system
                 });

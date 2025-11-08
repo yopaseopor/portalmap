@@ -3,11 +3,11 @@
  */
 
 function initKeySearch() {
-    console.log('🔑 initKeySearch called');
+    // console.log('🔑 initKeySearch called');
 
     // Wait for translations to be available
     if (typeof window.getTranslation !== 'function') {
-        console.log('🔑 Waiting for translations to be initialized...');
+        // console.log('🔑 Waiting for translations to be initialized...');
         setTimeout(initKeySearch, 100);
         return;
     }
@@ -15,8 +15,8 @@ function initKeySearch() {
     const searchInput = $('#key-search');
     const resultsContainer = $('#key-search-dropdown');
 
-    console.log('🔑 Key search input found:', searchInput.length);
-    console.log('🔑 Key search dropdown found:', resultsContainer.length);
+    // console.log('🔑 Key search input found:', searchInput.length);
+    // console.log('🔑 Key search dropdown found:', resultsContainer.length);
 
     if (!searchInput.length) {
         console.error('🔑 Key search input not found!');
@@ -35,7 +35,7 @@ function initKeySearch() {
     // Initialize search input with debugging
     searchInput.on('input', function() {
         const query = $(this).val().trim();
-        console.log('🔑 Key search input:', query);
+        // console.log('🔑 Key search input:', query);
 
         // Store current key for potential generic query execution
         if (query) {
@@ -45,7 +45,7 @@ function initKeySearch() {
             // Synchronize with value search - set the key for value queries
             const valueSearchInput = $('#value-search');
             if (valueSearchInput.length) {
-                console.log('🔗 Syncing key with value search:', query);
+                // console.log('🔗 Syncing key with value search:', query);
                 valueSearchInput.data('selectedKey', query);
             }
         } else {
@@ -296,9 +296,11 @@ function initKeySearch() {
     // Handle execute button click for generic key queries
     $('#execute-key-query-btn').on('click', function() {
         if (currentKey) {
+            const $btn = $(this);
+            const executingText = window.getTranslation ? window.getTranslation('executingQuery') || 'Executing query...' : 'Executing query...';
+            $btn.prop('disabled', true).text(executingText);
             // If user typed key=value in the input, pass it as-is. Otherwise this will be the key only.
             executeGenericKeyQuery(currentKey);
-            $(this).prop('disabled', true).text('Executing...');
         }
     });
 
@@ -312,8 +314,10 @@ function initKeySearch() {
         currentKey = `${key}${value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')}`;
         $('#key-search').val(key + (value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')));
         showKeyExecuteButton(currentKey);
+        const $btn = $('#execute-key-query-btn');
+        const executingText = window.getTranslation ? window.getTranslation('executingQuery') || 'Executing query...' : 'Executing query...';
+        $btn.prop('disabled', true).text(executingText);
         executeGenericKeyQuery(currentKey);
-        $('#execute-key-query-btn').prop('disabled', true).text('Executing...');
     });
 
     // Handle clear button click
@@ -715,7 +719,11 @@ function initKeySearch() {
         );
 
         if (existingLayer) {
-            console.log('🔍 Overlay already exists in group, skipping creation');
+            console.log('🔍 Overlay already exists in group, allowing re-execution');
+            // Update button to allow re-execution
+            const $btn = $('#execute-key-query-btn');
+            const reexecuteText = window.getTranslation ? window.getTranslation('reexecuteQuery') || 'Re-execute Query' : 'Re-execute Query';
+            $btn.prop('disabled', false).text(reexecuteText);
             // Don't update count here - it will be updated when features are loaded
             return;
         }
@@ -888,7 +896,7 @@ function formatNumber(num) {
 
 // Initialize when DOM is ready
 $(document).ready(function() {
-    console.log('🔑 DOM ready, initializing key search');
+    // console.log('🔑 DOM ready, initializing key search');
     initKeySearch();
 });
 

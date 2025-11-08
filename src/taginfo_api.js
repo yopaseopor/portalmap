@@ -37,7 +37,7 @@ function getCurrentLanguage() {
             return window.i18n.getCurrentLanguage();
         }
     } catch (e) {
-        console.error('Error getting current language:', e);
+        // console.error('Error getting current language:', e);
     }
     // Default to Catalan
     return 'ca';

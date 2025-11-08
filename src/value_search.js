@@ -1972,7 +1972,7 @@ function initValueSearch() {
                 console.error('Query failed:', error.message);
                 $('#execute-query-btn').prop('disabled', false).text('Query Failed');
             })
-            .always(function() {
+            .finally(() => {
                 // Re-enable the search button
                 $('#execute-query-btn').prop('disabled', false).text(window.getTranslation ? window.getTranslation('executeQuery') : 'Execute Query');
             });

@@ -3981,7 +3981,7 @@ leisure,hot_tub,
 content,hot_water,
 substance,hot_water,substance=hot_water
 man_made,hot_water_tank,
-amenity,hotel,
+tourism,hotel,tourism=hotel
 building,hotel,building=hotel
 tourism,hotel,tourism=hotel
 cuisine,hotpot,

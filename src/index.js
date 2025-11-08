@@ -1238,7 +1238,7 @@ function updatePermalink() {
         // Recursively search through all layers (including layer groups)
         function findTagQueryLayers(layers) {
             layers.forEach(layer => {
-                console.log('🔗 Checking layer:', layer.get ? layer.get('id') : 'no id', layer.get ? layer.get('title') : 'no title');
+                // console.log('🔗 Checking layer:', layer.get ? layer.get('id') : 'no id', layer.get ? layer.get('title') : 'no title');
 
                 // Check if this layer is a tag query layer
                 if (layer.get && layer.get('id') && layer.get('id').startsWith('tag_')) {
