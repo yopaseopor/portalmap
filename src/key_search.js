@@ -513,11 +513,119 @@ function initKeySearch() {
                                         id: features[0].getId()
                                     } : 'No features');
 
+                                    // Count elements by type
+                                    const elementCounts = {
+                                        node: 0,
+                                        way: 0,
+                                        relation: 0,
+                                        polygon: 0
+                                    };
+
+                                    features.forEach(feature => {
+                                        // Get the feature type from the OSM XML properties
+                                        const properties = feature.getProperties();
+                                        const type = feature.get('type') || 
+                                                   (properties.tags && properties.tags.type) || 
+                                                   (properties.get && properties.get('tags') && properties.get('tags').type) ||
+                                                   (feature.getGeometry() ? feature.getGeometry().getType().toLowerCase() : 'unknown');
+                                        
+                                        console.log('🔍 Feature type detected:', type, 'Feature ID:', feature.getId());
+                                        
+                                        if (type === 'node' || (feature.getGeometry() && feature.getGeometry().getType() === 'Point')) {
+                                            elementCounts.node++;
+                                        } else if (type === 'way' || 
+                                                  (feature.getGeometry() && 
+                                                   (feature.getGeometry().getType() === 'LineString' || 
+                                                    feature.getGeometry().getType() === 'Polygon'))) {
+                                            elementCounts.way++;
+                                            // Check if it's a polygon (closed way)
+                                            const geometry = feature.getGeometry();
+                                            if (geometry && geometry.getType() === 'Polygon') {
+                                                elementCounts.polygon++;
+                                            }
+                                        } else if (type === 'relation') {
+                                            elementCounts.relation++;
+                                        } else {
+                                            // Fallback: Check geometry type if type property is not available
+                                            const geomType = feature.getGeometry() ? feature.getGeometry().getType().toLowerCase() : 'unknown';
+                                            if (geomType === 'point' || geomType === 'multipoint') {
+                                                elementCounts.node++;
+                                            } else if (geomType === 'linestring' || geomType === 'multilinestring') {
+                                                elementCounts.way++;
+                                            } else if (geomType === 'polygon' || geomType === 'multipolygon') {
+                                                elementCounts.way++;
+                                                elementCounts.polygon++;
+                                            } else if (type === 'node') {
+                                                elementCounts.node++;
+                                            } else if (type === 'way') {
+                                                elementCounts.way++;
+                                            } else if (type === 'relation') {
+                                                elementCounts.relation++;
+                                            } else {
+                                                console.warn('⚠️ Unknown feature type:', type, feature);
+                                            }
+                                        }
+                                    });
+                                    
+                                    console.log('📊 Element counts:', elementCounts);
+
                                     this.addFeatures(features);
                                     console.log('🎯 Features added to source');
 
                                     // Update legend with actual count
                                     window.tagQueryLegend.updateCount(overlayId, features.length);
+
+                                    // Update query statistics
+                                    if (window.updateQueryStatistics) {
+                                        // Ensure the statistics container is visible
+                                        const statsContainer = $('#query-statistics');
+                                        if (statsContainer.length) {
+                                            statsContainer.show();
+                                            
+                                            // Update the statistics display directly
+                                            $('#execution-time').text('0.000s');
+                                            $('#nodes-count').text(elementCounts.node.toString());
+                                            $('#ways-count').text(elementCounts.way.toString());
+                                            $('#relations-count').text(elementCounts.relation.toString());
+                                            
+                                            // Also update any other UI elements that might be showing these values
+                                            if ($('#polygon-nodes-count').length) {
+                                                $('#polygon-nodes-count').text('0');
+                                            }
+                                            if ($('#polygons-count').length) {
+                                                $('#polygons-count').text(elementCounts.polygon.toString());
+                                            }
+                                            if ($('#data-size').length) {
+                                                $('#data-size').text(window.formatBytes(features.length * 100));
+                                            }
+                                            
+                                            // Add color indicators
+                                            $('.stat-value').removeClass('color-indicator');
+                                            $('#execution-time, #data-size, #nodes-count, #polygon-nodes-count, #ways-count, #relations-count, #polygons-count')
+                                                .addClass('color-indicator')
+                                                .css('background-color', `rgba(${uniqueColor[0]}, ${uniqueColor[1]}, ${uniqueColor[2]}, 0.1)`)
+                                                .css('border-left', `3px solid rgb(${uniqueColor[0]}, ${uniqueColor[1]}, ${uniqueColor[2]})`);
+                                        }
+                                        
+                                        // Also call the update function for consistency
+                                        window.updateQueryStatistics({
+                                            dataSize: window.formatBytes(features.length * 100), // Approximate size
+                                            executionTime: '0.000s',
+                                            nodes: elementCounts.node,
+                                            polygonNodes: 0, // Not tracked separately for key searches
+                                            ways: elementCounts.way,
+                                            relations: elementCounts.relation,
+                                            polygons: elementCounts.polygon,
+                                            color: uniqueColor.slice(0, 3) // RGB values
+                                        });
+                                        
+                                        console.log('📊 Updated query statistics with:', {
+                                            nodes: elementCounts.node,
+                                            ways: elementCounts.way,
+                                            relations: elementCounts.relation,
+                                            polygons: elementCounts.polygon
+                                        });
+                                    }
 
                                     // Update overlay summary if function exists
                                     if (window.updateOverlaySummary) {
@@ -760,6 +868,22 @@ function initKeySearch() {
         console.log('🔍 Added Tag Queries group to config.layers');
         return overlaysGroup;
     }
+}
+
+/**
+ * Format a number with K/M/B suffixes for large numbers
+ * @param {number} num - The number to format
+ * @returns {string} Formatted number string
+ */
+function formatNumber(num) {
+    if (num >= 1000000000) {
+        return (num / 1000000000).toFixed(1) + 'B';
+    } else if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
 }
 
 // Initialize when DOM is ready

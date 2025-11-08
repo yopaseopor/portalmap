@@ -134,6 +134,44 @@ function escapeHtml(text) {
 }
 
 /**
+ * Highlight search query matches in text
+ * @param {string} text - The text to search in
+ * @param {string} query - The search query to highlight
+ * @returns {string} HTML with highlighted matches
+ */
+function highlightText(text, query) {
+    if (!query || !text) return escapeHtml(text);
+
+    const queryLower = query.toLowerCase();
+    const textLower = text.toLowerCase();
+
+    // Find all occurrences of the query in the text
+    const parts = [];
+    let lastIndex = 0;
+    let index = textLower.indexOf(queryLower);
+
+    while (index !== -1) {
+        // Add text before the match
+        if (index > lastIndex) {
+            parts.push(escapeHtml(text.substring(lastIndex, index)));
+        }
+
+        // Add highlighted match
+        parts.push(`<mark>${escapeHtml(text.substring(index, index + query.length))}</mark>`);
+
+        lastIndex = index + query.length;
+        index = textLower.indexOf(queryLower, lastIndex);
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+        parts.push(escapeHtml(text.substring(lastIndex)));
+    }
+
+    return parts.join('');
+}
+
+/**
  * Format a value count with appropriate text based on the count
  * @param {number} count - The count of occurrences
  * @param {string} definition - The definition or description of the value
@@ -2062,38 +2100,7 @@ function generateQueryColor(overlayId, isFixed = false) {
     }
 
     // escapeHtml function moved to global scope
-
-    function highlightText(text, query) {
-        if (!query || !text) return escapeHtml(text);
-
-        const queryLower = query.toLowerCase();
-        const textLower = text.toLowerCase();
-
-        // Find all occurrences of the query in the text
-        const parts = [];
-        let lastIndex = 0;
-        let index = textLower.indexOf(queryLower);
-
-        while (index !== -1) {
-            // Add text before the match
-            if (index > lastIndex) {
-                parts.push(escapeHtml(text.substring(lastIndex, index)));
-            }
-
-            // Add highlighted match
-            parts.push(`<mark>${escapeHtml(text.substring(index, index + query.length))}</mark>`);
-
-            lastIndex = index + query.length;
-            index = textLower.indexOf(queryLower, lastIndex);
-        }
-
-        // Add remaining text
-        if (lastIndex < text.length) {
-            parts.push(escapeHtml(text.substring(lastIndex)));
-        }
-
-        return parts.join('');
-    }
+    // highlightText function moved to global scope
 
     // formatValueCount function moved to global scope
 
