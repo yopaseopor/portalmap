@@ -795,7 +795,12 @@ function createTagOverlay(key, value, query) {
 
     // Create vector source without loader initially to prevent automatic queries
     const vectorSource = new ol.source.Vector({
-        format: new ol.format.OSMXML2()
+        format: new ol.format.OSMXML2(),
+        // No loader here as we handle loading state in the query execution
+        loader: function() {
+            // Explicitly do nothing - loading is handled in executeTagQuery
+            return null;
+        }
     });
 
     // Set flag to indicate this is an explicit query request
@@ -1453,6 +1458,11 @@ function initValueSearch() {
             client.open('POST', config.overpassApi());
             client.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
             client.timeout = 60000; // Increased timeout to 60 seconds
+            
+            // Hide loading indicator when request completes, regardless of success/failure
+            client.onloadend = function() {
+                if (window.loading) window.loading.hide();
+            };
 
             client.onload = function() {
                 if (client.status === 200) {
@@ -1552,9 +1562,8 @@ function initValueSearch() {
         const vectorLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
                 format: new ol.format.OSMXML2(),
-                // Disable all automatic loading behaviors
                 loader: function() {
-                    // Explicitly do nothing - no automatic loading
+                    // Explicitly do nothing - loading is handled in executeTagQuery
                     return null;
                 }
             }),
@@ -1950,15 +1959,22 @@ function initValueSearch() {
 
         // Start timing the query execution
         window.queryStartTime = performance.now();
+        
+        // Show loading indicator when starting query execution
+        if (window.loading) window.loading.show();
 
         // Execute single unified query
         executeSingleQuery(query, 'unified')
             .then(features => {
-                    processQueryResults(features, key, value);
+                processQueryResults(features, key, value);
             })
             .catch(error => {
                 console.error('Query failed:', error.message);
                 $('#execute-query-btn').prop('disabled', false).text('Query Failed');
+            })
+            .always(function() {
+                // Re-enable the search button
+                $('#execute-query-btn').prop('disabled', false).text(window.getTranslation ? window.getTranslation('executeQuery') : 'Execute Query');
             });
 
         // Update button state
