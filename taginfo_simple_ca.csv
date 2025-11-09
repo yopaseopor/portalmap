@@ -58,13 +58,13 @@ actuator,pneumatic_cylinder,solenoide	=	cilindre pneumàtic
 addr:block,*,
 addr:block_number,1,sostre:nivells	=	*
 addr:block:en,Block 1,
-addr:block:en,Block␣1,adreça: bloc:	=	Bloc␣1
+addr:block:en,Block␣1,adreça: bloc:	=	Bloc_1
 addr:city,'s-Gravenhage,
 addr:city,*,adreça: bloc	=	*
 addr:city:ar,الــوادي,
 addr:city:de,Bozen,
 addr:city:en,10th of Rammadan City,
-addr:city:en,October␣Gardens␣City,adreça:ciutat:ca	=	Octubre␣Jardins␣Ciutat
+addr:city:en,October␣Gardens␣City,adreça:ciutat:ca	=	Octubre_Jardins_Ciutat
 addr:city:it,Bolzano,adreça:ciutat:it	=	Bolzano
 addr:city:simc,918123,
 addr:community,Nima,adreça:comunitat	=	nima
@@ -77,7 +77,7 @@ addr:district,*,
 addr:district,26 de Octubre,
 addr:district,龜山區,
 addr:district:en,Al Agouza,
-addr:district:en,Western␣Al␣Omraneya,adreça:districte:ca	=	Occidental␣Al␣Omraneia
+addr:district:en,Western␣Al␣Omraneya,adreça:districte:ca	=	Occidental_Al_Omraneia
 addr:division,Kawempe,adreça:divisió	=	Kawempe
 addr:division,Rajshahi,
 addr:flats,1-2,adreça: pisos	=	*
@@ -86,8 +86,8 @@ addr:flats,1-3,
 addr:flats,1-4,
 addr:flats,A;B,
 addr:floor,0,
-addr:floor,Floor␣1,adreça:pis	=	Pis␣1
-addr:floor,Floor␣2,adreça:pis	=	Pis␣2
+addr:floor,Floor␣1,adreça:pis	=	Pis_1
+addr:floor,Floor␣2,adreça:pis	=	Pis_2
 addr:hamlet,*,adreça:pis	=	*
 addr:hamlet,三和里,
 addr:housenumber,0,
@@ -154,7 +154,7 @@ addr:unit,A,
 addr:village,Gumare,adreça:poble	=	Gumaré
 addr:ward,Mbagala,adreça: sala	=	Mbagala
 addr:ward,Mbagala kuu,
-addr:ward,Mbagala␣kuu,adreça: sala	=	Mbagala␣kuu
+addr:ward,Mbagala␣kuu,adreça: sala	=	Mbagala_kuu
 addr.source:housenumber,survey,addr.source:nombre de casa	=	enquesta
 addr.source:street,survey,direcció.font:carrer	=	enquesta
 admin_level,1,nivell d'administrador	=	*
@@ -889,26 +889,15 @@ boundary,vice_county,Límit	=	vice comtat
 boundary,waste_collection,Límit	=	col·lecció d'escombraries
 boundary,water_protection_area,Límit	=	àrea de protecció de l'aigua
 boundary_name:cs,Česko-německá státní hranice,
-brand,*,atribució	=	*
-brand,7-Eleven,
-brand:en,7-Eleven,marca:ca	=	*
+brand,*,marca= *
+brand,Bonpreu,marca=Bonpreu
+brand:en,7-Eleven,marca:en (en anglès) = *
 brand:en,FamilyMart,marca:ca	=	Família Mart
 brand:ja,*,marca	=	*
-brand:ja,セブン-イレブン,
-brand:ja,ハローサイクリング,
-brand:ja,ファミリーマート,
-brand:wikidata,*,marca:ja	=	*
-brand:wikidata,Q1032001,
+brand:ja,セブン-イレブン,marca:ja (en japonès)= *
+brand:wikidata,*,marca a wikidata
+brand:wikidata,Q1032001,wikidata de la marca
 brand:wikipedia,en:7-Eleven,marca: wikipedia	=	és:7-Eleven
-brand:wikipedia,en:Burger␣King,marca: wikipedia	=	ca:Burger␣King
-brand:wikipedia,en:McDonald's,marca: wikipedia	=	ca:McDonald's
-brand:wikipedia,en:Royal Mail,
-brand:wikipedia,en:Royal␣Dutch␣Shell,marca: wikipedia	=	ca:Royal␣Dutch␣Shell
-brand:wikipedia,en:Royal␣Mail,marca: wikipedia	=	ca:Royal␣Mail
-brand:wikipedia,en:Starbucks,marca: wikipedia	=	ca:Starbucks
-brand:wikipedia,en:Subway␣(restaurant),marca: wikipedia	=	és:Metro␣(restaurant)
-brand:wikipedia,ru:Ozon.ru,
-brand:wikipedia,ru:Пятёрочка,
 bridge,abandoned,pont	=	abandonat
 bridge,aqueduct,pont	=	aqüeducte
 bridge,boardwalk,pont	=	passeig marítim
@@ -923,7 +912,7 @@ bridge,trestle,pont	=	cavallet
 bridge,viaduct,pont	=	viaducte
 bridge:movable,bascule,pont: mòbil	=	bàscula
 bridge:movable,drawbridge,pont: mòbil	=	pont llevadís
-bridge:movable,lift,pont: mòbil	=	elevar
+bridge:movable,lift,"pont: mòbil = elevador, ascensor"
 bridge:movable,retractable,pont: mòbil	=	retràctil
 bridge:movable,submersible,pont: mòbil	=	submergible
 bridge:movable,swing,pont: mòbil	=	ritme
@@ -942,221 +931,218 @@ bridge:support,lift_pier,pont: suport	=	ascensor moll
 bridge:support,pier,pont: suport	=	moll
 bridge:support,pivot_pier,pont: suport	=	moll de pivot
 bridge:support,pylon,pont: suport	=	piló
-building,*,edifici	=	*
-building,abandoned,edifici	=	abandonat
-building,administrative,edifici	=	administratiu
-building,agricultural,edifici	=	agrícola
-building,ail,edifici	=	afligir
-building,allotment_house,edifici	=	casa_d'assignació
-building,annexe,edifici	=	annex
-building,apartment,edifici	=	Departament
-building,apartments,Un edifici d'apartaments és una estructura residencial que conté múltiples unitats d'habitatge per a diferents famílies | edifici	=	apartaments
-building,bakehouse,edifici	=	fleca
-building,bank,edifici	=	banc
-building,barn,edifici	=	graner
-building,barrack,edifici	=	barraca
-building,barracks,edifici	=	caserna
-building,beach_hut,edifici	=	cabana de platja
-building,boathouse,edifici	=	cobert
-building,brewery,edifici	=	cerveseria
-building,bridge,edifici	=	pont
-building,bungalow,edifici	=	bungalow
-building,bunker,edifici	=	búnquer
-building,cabin,edifici	=	cabina
-building,canopy,edifici	=	pavelló
-building,carport,edifici	=	cotxera
-building,castle,edifici	=	castell
-building,cathedral,edifici	=	catedral
-building,central_office,edifici	=	oficina central
-building,chalet,edifici	=	xalet
-building,changing_rooms,edifici	=	vestidors
-building,chapel,edifici	=	capella
-building,chicken_coop,edifici	=	galliner
-building,church,edifici	=	església
-building,civic,edifici	=	cívic
-building,clinic,edifici	=	clínica
-building,collapsed,edifici	=	col·lapsat
-building,college,edifici	=	col·lega
+building,*,tipus d'edifici	=	*
+building,abandoned,tipus d'edifici	=	abandonat
+building,administrative,tipus d'edifici	=	administratiu
+building,agricultural,tipus d'edifici	=	agrícola
+building,ail,tipus d'edifici	=	afligir
+building,allotment_house,tipus d'edifici	=	casa_d'assignació
+building,annexe,tipus d'edifici	=	annex
+building,apartment,tipus d'edifici	=	Departament
+building,apartments,"Un edifici d'apartaments és una estructura residencial que conté múltiples unitats d'habitatge per a diferents famílies | edifici = apartaments,bloc de pisos"
+building,bakehouse,"tipus d'edifici = fleca , forn de pa"
+building,bank,tipus d'edifici = banc (només quan tot l’edifici li pertany i busquem tot l’edifici i no només l’oficina bancària)
+building,barn,tipus d'edifici	=	graner
+building,barrack,tipus d'edifici	=	barraca
+building,barracks,tipus d'edifici	=	caserna
+building,beach_hut,tipus d'edifici	=	cabana de platja
+building,boathouse,tipus d'edifici	=	cobert
+building,brewery,tipus d'edifici	=	cerveseria
+building,bridge,tipus d'edifici	=	pont
+building,bungalow,tipus d'edifici	=	bungalow
+building,bunker,tipus d'edifici	=	búnquer
+building,cabin,tipus d'edifici	=	cabina
+building,canopy,tipus d'edifici	=	pavelló
+building,carport,tipus d'edifici	=	cotxera
+building,castle,tipus d'edifici	=	castell
+building,cathedral,tipus d'edifici	=	catedral
+building,central_office,tipus d'edifici	=	oficina central
+building,chalet,tipus d'edifici	=	xalet
+building,changing_rooms,tipus d'edifici	=	vestidors
+building,chapel,tipus d'edifici	=	capella
+building,chicken_coop,tipus d'edifici	=	galliner
+building,church,tipus d'edifici	=	església
+building,civic,tipus d'edifici	=	cívic
+building,clinic,tipus d'edifici	=	clínica
+building,collapsed,tipus d'edifici	=	col·lapsat
+building,college,tipus d'edifici	=	col·lega
 building,commercial,"Un edifici comercial és una estructura utilitzada per a activitats empresarials, oficines i operacions comercials | edifici	=	comercial"
-building,commercial;residential,edifici	=	residencial comercial
-building,community_group_office,edifici	=	oficina_del_grup_comunitari
-building,condominium,edifici	=	condomini
-building,conservatory,edifici	=	conservatori
-building,constructie,edifici	=	constructiu
-building,construction,edifici	=	construcció
-building,container,edifici	=	envàs
-building,convent,edifici	=	convent
-building,cowshed,edifici	=	estable
-building,dam,edifici	=	represa
-building,damaged,edifici	=	danyat
-building,data_center,edifici	=	centre de dades
-building,data_centre,edifici	=	centre de dades
-building,demountable,edifici	=	desmuntable
-building,detached,edifici	=	separat
-building,digester,edifici	=	digeridor
-building,disused,edifici	=	en desús
-building,dormitory,edifici	=	dormitori
-building,dovecote,edifici	=	colomar
-building,duplex,edifici	=	dúplex
-building,dwelling_house,edifici	=	casa d'habitatge
-building,education,edifici	=	educació
-building,electricity,edifici	=	electricitat
-building,entrance,edifici	=	entrada
-building,exit,edifici	=	sortida
-building,factory,edifici	=	fàbrica
-building,farm,edifici	=	granja
-building,farm_auxiliary,edifici	=	granja_auxiliar
-building,fire_lookout,edifici	=	lloc de vigilància d'incendis
-building,fire_station,edifici	=	estació de bombers
-building,flats,edifici	=	pisos
-building,font,edifici	=	font
-building,fort,edifici	=	fort
-building,foundation,edifici	=	Fundació
-building,funeral_hall,edifici	=	saló funerari
-building,garage,edifici	=	garatge
-building,garages,edifici	=	garatges
-building,gasometer,edifici	=	gasòmetre
-building,gatehouse,edifici	=	porta d'entrada
-building,gazebo,edifici	=	Kiosko
-building,ger,edifici	=	ger
-building,glasshouse,edifici	=	hivernacle
-building,government,edifici	=	govern
-building,government_office,edifici	=	oficina governamental
-building,granary,edifici	=	graner
-building,grandstand,edifici	=	tribuna
-building,greenhouse,edifici	=	hivernacle
-building,ground_station,edifici	=	estació terrestre
-building,guard_post,edifici	=	lloc de guàrdia
-building,guardhouse,edifici	=	presó militar
-building,gurdwara,edifici	=	Gurdwara
-building,hall,edifici	=	saló
-building,hall_of_residence,edifici	=	Sala de residència
-building,hangar,edifici	=	hangar
+building,commercial;residential,tipus d'edifici	=	residencial comercial
+building,community_group_office,tipus d'edifici	=	oficina_del_grup_comunitari
+building,condominium,tipus d'edifici	=	condomini
+building,conservatory,tipus d'edifici	=	conservatori
+building,constructie,tipus d'edifici	=	constructiu
+building,construction,tipus d'edifici	=	construcció
+building,container,tipus d'edifici = contenidor
+building,convent,tipus d'edifici	=	convent
+building,cowshed,tipus d'edifici	=	estable
+building,dam,tipus d'edifici	=	represa
+building,damaged,tipus d'edifici	=	danyat
+building,data_center,tipus d'edifici	=	centre de dades
+building,data_centre,tipus d'edifici	=	centre de dades
+building,demountable,tipus d'edifici	=	desmuntable
+building,detached,tipus d'edifici	=	separat
+building,digester,tipus d'edifici	=	digeridor
+building,disused,tipus d'edifici	=	en desús
+building,dormitory,tipus d'edifici	=	dormitori
+building,dovecote,tipus d'edifici	=	colomar
+building,duplex,tipus d'edifici	=	dúplex
+building,dwelling_house,tipus d'edifici	=	casa d'habitatge
+building,education,tipus d'edifici	=	educació
+building,electricity,tipus d'edifici	=	electricitat
+building,entrance,tipus d'edifici	=	entrada
+building,exit,tipus d'edifici	=	sortida
+building,factory,tipus d'edifici	=	fàbrica
+building,farm,tipus d'edifici	=	granja
+building,farm_auxiliary,tipus d'edifici	=	granja_auxiliar
+building,fire_lookout,tipus d'edifici	=	lloc de vigilància d'incendis
+building,fire_station,tipus d'edifici	=	estació de bombers
+building,flats,tipus d'edifici	=	pisos
+building,font,tipus d'edifici	=	font
+building,fort,tipus d'edifici	=	fort
+building,foundation,tipus d'edifici	=	Fundació
+building,funeral_hall,tipus d'edifici	=	saló funerari
+building,garage,tipus d'edifici	=	garatge
+building,garages,tipus d'edifici	=	garatges
+building,gasometer,tipus d'edifici	=	gasòmetre
+building,gatehouse,tipus d'edifici	=	porta d'entrada
+building,gazebo,tipus d'edifici	=	Kiosko
+building,ger,tipus d'edifici	=	ger
+building,glasshouse,tipus d'edifici	=	hivernacle
+building,government,tipus d'edifici	=	govern
+building,government_office,tipus d'edifici	=	oficina governamental
+building,granary,tipus d'edifici	=	graner
+building,grandstand,tipus d'edifici	=	tribuna
+building,greenhouse,tipus d'edifici	=	hivernacle
+building,ground_station,tipus d'edifici	=	estació terrestre
+building,guard_post,tipus d'edifici	=	lloc de guàrdia
+building,guardhouse,tipus d'edifici	=	presó militar
+building,gurdwara,tipus d'edifici	=	Gurdwara
+building,hall,tipus d'edifici	=	saló
+building,hall_of_residence,tipus d'edifici	=	Sala de residència
+building,hangar,tipus d'edifici	=	hangar
 building,hospital,"Un edifici d'hospital és una instal·lació mèdica que proporciona atenció sanitària, tractament i serveis mèdics | edifici	=	hospital"
 building,hotel,Un edifici d'hotel proporciona allotjament temporal i serveis d'hostaleria per a viatgers i visitants | edifici	=	hotel
 building,house,Una casa és un edifici residencial dissenyat per a l'habitatge i vida humana | edifici	=	casa
-building,houseboat,edifici	=	casa flotant
-building,hut,edifici=mulassa de pedra seca | edifici	=	cabana
+building,houseboat,tipus d'edifici	=	casa flotant
+building,hut,tipus d'edifici=mulassa de pedra seca | edifici	=	cabana
 building,industrial,"Un edifici industrial és una instal·lació dissenyada per a la fabricació, producció i operacions industrials | edifici	=	industrial"
-building,kindergarten,edifici	=	escola bressol
-building,kingdom_hall,edifici	=	saló del Regne
-building,kiosk,edifici	=	quiosc
-building,kitchen,edifici	=	cuina
-building,lighthouse,edifici	=	far
-building,manufacture,edifici	=	fabricar
-building,marketplace,edifici	=	mercat
-building,marquee,edifici	=	marquesina
-building,military,edifici	=	militar
-building,mixed_use,edifici	=	Ús mixt
-building,mobile_home,edifici	=	casa mòbil
-building,monastery,edifici	=	monestir
-building,mosque,edifici	=	mesquita
-building,museum,edifici	=	museu
-building,no,edifici	=	no
+building,kindergarten,tipus d'edifici	=	escola bressol
+building,kingdom_hall,tipus d'edifici	=	saló del Regne
+building,kiosk,tipus d'edifici	=	quiosc
+building,kitchen,tipus d'edifici	=	cuina
+building,lighthouse,tipus d'edifici	=	far
+building,manufacture,tipus d'edifici	=	fabricar
+building,marketplace,tipus d'edifici	=	mercat
+building,marquee,tipus d'edifici	=	marquesina
+building,military,tipus d'edifici	=	militar
+building,mixed_use,tipus d'edifici	=	Ús mixt
+building,mobile_home,tipus d'edifici	=	casa mòbil
+building,monastery,tipus d'edifici	=	monestir
+building,mosque,tipus d'edifici	=	mesquita
+building,museum,tipus d'edifici	=	museu
+building,no,tipus d'edifici	=	no
 building,office,Un edifici d'oficines és una estructura comercial dissenyada per a l'administració empresarial i treball d'oficina | edifici	=	oficina
-building,other,edifici	=	un altre
-building,outbuilding,edifici	=	dependència
-building,pagoda,edifici	=	pagoda
-building,pajaru,edifici	=	pajarú
-building,palace,edifici	=	palau
-building,parking,edifici	=	estacionament
-building,pavilion,edifici	=	pavelló
-building,planned,edifici	=	planificat
-building,plot,edifici	=	trama
-building,porch,edifici	=	porxo
-building,poultry_house,edifici	=	galliner
-building,power_substation,edifici	=	subestació_d'energia
-building,presbytery,edifici	=	presbiteri
-building,prison,edifici	=	presó
-building,proposed,edifici	=	proposat
-building,pub,edifici	=	pub
-building,public,edifici	=	públic
-building,quonset_hut,edifici	=	cabanya quonset
-building,railway,edifici	=	ferrocarril
-building,religious,edifici	=	religiós
-building,remote_digital_terminal,edifici	=	terminal digital remot
-building,residences,edifici	=	residències
+building,other,tipus d'edifici	=	un altre
+building,outbuilding,tipus d'edifici	=	dependència
+building,pagoda,tipus d'edifici	=	pagoda
+building,pajaru,tipus d'edifici	=	pajarú
+building,palace,tipus d'edifici	=	palau
+building,parking,tipus d'edifici	=	estacionament
+building,pavilion,tipus d'edifici	=	pavelló
+building,planned,tipus d'edifici	=	planificat
+building,plot,tipus d'edifici	=	trama
+building,porch,tipus d'edifici	=	porxo
+building,poultry_house,tipus d'edifici	=	galliner
+building,power_substation,tipus d'edifici	=	subestació_d'energia
+building,presbytery,tipus d'edifici	=	presbiteri
+building,prison,tipus d'edifici	=	presó
+building,proposed,tipus d'edifici	=	proposat
+building,pub,tipus d'edifici	=	pub
+building,public,tipus d'edifici	=	públic
+building,quonset_hut,tipus d'edifici	=	cabanya quonset
+building,railway,tipus d'edifici	=	ferrocarril
+building,religious,tipus d'edifici	=	religiós
+building,remote_digital_terminal,tipus d'edifici	=	terminal digital remot
+building,residences,tipus d'edifici	=	residències
 building,residential,Un edifici residencial és una estructura dissenyada específicament per allotjar persones i famílies | edifici	=	Residencial
-building,Residential␣building,edifici	=	Edifici␣residencial
+building,Residential␣building,edifici	=	Edifici_residencial
 building,retail,Un edifici comercial és una estructura comercial utilitzada per vendre béns i serveis als clients | edifici	=	venda minorista
-building,riding_hall,edifici	=	sala_d'equitació
-building,roof,edifici	=	sostre
-building,roundhouse,edifici	=	rotonda
-building,row_houses,edifici	=	cases en filera
-building,ruin,edifici	=	ruïna
-building,ruins,edifici	=	restes
+building,riding_hall,tipus d'edifici	=	sala_d'equitació
+building,roof,tipus d'edifici	=	sostre
+building,roundhouse,tipus d'edifici	=	rotonda
+building,row_houses,tipus d'edifici	=	cases en filera
+building,ruin,tipus d'edifici	=	ruïna
+building,ruins,tipus d'edifici	=	restes
 building,school,Un edifici escolar és una instal·lació educativa on els estudiants aprenen i estudien diverses matèries | edifici	=	escola
 building,security_booth,edifici	=	cabina de seguretat
-building,semi,edifici	=	semi
-building,semidetached_house,edifici	=	casa_adossada
-building,service,edifici	=	Servei
-building,shed,edifici	=	cobert
-building,shelter,edifici	=	abric
-building,shepherd_shelter,edifici	=	refugi de pastors
-building,ship,edifici	=	Embarcació
-building,shop,edifici	=	botiga
-building,shrine,edifici	=	santuari
-building,silo,edifici	=	sitja
-building,slurry_tank,edifici	=	tanc_de_purina
-building,smithy,edifici	=	ferreria
-building,sport,edifici	=	esport
-building,sports_centre,edifici	=	centre esportiu
-building,sports_hall,edifici	=	pavelló d'esports
-building,stable,edifici	=	estable
-building,stadium,edifici	=	estadi
-building,static_caravan,edifici	=	estàtica_caravana
-building,stilt_house,edifici	=	casa sobre pilons
-building,storage,edifici	=	emmagatzematge
-building,storage_tank,edifici	=	tanc d'emmagatzematge
-building,store,edifici	=	Botiga
-building,sty,edifici	=	mussol
-building,summer_cottage,edifici	=	casa d'estiu
-building,summer_house,edifici	=	Casa d'estiu
-building,supermarket,edifici	=	supermercat
-building,synagogue,edifici	=	sinagoga
-building,tank,edifici	=	tanc
-building,tech_cab,edifici	=	cabina de tecnologia
-building,temple,edifici	=	temple
-building,tent,edifici	=	carpa
-building,terrace,edifici	=	terrassa
-building,terrace_house,edifici	=	terrassa de la casa
-building,terraced_house,edifici	=	Casa adossada
-building,toilets,edifici	=	banys
-building,tomb,edifici	=	tomba
-building,tower,edifici	=	torre
-building,townhall,edifici	=	Ajuntament
-building,townhouse,edifici	=	casa adossada
-building,train_station,edifici	=	estació de tren
-building,transformer_tower,edifici	=	transformador_torre
-building,transportation,edifici	=	transportació
-building,tree_house,edifici	=	casa de l'arbre
-building,TRUE,edifici	=	CERT
-building,trullo,edifici	=	trullo
-building,tulou,edifici	=	tulou
-building,unclassified,edifici	=	desclassificat
-building,undefined,edifici	=	indefinit
-building,unidentified,edifici	=	no identificat
-building,university,edifici	=	Universitat
-building,unknown,edifici	=	desconegut
-building,utility,edifici	=	utilitat
-building,veranda,edifici	=	veranda
-building,wall,edifici	=	paret
-building,warehouse,edifici	=	dipòsit
-building,water_tower,edifici	=	Torre d'aigua
-building,wayside_shrine,edifici	=	santuari_del_camí
-building,windmill,edifici	=	molí
-building,window,edifici	=	finestra
-building,Y,edifici	=	I
-building:age,10_to_30,edifici:edat	=	*
-building:age,less_than_10,edifici:edat	=	menys de 10
+building,semi,tipus d'edifici	=	semi
+building,semidetached_house,tipus d'edifici	=	casa_adossada
+building,service,tipus d'edifici	=	Servei
+building,shed,tipus d'edifici	=	cobert
+building,shelter,tipus d'edifici	=	abric
+building,shepherd_shelter,tipus d'edifici	=	refugi de pastors
+building,ship,tipus d'edifici	=	Embarcació
+building,shop,tipus d'edifici	=	botiga
+building,shrine,tipus d'edifici	=	santuari
+building,silo,tipus d'edifici	=	sitja
+building,slurry_tank,tipus d'edifici	=	tanc_de_purina
+building,smithy,tipus d'edifici	=	ferreria
+building,sport,tipus d'edifici	=	esport
+building,sports_centre,tipus d'edifici	=	centre esportiu
+building,sports_hall,tipus d'edifici	=	pavelló d'esports
+building,stable,tipus d'edifici	=	estable
+building,stadium,tipus d'edifici	=	estadi
+building,static_caravan,tipus d'edifici	=	estàtica_caravana
+building,stilt_house,tipus d'edifici	=	casa sobre pilons
+building,storage,tipus d'edifici	=	emmagatzematge
+building,storage_tank,tipus d'edifici	=	tanc d'emmagatzematge
+building,store,tipus d'edifici	=	Botiga
+building,sty,tipus d'edifici	=	mussol
+building,summer_cottage,tipus d'edifici	=	casa d'estiu
+building,summer_house,tipus d'edifici	=	Casa d'estiu
+building,supermarket,tipus d'edifici	=	supermercat
+building,synagogue,tipus d'edifici	=	sinagoga
+building,tank,tipus d'edifici	=	tanc
+building,tech_cab,tipus d'edifici	=	cabina de tecnologia
+building,temple,tipus d'edifici	=	temple
+building,tent,tipus d'edifici	=	carpa
+building,terrace,tipus d'edifici	=	terrassa
+building,terrace_house,tipus d'edifici	=	terrassa de la casa
+building,terraced_house,tipus d'edifici	=	Casa adossada
+building,toilets,tipus d'edifici	=	banys
+building,tomb,tipus d'edifici	=	tomba
+building,tower,tipus d'edifici	=	torre
+building,townhall,tipus d'edifici	=	Ajuntament
+building,townhouse,tipus d'edifici	=	casa adossada
+building,train_station,tipus d'edifici	=	estació de tren
+building,transformer_tower,tipus d'edifici	=	transformador_torre
+building,transportation,tipus d'edifici	=	transportació
+building,tree_house,tipus d'edifici	=	casa de l'arbre
+building,TRUE,tipus d'edifici = CERT (valor booleà)
+building,trullo,tipus d'edifici	=	trullo
+building,tulou,tipus d'edifici	=	tulou
+building,unclassified,tipus d'edifici	=	desclassificat
+building,undefined,tipus d'edifici	=	indefinit
+building,unidentified,tipus d'edifici	=	no identificat
+building,university,tipus d'edifici	=	Universitat
+building,unknown,tipus d'edifici	=	desconegut
+building,utility,tipus d'edifici	=	utilitat
+building,veranda,tipus d'edifici	=	veranda
+building,wall,tipus d'edifici	=	paret
+building,warehouse,tipus d'edifici	=	dipòsit
+building,water_tower,tipus d'edifici	=	Torre d'aigua
+building,wayside_shrine,tipus d'edifici	=	santuari_del_camí
+building,windmill,tipus d'edifici	=	molí
+building,window,tipus d'edifici	=	finestra
+building,Y,tipus d'edifici	=	I
+building:age,10_to_30,"edifici:edat, antiguitat = *"
+building:age,less_than_10,"edifici:edat, antiguitat = menys de 10"
 building:age,post_2000,edifici:edat	=	post_2000
 building:age,pre_2000,edifici:edat	=	abans del 2000
 building:category_of_the_house,single_house,edifici:categoria_de_la_casa	=	casa sola
 building:cladding,brick,edifici: revestiment	=	maó
-building:colour,#cccccc,
-building:colour,#eecfaf,
-building:colour,#FFFFFF,edifici:color	=	*
-building:colour,#ffffff,
+building:colour,#FFFFFF,edifici:color = #FFFFFF (blanc en codi de color hexadecimal)
 building:colour,beige,
 building:colour,black,edifici:color	=	negre
 building:colour,brown,edifici:color	=	marró
@@ -1170,7 +1156,7 @@ building:colour,white,edifici:color	=	blanc
 building:colour,yellow,edifici:color	=	groc
 building:condition,average,edifici: condició	=	mitjana
 building:condition,good,edifici: condició	=	bé
-building:condition,poor,edifici: condició	=	pobre
+building:condition,poor,edifici: condició = pobre (no d’economia sino d’estat de l’edifici)
 building:fireproof,no,edifici: incombustible	=	no
 building:flats,0,elevació	=	*
 building:floor,ceramics,edifici:pis	=	ceràmica
@@ -1184,28 +1170,28 @@ building:foundation_height,1␣to␣1.5,edifici:base_alçada	=	*
 building:foundation_height,less_than_1,=	menys que 1
 building:levels,0,
 building:levels,1,
-building:levels,*,marca: wikidata	=	*
-building:levels:underground,0,edifici:pisos	=	*
+building:levels,*,edifici:pisos	=	*
+building:levels:underground,0,
 building:levels:underground,1,edifici:base_alçada	=	*
 building:levels:underground,2,edifici:pisos	=	*
 building:levels:underground,3,
-building:material,block,material de construcció	=	bloquejar
+building:material,block,material de construcció = blocs
 building:material,brick,material de construcció	=	maó
 building:material,cement_block,material de construcció	=	bloc de ciment
-building:material,CI␣sheet,material de construcció	=	full CI␣
+building:material,CI␣sheet,material de construcció	=	full CI_
 building:material,ciment_block,material de construcció	=	ciment_block
 building:material,clay,material de construcció	=	argila
-building:material,concrete,material de construcció	=	concret
-building:material,concrete masonry unit,
-building:material,concrete_reinforced,material de construcció	=	concret_reforçat
+building:material,concrete,material de construcció	=	formigó
+building:material,concrete masonry unit,material de construcció=blocs de formigó
+building:material,concrete_reinforced,material de construcció	=	formigó_reforçat
 building:material,concrete;brick,material de construcció	=	formigó; maó
-building:material,concrete␣masonry␣unit,material de construcció	=	unitat␣de␣mamposteria␣de␣concret
+building:material,concrete␣masonry␣unit,material de construcció	=	unitat_de_mamposteria_de_formigó
 building:material,copper,material de construcció	=	coure
 building:material,dry_stone,pedra seca com a material de l’edifici
 building:material,earth,material de construcció	=	terra
 building:material,glass,material de construcció	=	vidre
 building:material,hard,material de construcció	=	difícil
-building:material,iron_sheet,construir	=	full de ferro
+building:material,iron_sheet,material de construcció = fulla de ferro
 building:material,light,material de construcció	=	llum
 building:material,marble,material de construcció	=	marbre
 building:material,masonry,material de construcció	=	paleta
@@ -1219,15 +1205,15 @@ building:material,mud;wood,material de construcció	=	fang;fusta
 building:material,other,material de construcció	=	un altre
 building:material,permanent,material de construcció	=	permanent
 building:material,plaster,material de construcció	=	guix
-building:material,plastered,material de construcció	=	borratxo
+building:material,plastered,material de construcció = enguixat
 building:material,plastering_inner_wall_only,material de construcció	=	enguixat_paret_interior_solament
 building:material,plastic,material de construcció	=	el plàstic
 building:material,reed,material de construcció	=	Jonc
-building:material,reinforced_concrete,material de construcció	=	concret reforçat
+building:material,reinforced_concrete,material de construcció	=	formigó reforçat
 building:material,roof_tiles,material de construcció	=	teules
 building:material,sandstone,material de construcció	=	gres
 building:material,semi-permanent,material de construcció	=	semi-permanent
-building:material,silicate␣brick,material de construcció	=	silicat␣maó
+building:material,silicate␣brick,material de construcció	=	silicat_maó
 building:material,steel,material de construcció	=	acer
 building:material,stone,material de construcció	=	pedra
 building:material,timber_framing,material de construcció	=	estructura_de_fusta
@@ -1250,8 +1236,8 @@ building:part,retail,
 building:part,roof,edifici:part	=	sostre
 building:place,town,
 building:place,village,edifici:lloc	=	llogaret
-building:roof,concrete,edifici: sostre	=	concret
-building:roof,flat,edifici: sostre	=	plànol
+building:roof,concrete,edifici: sostre	=	formigó
+building:roof,flat,edifici: sostre = pla
 building:roof,iron_sheet,edifici: sostre	=	full de ferro
 building:roof,metal,edifici: sostre	=	metall
 building:roof,tile,edifici: sostre	=	teula
@@ -1267,32 +1253,29 @@ building:structure,plastered,Estructura de construcció	=	borratxo
 building:structure,reinforced_masonry,Estructura de construcció	=	maçoneria_reforçada
 building:type:pl,Przyziemie budynku nieognioodpornego,
 building:type:pl,Przyziemie budynku ognioodpornego,
-building:type:pl,Przyziemie␣budynku␣nieognioodpornego,edifici:tipus:pl	=	Przyziemie␣budynku␣nieognioodpornego
-building:type:pl,Przyziemie␣budynku␣ognioodpornego,edifici:tipus:pl	=	Przyziemie␣budynku␣ognioodpornego
+building:type:pl,Przyziemie␣budynku␣nieognioodpornego,edifici:tipus:pl	=	Przyziemie_budynku_nieognioodpornego
+building:type:pl,Przyziemie␣budynku␣ognioodpornego,edifici:tipus:pl	=	Przyziemie_budynku_ognioodpornego
 building:units,1,edifici:ruian:tipus	=	*
-building:usage:pl,Inny niemieszkalny,
 building:usage:pl,inny niemieszkalny,
 building:usage:pl,Inny niemieszkalny lub podziemny,
-building:usage:pl,Mieszkalny,
 building:usage:pl,mieszkalny,
-building:usage:pl,Transportu i łączności,
 building:usage:pl,transportu i łączności,
 building:usage:pl,Transportu lub łączności,
-building:usage:pl,transportu␣i␣łączności,edifici: ús: pl	=	transportu␣i␣łączności
+building:usage:pl,transportu␣i␣łączności,edifici: ús: pl	=	transportu_i_łączności
 building:use,commercial,edifici:ús	=	comercial
 building:use,residential,edifici:ús	=	Residencial
 building:use,residential;industrial,edifici:ús	=	residencial; industrial
 building:use,stable,edifici: ús	=	estable
 building:use:pl,Inny niemieszkalny,
-building:use:pl,Inny␣niemieszkalny,edifici:ús:pl	=	Inny␣niemieszkalny
+building:use:pl,Inny␣niemieszkalny,edifici:ús:pl	=	Inny_niemieszkalny
 building:use:pl,mieszkalne,edifici:ús:pl	=	mieszkalne
 building:use:pl,Mieszkalny,edifici:ús:pl	=	Mieszkalny
 building:use:pl,"produkcyjne, usługowe i gospodarcze dla rolnictwa",
-building:use:pl,"produkcyjne,␣usługowe␣i␣gospodarcze␣dla␣rolnictwa","edifici:ús:pl	=	produkcyjne,␣usługowe␣i␣gospodarcze␣dla␣rolnictwa"
+building:use:pl,"produkcyjne,␣usługowe␣i␣gospodarcze␣dla␣rolnictwa","edifici:ús:pl	=	produkcyjne,_usługowe_i_gospodarcze_dla_rolnictwa"
 building:use:pl,"Produkcyjny, usługowy lub gospodarczy dla rolnictwa",
-building:use:pl,"Produkcyjny,␣usługowy␣lub␣gospodarczy␣dla␣rolnictwa","edifici:ús:pl	=	Produkcyjny,␣usługowy␣lub␣gospodarczy␣dla␣rolnictwa"
+building:use:pl,"Produkcyjny,␣usługowy␣lub␣gospodarczy␣dla␣rolnictwa","edifici:ús:pl	=	Produkcyjny,_usługowy_lub_gospodarczy_dla_rolnictwa"
 building:use:pl,Transportu i łączności,
-building:use:pl,Transportu␣i␣łączności,edifici:ús:pl	=	Transportu␣i␣łączności
+building:use:pl,Transportu␣i␣łączności,edifici:ús:pl	=	Transportu_i_łączności
 building:walls,brick,edifici: parets	=	maó
 bunker_type,gun_emplacement,tipus búnquer	=	emplaçament d'armes
 bunker_type,hardened_aircraft_shelter,tipus búnquer	=	refugi reforçat per a avions
@@ -1442,7 +1425,7 @@ CLC:code,112,
 clc:code,312,it:pv:pavia:UN_VOL_POR	=	*
 clc:code,313,clc:codi	=	*
 CLC:explanation,See http://wiki.openstreetmap.org/wiki/Romania_CLC_Import.,
-CLC:explanation,See␣http://wiki.openstreetmap.org/wiki/Romania_CLC_Import.,CLC:explicació	=	Consulteu␣http://wiki.openstreetmap.org/wiki/Romania_CLC_Import.
+CLC:explanation,See␣http://wiki.openstreetmap.org/wiki/Romania_CLC_Import.,CLC:explicació	=	Consulteu_http://wiki.openstreetmap.org/wiki/Romania_CLC_Import.
 CLC:year,2006,
 clc:year,2006,CVX:any	=	*
 climbing,route,escalada	=	ruta
@@ -1492,8 +1475,8 @@ coastline:survey_quality,complete,litoral: qualitat d'aixecament	=	complet
 coastline:survey_quality,inadequate,litoral: qualitat d'aixecament	=	inadequat
 collection_times,Mo-Fr 08:00,
 collection_times,Mo-Fr 09:00; Sa 07:00,
-collection_times,Mo-Fr␣08:00,temps_de_col·lecció	=	dl-vie␣08:00
-collection_times,Mo-Fr␣09:00;␣Sa␣07:00,temps_de_col·lecció	=	dl-vie␣09:00;␣dissab␣07:00
+collection_times,Mo-Fr␣08:00,temps_de_col·lecció	=	dl-vie_08:00
+collection_times,Mo-Fr␣09:00;␣Sa␣07:00,temps_de_col·lecció	=	dl-vie_09:00;_dissab_07:00
 collection_times,Mo-Sa 09:00,
 collection_times:signed,no,horaris de recollida:signat	=	no
 colour,#000000,color	=	*
@@ -1521,7 +1504,7 @@ colour:text,green,color:text	=	verd
 colour:text,white,color:text	=	blanc
 comment,*,comentari	=	*
 comment,convertido a OSM usando http://GaleNUx.com,
-comment,convertido␣a␣OSM␣usando␣http://GaleNUx.com,comentari	=	convertit␣a␣OSM␣usant␣http://GaleNUx.com
+comment,convertido␣a␣OSM␣usando␣http://GaleNUx.com,comentari	=	convertit_a_OSM_usant_http://GaleNUx.com
 communication,line,comunicació	=	línia
 communication,mobile_phone,comunicació	=	telèfon mòbil
 communication:radio,fm,comunicació:ràdio	=	FM
@@ -1756,7 +1739,7 @@ crane:type,travel_lift,grua:tipus	=	ascensor de viatge
 created_by,*,construcció	=	*
 created_by,almien_coastlines,
 created_by,ArcGIS Exporter,
-created_by,ArcGIS␣Exporter,creat per	=	ArcGIS␣Exportador
+created_by,ArcGIS␣Exporter,creat per	=	ArcGIS_Exportador
 created_by,dmgroom_coastlines,
 created_by,geobaseNHN2osm,
 created_by,GPSBabel-1.3.6,
@@ -1810,7 +1793,7 @@ crop,tea,cultiu	=	te
 crop,vegetable,cultiu	=	vegetal
 crop,vegetables,cultiu	=	vegetals
 crop,wheat,cultiu	=	blat
-crop,WINE␣GRAPES,cultiu	=	VI␣RAÏMS
+crop,WINE␣GRAPES,cultiu	=	VI_RAÏMS
 crossing,informal,
 crossing,island,encreuament	=	illa
 crossing,marked,encreuament	=	marcat
@@ -2249,8 +2232,8 @@ driveway,pipestem,entrada de cotxes	=	tija de canonada
 dual_carriageway,no,autovia	=	no
 editor,opengislab 2018,
 editor,"opengislab, caicedonia, edificios",
-editor,"opengislab,␣caicedonia,␣edificios","editor	=	opengislab,␣caicedònia,␣edificis"
-editor,opengislab␣2018,editor	=	opengislab␣2018
+editor,"opengislab,␣caicedonia,␣edificios","editor	=	opengislab,_caicedònia,_edificis"
+editor,opengislab␣2018,editor	=	opengislab_2018
 education,centre,educació	=	centre
 education,exercise_area,educació	=	àrea d'exercici
 education,school,educació	=	escola
@@ -2378,7 +2361,7 @@ female,no,
 fence_type,barbed_wire,cerca_tipus	=	filferro_de_pues
 fence_type,bars,cerca_tipus	=	barres
 fence_type,chain_link,cerca_tipus	=	baula de la cadena
-fence_type,concrete,cerca_tipus	=	concret
+fence_type,concrete,cerca_tipus	=	formigó
 fence_type,metal,cerca_tipus	=	metall
 fence_type,pole,=	pol
 fence_type,railing,=	barana
@@ -2448,7 +2431,7 @@ foot,destination,peu	=	destinació
 foot,discouraged,peu	=	desanimat
 foot,military,peu	=	militar
 foot,no,peu	=	no
-foot,no␣@␣(Mo-Su␣18:00-07:00),peu	=	no␣@␣(Lu-Do␣18:00-07:00)
+foot,no␣@␣(Mo-Su␣18:00-07:00),peu	=	no_@_(Lu-Do_18:00-07:00)
 foot,official,peu	=	oficial
 foot,permissive,peu	=	permissiu
 foot,permit,peu	=	permís
@@ -2589,7 +2572,7 @@ genus,Ailanthus,gènere	=	Ailanto
 genus,Alnus,gènere	=	Alnus
 genus,Amelanchier,gènere	=	Amelanchier
 genus,Ananas,gènere	=	Ananes
-genus,Arbre␣Sandaré,gènere	=	Arbre␣Sandaré
+genus,Arbre␣Sandaré,gènere	=	Arbre_Sandaré
 genus,Areca,gènere	=	Areca
 genus,Arecaceae,gènere	=	arecàcies
 genus,Betula,gènere	=	Bètula
@@ -2713,10 +2696,10 @@ gns:dsg,MT,gns:dsg	=	MUNTANYA
 GNS:dsg_code,PPL,GNS: codi_dsg	=	LPP
 GNS:dsg_code,WAD,GNS: codi_dsg	=	TACO
 GNS:dsg_name,populated place,
-GNS:dsg_name,populated␣place,GNS:nom_dsg	=	lloc␣poblat
+GNS:dsg_name,populated␣place,GNS:nom_dsg	=	lloc_poblat
 GNS:dsg_name,wadi,GNS:nom_dsg	=	llera
 GNS:dsg_string,populated place,
-GNS:dsg_string,populated␣place,GNS:cadena_dsg	=	lloc␣poblat
+GNS:dsg_string,populated␣place,GNS:cadena_dsg	=	lloc_poblat
 golf,bunker,golf	=	búnquer
 golf,cartpath,golf	=	camí de carros
 golf,clubhouse,golf	=	casa club
@@ -3010,21 +2993,21 @@ heritage:ref,05111000_A_01676,
 heritage:since,2020-09-26,
 heritage:website,https://www.duesseldorf.de/denkmalschutz/gasleuchten,
 HFCS,Major Collector,
-HFCS,Major␣Collector,JMAF	=	Major␣Col·leccionista
+HFCS,Major␣Collector,JMAF	=	Major_Col·leccionista
 HFCS,Minor Arterial,
-HFCS,Minor␣Arterial,JMAF	=	Menor␣Arterial
+HFCS,Minor␣Arterial,JMAF	=	Menor_Arterial
 HFCS,Principal Arterial,
 HFCS,Principal Arterial - Other,
-HFCS,Principal␣Arterial,JMAF	=	Principal␣Arterial
-HFCS,Principal␣Arterial␣-␣Other,JMAF	=	Principal␣Arterial␣-␣Un altre
+HFCS,Principal␣Arterial,JMAF	=	Principal_Arterial
+HFCS,Principal␣Arterial␣-␣Other,JMAF	=	Principal_Arterial_-_Un altre
 HFCS,Urban Collector,
 HFCS,Urban Minor Arterial,
 HFCS,Urban Principal Arterial,
 HFCS,Urban Principal Arterial - Other,
-HFCS,Urban␣Collector,JMAF	=	Urban␣Col·leccionista
-HFCS,Urban␣Minor␣Arterial,JMAF	=	Urbà␣Menor␣Arterial
-HFCS,Urban␣Principal␣Arterial,JMAF	=	Urbà␣Principal␣Arterial
-HFCS,Urban␣Principal␣Arterial␣-␣Other,JMAF	=	Urbà␣Principal␣Arterial␣-␣Un altre
+HFCS,Urban␣Collector,JMAF	=	Urban_Col·leccionista
+HFCS,Urban␣Minor␣Arterial,JMAF	=	Urbà_Menor_Arterial
+HFCS,Urban␣Principal␣Arterial,JMAF	=	Urbà_Principal_Arterial
+HFCS,Urban␣Principal␣Arterial␣-␣Other,JMAF	=	Urbà_Principal_Arterial_-_Un altre
 hgv,delivery,vhg	=	entrega
 hgv,designated,vhg	=	designat
 hgv,destination,vhg	=	destinació
@@ -3264,7 +3247,7 @@ industrial,brewery,industrial	=	cerveseria
 industrial,brickworks,industrial	=	fàbrica de maons
 industrial,brickyard,industrial	=	fàbrica de maons
 industrial,communication,industrial	=	comunicació
-industrial,concrete_plant,industrial	=	planta concreta
+industrial,concrete_plant,industrial	=	planta formigóa
 industrial,construction_company,industrial	=	companyia de construcció
 industrial,data_centre,industrial	=	centre de dades
 industrial,depot,industrial	=	dipòsit
@@ -3334,10 +3317,10 @@ int_ref,E 40,
 int_ref,E 45,
 int_ref,E 70,
 int_ref,E 75,
-int_ref,E␣22,int_ref	=	E␣22
-int_ref,E␣40,int_ref	=	E␣40
-int_ref,E␣45,int_ref	=	E␣45
-int_ref,E␣75,int_ref	=	E␣75
+int_ref,E␣22,int_ref	=	E_22
+int_ref,E␣40,int_ref	=	E_40
+int_ref,E␣45,int_ref	=	E_45
+int_ref,E␣75,int_ref	=	E_75
 intermittent,no,intermitent	=	no
 internet_access,no,accés a Internet	=	no
 internet_access,terminal,accés a Internet	=	Terminal
@@ -3416,7 +3399,7 @@ lamp_flames,4,herència	=	*
 lamp_mount,angled_mast,muntatge_de_lampada	=	mastil_angulat
 lamp_mount,bent_mast,muntatge_de_lampada	=	mastil_doblat
 lamp_mount,bent␣mast,muntatge_de_lampada	=	màstil doblegat
-lamp_mount,cast␣steel␣mast,muntatge_de_lampada	=	Màstil␣d'acer␣fós
+lamp_mount,cast␣steel␣mast,muntatge_de_lampada	=	Màstil_d'acer_fós
 lamp_mount,high_mast,muntatge_de_lampada	=	pal alt
 lamp_mount,mast,muntatge_de_lampada	=	pal
 lamp_mount,pole,muntatge_de_lampada	=	pol
@@ -3424,9 +3407,9 @@ lamp_mount,straight_mast,muntatge_de_lampada	=	pal_recte
 lamp_mount,suspended,muntatge_de_lampada	=	suspès
 lamp_mount,wall,muntatge_de_lampada	=	paret
 lamp_operator,Hansestadt Rostock,
-lamp_operator,Hansestadt␣Rostock,operador_de_lampares	=	Hansestadt␣Rostock
+lamp_operator,Hansestadt␣Rostock,operador_de_lampares	=	Hansestadt_Rostock
 lamp_operator,Stadtwerke Düsseldorf,
-lamp_operator,Stadtwerke␣Düsseldorf,operador_de_lampares	=	Stadtwerke␣Düsseldorf
+lamp_operator,Stadtwerke␣Düsseldorf,operador_de_lampares	=	Stadtwerke_Düsseldorf
 lamp_type,electric,tipus_lampada	=	elèctric
 lamp_type,electrical,tipus_lampada	=	elèctric
 lamp_type,floodlight,tipus_lampada	=	Llum d'inundació
@@ -3615,7 +3598,7 @@ layer,2,
 layer,3,
 layer,*,capa	=	*
 lbcs:function:code,1101,mesurar	=	*
-lbcs:function:name,Single␣family␣residence␣(detached),lbcs:funció:nom	=	Residència␣unifamiliar␣(independent)
+lbcs:function:name,Single␣family␣residence␣(detached),lbcs:funció:nom	=	Residència_unifamiliar_(independent)
 lcn,proposed,lcn	=	proposat
 leaf_cycle,deciduous,cicle_full	=	caduc
 leaf_cycle,evergreen,cicle_full	=	fulles perennes
@@ -3797,7 +3780,7 @@ LINZ2OSM:source_version,2015-02-02,LINZ:versió_font	=	*
 LINZ2OSM:source_version,2015-04-13,LINZ2OSM:versió_font	=	*
 listed_status,Grade II,
 listed_status,Grade_I,estat llistat	=	Grau I
-listed_status,Grade␣II,llistat_estat	=	Grau␣II
+listed_status,Grade␣II,llistat_estat	=	Grau_II
 lit,24/07/23,il·luminat	=	*
 lit,24/7,comprovar Data	=	24/07/25
 lit,automatic,il·luminat	=	automàtic
@@ -3806,7 +3789,7 @@ lit,dusk-dawn,il·luminat	=	clarejar
 lit,interval,il·luminat	=	interval
 lit,limited,il·luminat	=	limitat
 lit,no,il·luminat	=	no
-lit,"sunset-00:00,05:00-sunrise␣UTC","il·luminat	=	capvespre-00:00,05:00-amanir␣UTC"
+lit,"sunset-00:00,05:00-sunrise␣UTC","il·luminat	=	capvespre-00:00,05:00-amanir_UTC"
 lit,sunset-sunrise,il·luminat	=	Capvespre Clarejar
 lit:perceived,colorless,encès: percebut	=	incolor
 lit:perceived,daylike,encès: percebut	=	diürn
@@ -4079,7 +4062,7 @@ material,brass,material	=	llautó
 material,brick,material	=	maó
 material,bronze,material	=	bronze
 material,composite,material	=	compost
-material,concrete,material	=	concret
+material,concrete,material	=	formigó
 material,dry_stone,material	=	pedra seca
 material,earth,material	=	terra
 material,epoxy,material	=	epoxy
@@ -4095,7 +4078,7 @@ material,metal,material	=	metall
 material,metal;wood,material	=	metall;fusta
 material,paving_stones,material	=	llambordes
 material,plastic,material	=	el plàstic
-material,reinforced_concrete,material	=	concret reforçat
+material,reinforced_concrete,material	=	formigó reforçat
 material,rock,material	=	roca
 material,sand,material	=	sorra
 material,sandstone,material	=	gres
@@ -4618,7 +4601,7 @@ network:wikidata,Q91231927,
 network:wikidata,Q928178,
 network:wikipedia,de:Rhein-Main-Verkehrsverbund,
 network:wikipedia,en:Chicago Transit Authority,
-network:wikipedia,en:Chicago␣Transit␣Authority,xarxa: wikipedia	=	ca:Chicago␣Transit␣Autoritat
+network:wikipedia,en:Chicago␣Transit␣Authority,xarxa: wikipedia	=	ca:Chicago_Transit_Autoritat
 network:wikipedia,en:Valley Metro,
 network:wikipedia,sv:Västtrafik,
 ngbe:codigo,80214,nhd: codi f	=	*
@@ -4644,7 +4627,7 @@ nhd:fdate,Fri Dec 28 00:00:00 PST 2007,
 nhd:fdate,Fri Feb 22 00:00:00 PST 2008,
 nhd:fdate,Fri Mar 08 00:00:00 PST 2002,
 nhd:fdate,Fri May 09 00:00:00 PDT 2008,
-nhd:fdate,Fri␣Dec␣28␣00:00:00␣PST␣2007,nhd:data	=	Dè␣Dic␣28␣00:00:00␣PST␣2007
+nhd:fdate,Fri␣Dec␣28␣00:00:00␣PST␣2007,nhd:data	=	Dè_Dic_28_00:00:00_PST_2007
 nhd:fdate,Mon Mar 04 00:00:00 PST 2002,
 nhd:fdate,Mon Mar 10 00:00:00 CST 2003,
 nhd:fdate,Mon Mar 24 00:00:00 PDT 2008,
@@ -4665,9 +4648,9 @@ nhd:fdate,Wed Jun 02 00:00:00 PDT 2010,
 nhd:fdate,Wed May 09 00:00:00 PDT 2007,
 nhd:fdate,Wed May 26 00:00:00 PDT 2010,
 nhd:fdate,Wed Sep 26 00:00:00 PDT 2007,
-nhd:fdate,Wed␣Sep␣26␣00:00:00␣PDT␣2007,nhd:data	=	dimecres✣setembre␣26␣00:00:00␣PDT␣2007
+nhd:fdate,Wed␣Sep␣26␣00:00:00␣PDT␣2007,nhd:data	=	dimecres✣setembre_26_00:00:00_PDT_2007
 NHD:FLOWDIR,With Digitized,
-NHD:FLOWDIR,With␣Digitized,NHD:FLUIX DIR	=	Amb␣Digitalitzat
+NHD:FLOWDIR,With␣Digitized,NHD:FLUIX DIR	=	Amb_Digitalitzat
 NHD:FType,460,voltatge: secundari	=	*
 NHD:FType,ArtificialPath,NHD: Tipus F	=	camí artificial
 nhd:ftype,ArtificialPath,
@@ -4695,22 +4678,22 @@ note:ja,国土数値情報(河川データ)平成21年度 国土交通省,
 note:ja,国土数値情報（湖沼データ）平成17年　国土交通省,
 note:ja,国土数値情報（鉄道データ）平成19年　国土交通省,
 note:name,"Der reg_name, sowie ggf. der loc_name sind dem zugehörigen Wikipediaartikel entnommen.",
-note:name,"Der␣reg_name,␣sowie␣ggf.␣der␣loc_name␣sind␣dem␣zugehörigen␣Wikipediaartikel␣entnommen.","nota: nom	=	Der␣reg_name,␣sowie␣ggf.␣der␣loc_name␣sind␣dem␣zugehörigen␣Wikipediaartikel␣entnommen."
+note:name,"Der␣reg_name,␣sowie␣ggf.␣der␣loc_name␣sind␣dem␣zugehörigen␣Wikipediaartikel␣entnommen.","nota: nom	=	Der_reg_name,_sowie_ggf._der_loc_name_sind_dem_zugehörigen_Wikipediaartikel_entnommen."
 note:post_town,Florissant,nota:post_town	=	florissant
 note:post_town,Saint Louis,
-note:post_town,Saint␣Louis,nota:post_town	=	San␣Louis
+note:post_town,Saint␣Louis,nota:post_town	=	San_Louis
 notes,One Family Year-Round Residence,
 nuclear_explosion:country,*,explosió nuclear: país	=	*
 nycdoitt:bin,3000000,canvec:CODI	=	*
 nycdoitt:bin,4000000,nycdoitt:bin	=	*
 nysgissam:review,existing element's addr:housenumber has different addr:housenumber,
-nysgissam:review,existing␣element's␣addr:housenumber␣has␣different␣addr:housenumber,nysgissam: revisió	=	la␣direcció:número␣d'element␣existent␣té␣diferent␣direcció:número␣de␣casa
+nysgissam:review,existing␣element's␣addr:housenumber␣has␣different␣addr:housenumber,nysgissam: revisió	=	la_direcció:número_d'element_existent_té_diferent_direcció:número_de_casa
 nysgissam:review,found > 1 existing matching address,
-nysgissam:review,found␣>␣1␣existing␣matching␣address,nysgissam: revisió	=	trobat␣>␣1␣existent␣coincident␣direcció
+nysgissam:review,found␣>␣1␣existing␣matching␣address,nysgissam: revisió	=	trobat_>_1_existent_coincident_direcció
 nysgissam:review,no matching street nearby,
-nysgissam:review,no␣matching␣street␣nearby,nysgissam: revisió	=	sin␣coincidència␣carrer␣cercana
+nysgissam:review,no␣matching␣street␣nearby,nysgissam: revisió	=	sin_coincidència_carrer_cercana
 nysgissam:review,repeat address,
-nysgissam:review,repeat␣address,nysgissam: revisió	=	repetir␣direcció
+nysgissam:review,repeat␣address,nysgissam: revisió	=	repetir_direcció
 object:city,Badalona,
 object:city,Düsseldorf,objecte:ciutat	=	Düsseldorf
 object:city,Tiana,
@@ -4805,7 +4788,7 @@ office,water_utility,oficina	=	servei d'aigua
 office,wedding_planner,oficina	=	planificador del casament
 office:realtor,*,oficina: agent immobiliari	=	*
 official_name,Starbucks Coffee,
-official_name,Starbucks␣Coffee,nom oficial	=	Starbucks␣Cafè
+official_name,Starbucks␣Coffee,nom oficial	=	Starbucks_Cafè
 official_name:en,Seven-Eleven,nom_oficial:ca	=	Set onze
 official_status,ru:деревня,estat_oficial	=	ru:вёска
 official_status,ru:посёлок,
@@ -4859,20 +4842,20 @@ operational_status_quality,unspecified,estat_operatiu_qualitat	=	no especificat
 operator,*,operador	=	*
 operator,Adif,
 operator:en,Central Japan Railway Company,
-operator:en,Central␣Japan␣Railway␣Company,operador:ca	=	Central␣Japó␣Ferrocarril␣Empresa
+operator:en,Central␣Japan␣Railway␣Company,operador:ca	=	Central_Japó_Ferrocarril_Empresa
 operator:en,East Japan Railway Company,
-operator:en,East␣Japan␣Railway␣Company,operador:ca	=	Aquest␣Japó␣Ferrocarril␣Empresa
+operator:en,East␣Japan␣Railway␣Company,operador:ca	=	Aquest_Japó_Ferrocarril_Empresa
 operator:en,Japan Post,
 operator:en,State Grid Corporation of China,
 operator:en,West Japan Railway Company,
-operator:en,West␣Japan␣Railway␣Company,operador:ca	=	West␣Japan␣Railway␣Company
+operator:en,West␣Japan␣Railway␣Company,operador:ca	=	West_Japan_Railway_Company
 operator:ja,*,operador: ja	=	*
 operator:ja,日本郵便,
 operator:ja,東日本旅客鉄道,
 operator:ja,東海旅客鉄道,
 operator:ja,西日本旅客鉄道,
 operator:old,Western Power Distribution,
-operator:old,Western␣Power␣Distribution,operador:vell	=	Distribució␣de␣Energia␣Occidental
+operator:old,Western␣Power␣Distribution,operador:vell	=	Distribució_de_Energia_Occidental
 operator:ref:FR:SIRET,21130055300016,dcgis: any de captura	=	*
 operator:short,NGCP,
 operator:short,PKP PLK,
@@ -4976,7 +4959,7 @@ outlet,valve,presa de corrent	=	vàlvula
 overtaking,no,avançament	=	no
 overtaking:hgv,no,
 owner,Halifax Regional Municipality,
-owner,Halifax␣Regional␣Municipality,propietari	=	Halifax␣Regional␣Municipi
+owner,Halifax␣Regional␣Municipality,propietari	=	Halifax_Regional_Municipi
 owner,Région wallonne,
 ownership,municipal,propietat	=	municipal
 ownership,national,
@@ -5257,7 +5240,7 @@ post_box:type,pillar,post_box: tipus	=	pilar
 post_box:type,wall,post_box: tipus	=	paret
 post_office,post_partner,oficina de correus	=	company de publicació
 postal_code:source,INSSE - SIRUTA,
-postal_code:source,INSSE␣-␣SIRUTA,codi_postal:font	=	INSSE␣-␣SIRUTA
+postal_code:source,INSSE␣-␣SIRUTA,codi_postal:font	=	INSSE_-_SIRUTA
 power,abandoned:tower,poder	=	abandonat: torre
 power,antenna_line,poder	=	línia d'antena
 power,branch,poder	=	sucursal
@@ -5757,7 +5740,7 @@ roof:levels,1.5,sostre:nivells	=	*
 roof:material,asbestos,sostre: material	=	amiant
 roof:material,asphalt,sostre: material	=	asfalt
 roof:material,cgi,sostre: material	=	cgi
-roof:material,concrete,sostre: material	=	concret
+roof:material,concrete,sostre: material	=	formigó
 roof:material,copper,sostre: material	=	coure
 roof:material,eternit,sostre: material	=	etern
 roof:material,glass,sostre: material	=	vidre
@@ -5879,8 +5862,8 @@ sac_scale,hiking,sac_escala	=	senderisme
 sac_scale,mountain_hiking,sac_escala	=	Muntanyisme
 salt,no,sal	=	no
 sanitary_dump_station,*,abocador sanitari	=	*
-sby:bldgtype,Accessory␣Structure,sby: tipus d'edifici	=	Accessori␣Estructura
-sby:bldgtype,Primary␣Structure,sby: tipus d'edifici	=	Primària␣Estructura
+sby:bldgtype,Accessory␣Structure,sby: tipus d'edifici	=	Accessori_Estructura
+sby:bldgtype,Primary␣Structure,sby: tipus d'edifici	=	Primària_Estructura
 school,blind,escola	=	cec
 school,entrance,escola	=	entrada
 school,primary,
@@ -6267,7 +6250,7 @@ seamark:topmark:shape,cone,marca de mar:marca de topall:forma	=	con
 seamark:topmark:shape,"cone, point up",
 seamark:topmark:shape,"cone,_point_down","marca de mar:marca de topall:forma	=	con, apuntar cap avall"
 seamark:topmark:shape,"cone,_point_up","marca de mar:marca de topall:forma	=	con, apuntar cap amunt"
-seamark:topmark:shape,"cone,␣point␣up","marca de mar:marca de topall:forma	=	con,␣punta␣cap amunt"
+seamark:topmark:shape,"cone,␣point␣up","marca de mar:marca de topall:forma	=	con,_punta_cap amunt"
 seamark:topmark:shape,cross,marca de mar:marca de topall:forma	=	creuar
 seamark:topmark:shape,cylinder,marca de mar:marca de topall:forma	=	cilindre
 seamark:topmark:shape,diamond,marca de mar:marca de topall:forma	=	diamant
@@ -6954,12 +6937,12 @@ source:addr:housenumber,survey,
 source:addr:postcode,code-point_open,font:direcció:codi postal	=	codi-punt_obert
 source:addr:postcode,OS Open Data Codepoint,
 source:addr:postcode,OS Opendata Codepoint,
-source:addr:postcode,OS␣Open␣Data␣Codepoint,font:direcció:codi postal	=	OS␣Open␣Data␣Codepoint
-source:addr:postcode,OS␣Opendata␣Codepoint,font:direcció:codi postal	=	OS␣Opendata␣Codepoint
+source:addr:postcode,OS␣Open␣Data␣Codepoint,font:direcció:codi postal	=	OS_Open_Data_Codepoint
+source:addr:postcode,OS␣Opendata␣Codepoint,font:direcció:codi postal	=	OS_Opendata_Codepoint
 source:addr:street,survey,
 source:addr:version,2016-04-01,mml:classe	=	*
 source:address,Helsingborgs kommun,
-source:address,Helsingborgs␣kommun,Adreça de la font	=	Helsingborgs␣kommun
+source:address,Helsingborgs␣kommun,Adreça de la font	=	Helsingborgs_kommun
 source:area,Bing,font:àrea	=	Bing
 source:building,aerial imagery; Ortofotomozaika SR,
 source:building,BDOT,
@@ -6975,7 +6958,7 @@ source:construction_date,GURS,
 source:damage,survey,font: mal	=	enquesta
 source:damage:Chido,CNES / Airbus,
 source:data,cugir.library.cornell.edu & gis.ny.gov/gisdata,
-source:data,cugir.library.cornell.edu␣&␣gis.ny.gov/gisdata,dades font	=	cugir.library.cornell.edu␣&␣gis.ny.gov/gisdata
+source:data,cugir.library.cornell.edu␣&␣gis.ny.gov/gisdata,dades font	=	cugir.library.cornell.edu_&_gis.ny.gov/gisdata
 source:data,https://gis.ny.gov/gisdata,dades font	=	https://gis.ny.gov/gisdata
 source:date,2025-08-20,
 source:date,*,font:data	=	*
@@ -6985,25 +6968,25 @@ source:destination,mapillary,origen Destinació	=	mapellar
 source:ele,barometric,font:el	=	baromètric
 source:ele,BDOrtho IGN Hydroghaphie,
 source:ele,BDOrtho IGN Hydrographie,
-source:ele,BDOrtho␣IGN␣Hydroghaphie,font:el	=	BDOrtho␣IGN␣Hydroghaphie
-source:ele,BDOrtho␣IGN␣Hydrographie,font:el	=	BDOrtho␣IGN␣Hydrographie
+source:ele,BDOrtho␣IGN␣Hydroghaphie,font:el	=	BDOrtho_IGN_Hydroghaphie
+source:ele,BDOrtho␣IGN␣Hydrographie,font:el	=	BDOrtho_IGN_Hydrographie
 source:ele,gpx,font:el	=	gpx
 source:ele,MDT5,font:el	=	MDT5
 source:en,Bayamon Municipality,
 source:en,Bayamón Municipality,
-source:en,Bayamon␣Municipality,font:es	=	Bayamón␣Municipi
-source:en,Bayamón␣Municipality,font:es	=	Bayamón␣Municipi
+source:en,Bayamon␣Municipality,font:es	=	Bayamón_Municipi
+source:en,Bayamón␣Municipality,font:es	=	Bayamón_Municipi
 source:en,Guaynabo Municipality,
-source:en,Guaynabo␣Municipality,font:es	=	Guaynabo␣Municipi
+source:en,Guaynabo␣Municipality,font:es	=	Guaynabo_Municipi
 source:en,Municipality of Caguas,
-source:en,Municipality␣of␣Caguas,font:es	=	Municipi␣de␣Cagües
+source:en,Municipality␣of␣Caguas,font:es	=	Municipi_de_Cagües
 source:en,"National-Land Numerical Information (Forest) 2006, MLIT Japan",
-source:en,"National-Land␣Numerical␣Information␣(Forest)␣2006,␣MLIT␣Japan","font:es	=	National-Land␣Numerical␣Information␣(Bosc)␣2006,␣MLIT␣Japó"
+source:en,"National-Land␣Numerical␣Information␣(Forest)␣2006,␣MLIT␣Japan","font:es	=	National-Land_Numerical_Information_(Bosc)_2006,_MLIT_Japó"
 source:file,http://centrodedescargas.cnig.es/CentroDescargas/equipamiento/BD_Municipios-Entidades.zip,arxiu font	=	http://centrodedescargas.cnig.es/CentroDescargas/equipament/BD_Municipis-Entitats.zip
 source:file,http://centrodedescargas.cnig.es/CentroDescargas/equipamiento/NGBE_de_caracter_Provisional.zip,arxiu font	=	http://centrodedescargas.cnig.es/CentroDescargas/equipament/NGBE_de_caracter_Provisional.zip
 source:filename,buildings.gml,font: nom de fitxer	=	edificis.gml
 source:footprint,Adjusted MS Footprints,
-source:footprint,Adjusted␣MS␣Footprints,font:petjada	=	Petjades␣MS␣Ajustades
+source:footprint,Adjusted␣MS␣Footprints,font:petjada	=	Petjades_MS_Ajustades
 source:geometry,*,font: geometria	=	*
 source:geometry,ACT2016,font: geometria	=	llei2016
 source:geometry,ACTMapiRoads,font: geometria	=	ACTMapiCarreteres
@@ -7167,26 +7150,26 @@ source:geometry:date,2019/07/02,
 source:geometry:date,8/27/2010-4/4/2011,font:geometria:data	=	*
 source:geometry:version,6,seients	=	*
 source:heritage,"data.gouv.fr, Ministère de la Culture - 2016",
-source:heritage,"data.gouv.fr,␣Ministère␣de␣la␣Culture␣-␣2016","font: herència	=	data.gouv.fr,␣Ministère␣de␣la␣Culture␣-␣2016"
+source:heritage,"data.gouv.fr,␣Ministère␣de␣la␣Culture␣-␣2016","font: herència	=	data.gouv.fr,_Ministère_de_la_Culture_-_2016"
 source:hgv,https://gamccd.net/Documents/OSP_GaOversizeTrkRouteMap.pdf,
 source:hgv,https://gis-idot.opendata.arcgis.com/datasets/IDOT::designated-truck-routes-state-jurisdiction-truck-route/explore?location=40.542466%2C-88.991188%2C14.60;https://www.gettingaroundillinois.com/MapViewer/?config=DTRconfig.json,
 source:hgv,https://www.dot.state.pa.us/public/pubsforms/Publications/TruckersMap.pdf,
 source:hgv,https://www.michigan.gov/mdot/-/media/Project/Websites/MDOT/Travel/Map/Truck-Operators-Map/Truck-Operators-Map.pdf,
 source:hgv,MassGIS,font:hgv	=	MassGIS
-source:hgv,PennDOT␣ftp://ftp.dot.state.pa.us/public/Bureaus/BOMO/MC/Publication411.pdf,font:hgv	=	PennDOT␣ftp://ftp.dot.state.pa.us/public/Bureaus/BOMO/MC/Publication411.pdf
+source:hgv,PennDOT␣ftp://ftp.dot.state.pa.us/public/Bureaus/BOMO/MC/Publication411.pdf,font:hgv	=	PennDOT_ftp://ftp.dot.state.pa.us/public/Bureaus/BOMO/MC/Publication411.pdf
 source:hgv,Truck␣Route␣Ordinance␣https://www.phoenix.gov/streetssite/Documents/truckmap.pdf,
 source:hgv,"TxDOT’s Sign Guidelines and Applications Manual, Chapter 5, Section 6 Truck Routes https://onlinemanuals.txdot.gov/TxDOTOnlineManuals/TxDOTManuals/smk/truck_routes.htm",
 source:hgv:national_network,Caltrans http://www.dot.ca.gov/hq/traffops/trucks/truckmap/,
-source:hgv:national_network,Caltrans␣http://www.dot.ca.gov/hq/traffops/trucks/truckmap/,font:hgv:red_nacional	=	Caltrans␣http://www.dot.ca.gov/hq/traffops/trucks/truckmap/
+source:hgv:national_network,Caltrans␣http://www.dot.ca.gov/hq/traffops/trucks/truckmap/,font:hgv:red_nacional	=	Caltrans_http://www.dot.ca.gov/hq/traffops/trucks/truckmap/
 source:hgv:national_network,"CDOT ""Highway Data Explorer""",
-source:hgv:national_network,"CDOT␣""Highway␣Data␣Explorer""","font:hgv:red_nacional	=	CDOT␣""Highway␣Data␣Explorer"""
+source:hgv:national_network,"CDOT␣""Highway␣Data␣Explorer""","font:hgv:red_nacional	=	CDOT_""Highway_Data_Explorer"""
 source:hgv:national_network,https://hepgis-usdot.hub.arcgis.com/apps/usdot::national-network-conventional-combination-trucks-map/explore,
 source:hgv:national_network,https://www.ecfr.gov/current/title-23/chapter-I/subchapter-G/part-658;https://hepgis-usdot.hub.arcgis.com/apps/usdot::national-network-conventional-combination-trucks-map,
 source:hgv:national_network,Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23,
 source:hgv:state_network,NJDOT http://www.state.nj.us/transportation/about/rules/pdf/chapter32truckaccess.pdf,
-source:hgv:state_network,NJDOT␣http://www.state.nj.us/transportation/about/rules/pdf/chapter32truckaccess.pdf,font: hgv: state_network	=	NJDOT␣http://www.state.nj.us/transportation/about/rules/pdf/chapter32truckaccess.pdf
+source:hgv:state_network,NJDOT␣http://www.state.nj.us/transportation/about/rules/pdf/chapter32truckaccess.pdf,font: hgv: state_network	=	NJDOT_http://www.state.nj.us/transportation/about/rules/pdf/chapter32truckaccess.pdf
 source:hgv:state_network,NYSDOT https://www.dot.ny.gov/divisions/operating/oom/transportation-systems/repository/2010%20trk%20access%20bk.pdf,
-source:hgv:state_network,NYSDOT␣https://www.dot.ny.gov/divisions/operating/oom/transportation-systems/repository/2010%20trk%20access%20bk.pdf,font: hgv: state_network	=	NYSDOT␣https://www.dot.ny.gov/divisions/operating/oom/transportation-systems/repository/2010%20trk%20access%20bk.pdf
+source:hgv:state_network,NYSDOT␣https://www.dot.ny.gov/divisions/operating/oom/transportation-systems/repository/2010%20trk%20access%20bk.pdf,font: hgv: state_network	=	NYSDOT_https://www.dot.ny.gov/divisions/operating/oom/transportation-systems/repository/2010%20trk%20access%20bk.pdf
 source:highway,schema_br2013,font:carretera	=	esquema_br2013
 source:highway_authority_ref,foi_request,
 source:highway_classification,IBGE,
@@ -7196,7 +7179,7 @@ source:imagery,"BingSat, ESRI, and other open satellite imagery available to OSM
 source:imagery,"BingSat, ESRI, and other open satellite imagery available to OSM as of 2025",
 source:imagery,ESRI & NYS Sat Imagery,
 source:imagery,ESRI Sat & NYS Sat Imagery,
-source:imagery,ESRI␣&␣NYS␣Sat␣Imagery,font: imatges	=	ESRI␣&␣NYS␣Sat␣Imatges
+source:imagery,ESRI␣&␣NYS␣Sat␣Imagery,font: imatges	=	ESRI_&_NYS_Sat_Imatges
 source:ja,国土数値情報（森林地域データ）平成18年　国土交通省,
 source:lake,Review by So9q using LM Topographic Map,
 source:lanes,Esri World Imagery,
@@ -7281,34 +7264,34 @@ source:name,survey,nom de la font	=	enquesta
 source:name,Vicmap.Transport:services.land.vic.gov.au,
 source:name,ZBGIS,
 source:name:br,ofis publik ar brezhoneg,
-source:name:br,ofis␣publik␣ar␣brezhoneg,font:nom:br	=	ofis␣publik␣ar␣brezhoneg
+source:name:br,ofis␣publik␣ar␣brezhoneg,font:nom:br	=	ofis_publik_ar_brezhoneg
 source:name:br,proper translation,
-source:name:br,proper␣translation,font:nom:br	=	traducció␣pròpia
+source:name:br,proper␣translation,font:nom:br	=	traducció_pròpia
 source:name:oc,ieo-bdtopoc,font:nom:oc	=	ieo-bdtopoc
 source:old_ref:fap,ODOT http://www.dot.state.oh.us/Divisions/Planning/TechServ/prod_services/Pages/RI06.aspx http://www.dot.state.oh.us/Divisions/ContractAdmin/Contracts/Pages/NHS-FAP.aspx,
 source:old_ref:fap,ODOT␣http://www.dot.state.oh.us/Divisions/Planning/TechServ/prod_services/Pages/RI06.aspx␣http://www.dot.state.oh.us/Divisions/ContractAdmin/Contracts/Pages/NHS-FAP.aspx,font:antiga_ref:fap	=
 source:oneway,Esri World Imagery,
-source:oneway,Esri␣World␣Imagery,font: unidireccional	=	Esri␣Món␣Imatges
+source:oneway,Esri␣World␣Imagery,font: unidireccional	=	Esri_Món_Imatges
 source:outline,ALK NRW,
 source:outline,ALKIS NRW,
 source:outline,Bing,
 source:outline,"Maps4BW (LGL-BW, www.lgl-bw.de)",
 source:outline,"maps4bw (LGL, www.lgl-bw.de)",
 source:outline,"maps4bw (LGL, www.lgl-bw.de); Mapbox Satellite",
-source:outline,"maps4bw␣(LGL,␣www.lgl-bw.de);␣Mapbox␣Satellite","font: esquema	=	maps4bw␣(LGL,␣www.lgl-bw.de);␣Mapbox␣Satèl·lit"
+source:outline,"maps4bw␣(LGL,␣www.lgl-bw.de);␣Mapbox␣Satellite","font: esquema	=	maps4bw_(LGL,_www.lgl-bw.de);_Mapbox_Satèl·lit"
 source:population,*,font:població	=	*
 source:population,"IBGE, DOU de 31/08/2023",
 source:population,INE,font:població	=	INE
 source:population,ine.gob.bo;2016,font:població	=	ine.gob.bo;2016
 source:population,INSEE 2024,
-source:population,INSEE␣2022,font:població	=	INSEE␣2022
+source:population,INSEE␣2022,font:població	=	INSEE_2022
 source:population,pmgsy,
 source:population,US Census,
 source:population,wikipedia,
 source:population,Белстат,
 source:position,*,font:posició	=	*
 source:position,Aerial photogrammetry,
-source:position,Aerial␣photogrammetry,font:posició	=	Fotogrametria aèria␣
+source:position,Aerial␣photogrammetry,font:posició	=	Fotogrametria aèria_
 source:position,Bing,
 source:position,bing,
 source:position,"bing (0,0)",
@@ -7316,7 +7299,7 @@ source:position,"bing HR(0,0)",
 source:position,bing HR(0;0),
 source:position,Bing Imagery,
 source:position,"bing(0,0)","font:posició	=	bing(0,0)"
-source:position,bing␣HR(0;0),font:posició	=	bing␣HR(0;0)
+source:position,bing␣HR(0;0),font:posició	=	bing_HR(0;0)
 source:position,DigitalGlobe Standard,
 source:position,ESRIWorld,
 source:position,HiRes aerial imagery,
@@ -7327,7 +7310,7 @@ source:position,Sentinel-2,
 source:position,Спутниковые снимки Esri,
 source:postal_code,CNEFE,font: codi_postal	=	CNEFE
 source:postal_code,La Poste - 12/2014,
-source:postal_code,La␣Poste␣-␣12/2014,font: codi_postal	=	La␣Poste␣-␣12/2014
+source:postal_code,La␣Poste␣-␣12/2014,font: codi_postal	=	La_Poste_-_12/2014
 source:postcode,ONS,font: codi postal	=	ONS
 source:power,Enedis,font: poder	=	Enedis
 source:prow_ref,definitive_statement,font: proa_ref	=	declaració_definitiva
@@ -7340,9 +7323,9 @@ source:ref,rsd_cr,font: referència	=	rsd_cr
 source:ref,Vialidad,font: referència	=	Vialitat
 source:ref,www.ssc.sk,font: referència	=	www.ssc.sk
 source:ro,"Agenţia Europeană de Mediu, CORINE Land Cover, 2006",
-source:ro,"Agenţia␣Europeană␣de␣Mediu,␣CORINE␣Land␣Cover,␣2006","font:ro	=	Agenţia␣Europeană␣de␣Mediu,␣CORINE␣Land␣Cover,␣2006"
+source:ro,"Agenţia␣Europeană␣de␣Mediu,␣CORINE␣Land␣Cover,␣2006","font:ro	=	Agenţia_Europeană_de_Mediu,_CORINE_Land_Cover,_2006"
 source:shape,Modified MS Footprints https://cugir.library.cornell.edu,
-source:shape,Modified␣MS␣Footprints␣https://cugir.library.cornell.edu,font:forma	=	Modificat␣MS␣Footprints␣https://cugir.library.cornell.edu
+source:shape,Modified␣MS␣Footprints␣https://cugir.library.cornell.edu,font:forma	=	Modificat_MS_Footprints_https://cugir.library.cornell.edu
 source:street,municipality,font: carrer	=	municipi
 source:streetnumber,municipality,font:número del carrer	=	municipi
 source:surface,Bing,font:superfície	=	Bing
@@ -7359,7 +7342,7 @@ source:url,https://www.klcg.gov.tw/tw/civil/2209-292163.html,
 source:user,*,font:usuari	=	*
 source:wfs,http://www.idee.es/IGN-WFS-Geodesia/ogcwebservice,font:wfs	=	http://www.idee.es/IGN-WFS-Geodesia/ogcwebservice
 source:wheelchair,STIF 2019-01,
-source:wheelchair,STIF␣2019-01,font: cadira de rodes	=	STIF␣2019-01
+source:wheelchair,STIF␣2019-01,font: cadira de rodes	=	STIF_2019-01
 source:width,ARCore,font: ample	=	ARCore
 source:width,estimated,
 source:zoomlevel,11,nivell_administrador	=	*
@@ -7369,8 +7352,8 @@ source:zoomlevel,14,
 source:zoomlevel,15,
 source:zoomlevel,16,
 source:zoomlevel,17,
-species,Acacia␣implexa,espècies	=	Acacia␣simplexa
-species,Acacia␣melanoxylon,espècies	=	Acacia␣melanoxylon
+species,Acacia␣implexa,espècies	=	Acacia_simplexa
+species,Acacia␣melanoxylon,espècies	=	Acacia_melanoxylon
 species,Acer campestre,
 species,Acer negundo,
 species,Acer platanoides,
@@ -7378,261 +7361,261 @@ species,Acer pseudoplatanus,
 species,Acer rubrum,
 species,Acer saccharinum,
 species,Acer saccharum,
-species,Acer␣campestre,espècies	=	Acer␣campestre
-species,Acer␣ginnala,espècies	=	Acer␣ginnala
-species,Acer␣negundo,espècies	=	Acer␣negun
-species,Acer␣platanoides,espècies	=	Acer␣platanoides
-species,Acer␣platanoïdes,espècies	=	Acer␣platanoïdes
-species,Acer␣pseudoplatanus,espècies	=	Acer␣pseudoplatanus
+species,Acer␣campestre,espècies	=	Acer_campestre
+species,Acer␣ginnala,espècies	=	Acer_ginnala
+species,Acer␣negundo,espècies	=	Acer_negun
+species,Acer␣platanoides,espècies	=	Acer_platanoides
+species,Acer␣platanoïdes,espècies	=	Acer_platanoïdes
+species,Acer␣pseudoplatanus,espècies	=	Acer_pseudoplatanus
 species,Acer␣rubrum,espècies	=	Acer rubrum
-species,Acer␣saccharinum,espècies	=	Acer␣saccharinum
-species,Acer␣saccharum,espècies	=	Acer␣saccharum
+species,Acer␣saccharinum,espècies	=	Acer_saccharinum
+species,Acer␣saccharum,espècies	=	Acer_saccharum
 species,Aesculus hippocastanum,
-species,AESCULUS␣HIPOCASTANUM,espècies	=	ESCOL␣HIPOCASTAN
-species,Aesculus␣hippocastanum,espècies	=	Aesculus␣hippocastanum
-species,Aesculus␣x␣carnea,espècies	=	Aesculus␣x␣carnia
-species,Agave␣tequilana␣F.A.C.Weber,espècies	=	Agave␣tequilana␣F.A.C.Weber
-species,Ailanthus␣altissima,espècies	=	Ailanto␣altissima
-species,Allocasuarina␣verticillata,espècies	=	Boigsuarina␣verticillata
-species,Alnus␣cordata,espècies	=	Alnus␣cordata
-species,Alnus␣glutinosa,espècies	=	Alnus␣glutinosa
-species,Ananas␣comosus␣(L.)␣Merr.,espècies	=	Ananes␣comosus␣(L.)␣Merr.
+species,AESCULUS␣HIPOCASTANUM,espècies	=	ESCOL_HIPOCASTAN
+species,Aesculus␣hippocastanum,espècies	=	Aesculus_hippocastanum
+species,Aesculus␣x␣carnea,espècies	=	Aesculus_x_carnia
+species,Agave␣tequilana␣F.A.C.Weber,espècies	=	Agave_tequilana_F.A.C.Weber
+species,Ailanthus␣altissima,espècies	=	Ailanto_altissima
+species,Allocasuarina␣verticillata,espècies	=	Boigsuarina_verticillata
+species,Alnus␣cordata,espècies	=	Alnus_cordata
+species,Alnus␣glutinosa,espècies	=	Alnus_glutinosa
+species,Ananas␣comosus␣(L.)␣Merr.,espècies	=	Ananes_comosus_(L.)_Merr.
 species,Arecaceae,espècies	=	arecàcies
 species,australis,espècies	=	australià
-species,Azardiraecta␣indica,espècies	=	Azardiraecta␣indica
+species,Azardiraecta␣indica,espècies	=	Azardiraecta_indica
 species,Betula pendula,
-species,Betula␣alba,espècies	=	Betula␣alba
-species,Betula␣papyrifera,espècies	=	Betula␣papyrifera
-species,Betula␣pendula,espècies	=	Betula␣pèndula
-species,Betula␣sp,espècies	=	Betula␣sp
-species,Betula␣verrucosa,espècies	=	Betula␣verrucosa
+species,Betula␣alba,espècies	=	Betula_alba
+species,Betula␣papyrifera,espècies	=	Betula_papyrifera
+species,Betula␣pendula,espècies	=	Betula_pèndula
+species,Betula␣sp,espècies	=	Betula_sp
+species,Betula␣verrucosa,espècies	=	Betula_verrucosa
 species,betulus,espècies	=	betulus
 species,calleryana,espècies	=	calleryana
-species,Callistemon␣salignus,espècies	=	Callistemon␣salignus
-species,Callistemon␣viminalis,espècies	=	Callistemon␣viminalis
-species,Camellia␣sinensis␣(L.),espècies	=	Camèlia␣sinensis␣(L.)
-species,Camellia␣sinensis␣(L.)␣Kuntze,espècies	=	Camellia␣sinensis␣(L.)␣Kuntze
-species,Carica␣papaya,espècies	=	Carica␣papaia
+species,Callistemon␣salignus,espècies	=	Callistemon_salignus
+species,Callistemon␣viminalis,espècies	=	Callistemon_viminalis
+species,Camellia␣sinensis␣(L.),espècies	=	Camèlia_sinensis_(L.)
+species,Camellia␣sinensis␣(L.)␣Kuntze,espècies	=	Camellia_sinensis_(L.)_Kuntze
+species,Carica␣papaya,espècies	=	Carica_papaia
 species,Carpinus betulus,
-species,Carpinus␣betulus,espècies	=	Carpinus␣betulus
-species,Carpinus␣betulus␣fastigiata,espècies	=	Carpinus␣betulus␣fastigiata
+species,Carpinus␣betulus,espècies	=	Carpinus_betulus
+species,Carpinus␣betulus␣fastigiata,espècies	=	Carpinus_betulus_fastigiata
 species,Castanea sativa,
-species,Castanea␣sativa,espècies	=	Castanea␣sativa
-species,Casuarina␣cunninghamiana,espècies	=	Casuarina␣cunninghamiana
-species,Catalpa␣bignonioides,espècies	=	Catalpa␣bignonioides
-species,Cedrus␣atlantica,espècies	=	Cedrus␣atlàntica
-species,Cedrus␣deodara,espècies	=	cedre␣deodara
+species,Castanea␣sativa,espècies	=	Castanea_sativa
+species,Casuarina␣cunninghamiana,espècies	=	Casuarina_cunninghamiana
+species,Catalpa␣bignonioides,espècies	=	Catalpa_bignonioides
+species,Cedrus␣atlantica,espècies	=	Cedrus_atlàntica
+species,Cedrus␣deodara,espècies	=	cedre_deodara
 species,Celtis australis,
-species,Celtis␣australis,espècies	=	Celtis␣australis
-species,Celtis␣occidentalis,espècies	=	Celtis␣occidentalis
-species,Cerasus␣×␣yedoensis,operador:ref:FR:SIRET	=	Cerasus␣×␣yedoensis
-species,Cercis␣siliquastrum,espècies	=	Cercis␣siliquastrum
-species,Chamaecyparis␣lawsoniana,espècies	=	Chamaecyparis␣lawsoniana
-species,Citrus␣×␣aurantium,espècies	=	Cítrics␣×␣aurantium
-species,Citrus␣×sinensis,espècies	=	Cítrics␣×sinensis
-species,Citrus␣aurantium,espècies	=	Citrus␣aurantium
+species,Celtis␣australis,espècies	=	Celtis_australis
+species,Celtis␣occidentalis,espècies	=	Celtis_occidentalis
+species,Cerasus␣×␣yedoensis,operador:ref:FR:SIRET	=	Cerasus_×_yedoensis
+species,Cercis␣siliquastrum,espècies	=	Cercis_siliquastrum
+species,Chamaecyparis␣lawsoniana,espècies	=	Chamaecyparis_lawsoniana
+species,Citrus␣×␣aurantium,espècies	=	Cítrics_×_aurantium
+species,Citrus␣×sinensis,espècies	=	Cítrics_×sinensis
+species,Citrus␣aurantium,espècies	=	Citrus_aurantium
 species,Cocos nucifera,
 species,Cocos␣nucifera,espècies	=	Cocosnunucifera
-species,Cocos␣nucifera␣L.,espècies	=	Cocos␣nucifera␣L.
+species,Cocos␣nucifera␣L.,espècies	=	Cocos_nucifera_L.
 species,colurna,espècies	=	columna
 species,cordata,espècies	=	cordata
 species,Corylus colurna,
-species,Corylus␣colurna,espècies	=	Corylus␣columna
-species,Corymbia␣maculata,espècies	=	Corymbia␣maculata
-species,Crataegus␣monogyna,espècies	=	Crataegus␣monogyna
-species,Cryptomeria␣japonica,espècies	=	Cryptomeria␣japonica
+species,Corylus␣colurna,espècies	=	Corylus_columna
+species,Corymbia␣maculata,espècies	=	Corymbia_maculata
+species,Crataegus␣monogyna,espècies	=	Crataegus_monogyna
+species,Cryptomeria␣japonica,espècies	=	Cryptomeria_japonica
 species,Cupressus sempervirens,
-species,Cupressus␣sempervirens,espècies	=	Cupressus␣sempervirens
+species,Cupressus␣sempervirens,espècies	=	Cupressus_sempervirens
 species,dactylifera,espècies	=	dactilolifera
-species,Elaeis␣guineensis,espècies	=	Elaeis␣guineensis
-species,Eucalyptus␣camaldulensis,espècies	=	Eucaliptus␣camaldulensis
-species,Eucalyptus␣cladocalyx,espècies	=	Eucalyptus␣cladocalyx
-species,Eucalyptus␣leucoxylon,espècies	=	Eucaliptus␣leucoxylon
-species,Eucalyptus␣sideroxylon,espècies	=	Eucaliptus␣sideroxylon
+species,Elaeis␣guineensis,espècies	=	Elaeis_guineensis
+species,Eucalyptus␣camaldulensis,espècies	=	Eucaliptus_camaldulensis
+species,Eucalyptus␣cladocalyx,espècies	=	Eucalyptus_cladocalyx
+species,Eucalyptus␣leucoxylon,espècies	=	Eucaliptus_leucoxylon
+species,Eucalyptus␣sideroxylon,espècies	=	Eucaliptus_sideroxylon
 species,Fagus sylvatica,
-species,Fagus␣sylvatica,espècies	=	Fagus␣sylvatica
+species,Fagus␣sylvatica,espècies	=	Fagus_sylvatica
 species,Fra,espècies	=	fra
 species,Fraxinus americana,
 species,Fraxinus excelsior,
 species,Fraxinus pennsylvanica,
-species,Fraxinus␣americana,espècies	=	Fraxinus␣americana
-species,Fraxinus␣angustifolia,espècies	=	Fraxinus␣angustifolia
-species,Fraxinus␣excelsior,espècies	=	Fraxinus␣excelsior
-species,Fraxinus␣excelsior␣'Westhofs␣Glorie',espècies	=	Fraxinus␣excelsior␣'Westhofs␣Glorie'
-species,Fraxinus␣ornus,espècies	=	Fraxinus␣ornus
-species,Fraxinus␣pennsylvanica,espècies	=	Fraxinus␣pennsylvanica
-species,Fraxinus␣sp.,espècies	=	Fraxinus␣sp.
+species,Fraxinus␣americana,espècies	=	Fraxinus_americana
+species,Fraxinus␣angustifolia,espècies	=	Fraxinus_angustifolia
+species,Fraxinus␣excelsior,espècies	=	Fraxinus_excelsior
+species,Fraxinus␣excelsior␣'Westhofs␣Glorie',espècies	=	Fraxinus_excelsior_'Westhofs_Glorie'
+species,Fraxinus␣ornus,espècies	=	Fraxinus_ornus
+species,Fraxinus␣pennsylvanica,espècies	=	Fraxinus_pennsylvanica
+species,Fraxinus␣sp.,espècies	=	Fraxinus_sp.
 species,Fre,espècies	=	lliure
 species,Fro,espècies	=	Per
 species,Frx,espècies	=	Frx
 species,Ginkgo biloba,
-species,Ginkgo␣biloba,espècies	=	Ginkgo␣biloba
+species,Ginkgo␣biloba,espècies	=	Ginkgo_biloba
 species,Gleditsia triacanthos,
-species,Gleditsia␣triacanthos,espècies	=	Gleditsia␣triacanthos
+species,Gleditsia␣triacanthos,espècies	=	Gleditsia_triacanthos
 species,hippocastanum,espècies	=	hippocastanum
-species,Ilex␣aquifolium,espècies	=	Ilex␣aquifolium
+species,Ilex␣aquifolium,espècies	=	Ilex_aquifolium
 species,japonica,espècies	=	roser japonès
 species,Juglans regia,
-species,Juglans␣regia,espècies	=	Juglans␣regia
-species,Koelreuteria␣paniculata,espècies	=	Koelreuteria␣paniculata
-species,Lagerstroemia␣indica,espècies	=	Lagerstroèmia␣indica
-species,Lagunaria␣patersonia,espècies	=	Lagunaria␣patersonia
-species,Ligustrum␣lucidum,espècies	=	Ligustrum␣lucidum
+species,Juglans␣regia,espècies	=	Juglans_regia
+species,Koelreuteria␣paniculata,espècies	=	Koelreuteria_paniculata
+species,Lagerstroemia␣indica,espècies	=	Lagerstroèmia_indica
+species,Lagunaria␣patersonia,espècies	=	Lagunaria_patersonia
+species,Ligustrum␣lucidum,espècies	=	Ligustrum_lucidum
 species,Liquidambar styraciflua,
-species,Liquidambar␣styraciflua,espècies	=	Liquidambar␣styraciflua
-species,Liriodendron␣tulipifera,espècies	=	Liriodendron␣tulipifera
-species,Lophostemon␣confertus,espècies	=	Lophostemon␣confertus
-species,Luma␣apiculata,espècies	=	Luma␣apiculata
-species,Magnolia␣grandiflora,espècies	=	Magnòlia␣grandiflora
-species,Malus␣domestica,espècies	=	Malus␣domèstica
-species,Melaleuca␣armillaris,espècies	=	Melaleuca␣armillaris
-species,Melaleuca␣linariifolia,espècies	=	Melaleuca␣linariifolia
-species,Melaleuca␣styphelioides,espècies	=	Melaleuca␣styphelioides
-species,Melia␣azedarach,espècies	=	Melia␣azedarach
-species,MORUS␣ALBA,espècies	=	MORUS␣ALBA
-species,n.␣sp.,espècies	=	n.␣sp.
+species,Liquidambar␣styraciflua,espècies	=	Liquidambar_styraciflua
+species,Liriodendron␣tulipifera,espècies	=	Liriodendron_tulipifera
+species,Lophostemon␣confertus,espècies	=	Lophostemon_confertus
+species,Luma␣apiculata,espècies	=	Luma_apiculata
+species,Magnolia␣grandiflora,espècies	=	Magnòlia_grandiflora
+species,Malus␣domestica,espècies	=	Malus_domèstica
+species,Melaleuca␣armillaris,espècies	=	Melaleuca_armillaris
+species,Melaleuca␣linariifolia,espècies	=	Melaleuca_linariifolia
+species,Melaleuca␣styphelioides,espècies	=	Melaleuca_styphelioides
+species,Melia␣azedarach,espècies	=	Melia_azedarach
+species,MORUS␣ALBA,espècies	=	MORUS_ALBA
+species,n.␣sp.,espècies	=	n._sp.
 species,NECUNOSCUTA,espècies	=	NECUNOSCUTA
-species,New␣Tree␣Pit,espècies	=	Nou␣Arbre␣Pou
+species,New␣Tree␣Pit,espècies	=	Nou_Arbre_Pou
 species,nigra,espècies	=	negra
 species,occidentalis,espècies	=	occidentalis
 species,Olea europaea,
-species,Olea␣europaea,espècies	=	Olea␣europaea
-species,Olea␣europea,espècies	=	Olea␣europea
-species,P.␣Americana,espècies	=	P.␣Americana
+species,Olea␣europaea,espècies	=	Olea_europaea
+species,Olea␣europea,espècies	=	Olea_europea
+species,P.␣Americana,espècies	=	P._Americana
 species,palm,espècies	=	palmera
-species,Persea␣americana␣Mill.,espècies	=	Persea␣americana␣Mill.
-species,Phoenix␣canariensis,espècies	=	Phoenix␣canariensis
-species,Phoenix␣dactylifera,espècies	=	Phoenix␣dactylifera
-species,Phoenix␣dactylifera␣L.,espècies	=	Phoenix␣dactylifera␣L.
+species,Persea␣americana␣Mill.,espècies	=	Persea_americana_Mill.
+species,Phoenix␣canariensis,espècies	=	Phoenix_canariensis
+species,Phoenix␣dactylifera,espècies	=	Phoenix_dactylifera
+species,Phoenix␣dactylifera␣L.,espècies	=	Phoenix_dactylifera_L.
 species,Picea␣abies,espècies	=	Pica abies
-species,Picea␣glauca,espècies	=	Picea␣glauca
-species,Picea␣pungens,espècies	=	Picea␣pungens
+species,Picea␣glauca,espècies	=	Picea_glauca
+species,Picea␣pungens,espècies	=	Picea_pungens
 species,Pinus mugo,
 species,Pinus pinea,
 species,pinus_mugo,espècies	=	pinus_mugo
-species,Pinus␣mugo,espècies	=	Pinus␣muc
+species,Pinus␣mugo,espècies	=	Pinus_muc
 species,Pinus␣nigra,espècies	=	Pinus nigra
-species,Pinus␣nigra␣nigra,espècies	=	Pinus␣nigra␣nigra
-species,Pinus␣nigra␣var.␣Austriaca,espècies	=	Pinus␣nigra␣var.␣Àustriaca
-species,Pinus␣pinea,espècies	=	Pinus␣pinea
-species,Pinus␣radiata,espècies	=	Pinus␣radiata
-species,PINUS␣SILVESTRIS,espècies	=	PINUS␣SILVESTRIS
-species,Pinus␣strobus,espècies	=	Pinus␣strobus
-species,Pinus␣sylvestris,espècies	=	Pinus␣sylvestris
+species,Pinus␣nigra␣nigra,espècies	=	Pinus_nigra_nigra
+species,Pinus␣nigra␣var.␣Austriaca,espècies	=	Pinus_nigra_var._Àustriaca
+species,Pinus␣pinea,espècies	=	Pinus_pinea
+species,Pinus␣radiata,espècies	=	Pinus_radiata
+species,PINUS␣SILVESTRIS,espècies	=	PINUS_SILVESTRIS
+species,Pinus␣strobus,espècies	=	Pinus_strobus
+species,Pinus␣sylvestris,espècies	=	Pinus_sylvestris
 species,Pla,espècies	=	Pla
 species,platanoides,espècies	=	platanoides
 species,Platanus × hispanica,
 species,Platanus acerifolia,
 species,Platanus x acerifolia,
 species,Platanus x hispanica,
-species,Platanus␣×␣hispanica,espècies	=	Platanus␣×␣hispanica
-species,Platanus␣acerifolia,espècies	=	Platanus␣acerifolia
-species,Platanus␣acerifolia␣x,espècies	=	Platanus␣acerifolia␣x
-species,Platanus␣orientalis,espècies	=	Platanus␣orientalis
-species,Platanus␣x␣acerifolia,espècies	=	Platanus␣x␣acerifolia
-species,PLATANUS␣X␣ACERIFOLIA␣(SIN␣P.␣HYBRIDA),espècies	=	PLATANUS␣X␣ACERIFÒLIA␣(SENSE␣P.␣HYBRIDA)
-species,Platanus␣x␣hispanica,espècies	=	Platanus␣x␣hispanica
+species,Platanus␣×␣hispanica,espècies	=	Platanus_×_hispanica
+species,Platanus␣acerifolia,espècies	=	Platanus_acerifolia
+species,Platanus␣acerifolia␣x,espècies	=	Platanus_acerifolia_x
+species,Platanus␣orientalis,espècies	=	Platanus_orientalis
+species,Platanus␣x␣acerifolia,espècies	=	Platanus_x_acerifolia
+species,PLATANUS␣X␣ACERIFOLIA␣(SIN␣P.␣HYBRIDA),espècies	=	PLATANUS_X_ACERIFÒLIA_(SENSE_P._HYBRIDA)
+species,Platanus␣x␣hispanica,espècies	=	Platanus_x_hispanica
 species,platyphyllos,espècies	=	platyphyllos
 species,Poa,espècies	=	Poá
 species,Pon,espècies	=	posa
 species,Pon1,espècies	=	pon1
 species,Populus nigra,
-species,Populus␣alba,espècies	=	Populus␣alba
-species,"Populus␣alba␣""Bolleana""","espècies	=	Populus␣alba␣""Bolleana"""
-species,Populus␣nigra,espècies	=	Populus␣nigra
-species,Populus␣pyramidalis,espècies	=	Populus␣pyramidalis
+species,Populus␣alba,espècies	=	Populus_alba
+species,"Populus␣alba␣""Bolleana""","espècies	=	Populus_alba_""Bolleana"""
+species,Populus␣nigra,espècies	=	Populus_nigra
+species,Populus␣pyramidalis,espècies	=	Populus_pyramidalis
 species,Populus␣sp.,espècies	=	Populus sp.
-species,Populus␣x␣canadensis,espècies	=	Populus␣x␣canadensis
+species,Populus␣x␣canadensis,espècies	=	Populus_x_canadensis
 species,Pr1,espècies	=	Pr1
 species,Prunus avium,
 species,Prunus cerasifera,
 species,Prunus serrulata,
-species,Prunus␣avium,espècies	=	Prunus␣avium
-species,Prunus␣cerasifera,espècies	=	Prunus␣cerasifera
-species,PRUNUS␣CERASIFERA␣'PISSARDII',espècies	=	PRUNUS␣CERASIFERA␣'PISSARDII'
-species,"Prunus␣cerasifera␣""Pissardii""","espècies	=	Prunus␣cerasifera␣""Pissardii"""
-species,Prunus␣domestica,espècies	=	Prunus␣domèstica
-species,Prunus␣padus,espècies	=	Prunus␣padus
-species,Prunus␣serrulata,espècies	=	Prunus␣serrulata
+species,Prunus␣avium,espècies	=	Prunus_avium
+species,Prunus␣cerasifera,espècies	=	Prunus_cerasifera
+species,PRUNUS␣CERASIFERA␣'PISSARDII',espècies	=	PRUNUS_CERASIFERA_'PISSARDII'
+species,"Prunus␣cerasifera␣""Pissardii""","espècies	=	Prunus_cerasifera_""Pissardii"""
+species,Prunus␣domestica,espècies	=	Prunus_domèstica
+species,Prunus␣padus,espècies	=	Prunus_padus
+species,Prunus␣serrulata,espècies	=	Prunus_serrulata
 species,Prunus␣sp,espècies	=
 species,Prunus␣sp.,espècies	=
 species,Prunus␣virginiana,espècies	=
 species,pseudoplatanus,espècies	=	pseudoplatà
-species,Pseudotsuga␣menziesii,espècies	=	Pseudotsuga␣menziesii
+species,Pseudotsuga␣menziesii,espècies	=	Pseudotsuga_menziesii
 species,Pyrus calleryana,
-species,Pyrus␣calleryana,espècies	=	Pyrus␣calleryana
-species,Pyrus␣calleryana␣'Chanticclere,espècies	=	Pyrus␣calleryana␣'Chanticclere
-species,Pyrus␣communis,espècies	=	Pyrus␣communis
+species,Pyrus␣calleryana,espècies	=	Pyrus_calleryana
+species,Pyrus␣calleryana␣'Chanticclere,espècies	=	Pyrus_calleryana_'Chanticclere
+species,Pyrus␣communis,espècies	=	Pyrus_communis
 species,Quercus ilex,
 species,Quercus robur,
 species,Quercus rubra,
 species,Quercus_suber,espècies	=	Quercus_suber
-species,Quercus␣alba,espècies	=	Quercus␣alba
-species,Quercus␣bicolor,espècies	=	Quercus␣bicolor
-species,Quercus␣cerris,espècies	=	Quercus␣cerris
-species,Quercus␣ilex,espècies	=	Quercus␣ilex
-species,Quercus␣macrocarpa,espècies	=	Quercus␣macrocarpa
-species,Quercus␣palustris,espècies	=	Quercus␣palustris
-species,Quercus␣robur,espècies	=	Quercus␣robur
-species,Quercus␣rubra,espècies	=	Quercus␣rubra
+species,Quercus␣alba,espècies	=	Quercus_alba
+species,Quercus␣bicolor,espècies	=	Quercus_bicolor
+species,Quercus␣cerris,espècies	=	Quercus_cerris
+species,Quercus␣ilex,espècies	=	Quercus_ilex
+species,Quercus␣macrocarpa,espècies	=	Quercus_macrocarpa
+species,Quercus␣palustris,espècies	=	Quercus_palustris
+species,Quercus␣robur,espècies	=	Quercus_robur
+species,Quercus␣rubra,espècies	=	Quercus_rubra
 species,Qur,espècies	=	Alcorà
-species,RHUS␣TYPHINA,espècies	=	RHUS␣TYPHINA
+species,RHUS␣TYPHINA,espècies	=	RHUS_TYPHINA
 species,Robinia pseudoacacia,
-species,ROBINIA␣PSEUDACACIA,espècies	=	ROBÍNIA␣PSEUDACÀCIA
-species,Robinia␣pseudoacacia,espècies	=	Robinia␣pseudoacàcia
-species,"Robinia␣pseudoacacia␣""Bessoniana""","espècies	=	Robinia␣pseudoacàcia␣""Bessoniana"""
+species,ROBINIA␣PSEUDACACIA,espècies	=	ROBÍNIA_PSEUDACÀCIA
+species,Robinia␣pseudoacacia,espècies	=	Robinia_pseudoacàcia
+species,"Robinia␣pseudoacacia␣""Bessoniana""","espècies	=	Robinia_pseudoacàcia_""Bessoniana"""
 species,robur,espècies	=	Robar
-species,Roystonea␣regia,espècies	=	Roystonea␣regia
+species,Roystonea␣regia,espècies	=	Roystonea_regia
 species,Rp,espècies	=	Rp
-species,Salix␣alba,espècies	=	Salix␣alba
-species,SALIX␣BABYLONICA,espècies	=	SALIX␣BABILÒNICA
-species,Schinus␣molle,espècies	=	Schinus␣molle
+species,Salix␣alba,espècies	=	Salix_alba
+species,SALIX␣BABYLONICA,espècies	=	SALIX_BABILÒNICA
+species,Schinus␣molle,espècies	=	Schinus_molle
 species,Soj,espècies	=	Soj
-species,Sophora␣japonica,espècies	=	Sophora␣japonica
-species,Sorbus␣aria,espècies	=	Sorbus␣ària
-species,Sorbus␣aucuparia,espècies	=	Sorbus␣aucupària
-species,Sorbus␣domestica,espècies	=	Sorbus␣domèstica
-species,Sorbus␣intermedia,espècies	=	Sorbus␣intermèdia
+species,Sophora␣japonica,espècies	=	Sophora_japonica
+species,Sorbus␣aria,espècies	=	Sorbus_ària
+species,Sorbus␣aucuparia,espècies	=	Sorbus_aucupària
+species,Sorbus␣domestica,espècies	=	Sorbus_domèstica
+species,Sorbus␣intermedia,espècies	=	Sorbus_intermèdia
 species,sylvatica,espècies	=	silvàtica
-species,Syringa␣reticulata,espècies	=	Xeringa␣reticulada
-species,Taxus␣baccata,espècies	=	Taxus␣baccata
+species,Syringa␣reticulata,espècies	=	Xeringa_reticulada
+species,Taxus␣baccata,espècies	=	Taxus_baccata
 species,Tg1,espècies	=	Tg1
 species,Tgc,espècies	=	Tgc
-species,Thuja␣occidentalis,espècies	=	Thuja␣occidentalis
-species,THUJA␣ORIENTALIS,espècies	=	THUIXA␣ORIENTALIS
+species,Thuja␣occidentalis,espècies	=	Thuja_occidentalis
+species,THUJA␣ORIENTALIS,espècies	=	THUIXA_ORIENTALIS
 species,Tilia,espècies	=	tília
 species,Tilia cordata,
 species,Tilia platyphyllos,
 species,Tilia tomentosa,
 species,Tilia x europaea,
-species,Tilia␣americana,espècies	=	Tilia␣americana
-species,Tilia␣cordata,espècies	=	Tilia␣cordata
-species,Tilia␣euchlora␣x,espècies	=	Tilia␣euchlora␣x
-species,Tilia␣Europaea,espècies	=	Tilia␣Europaea
-species,"Tilia␣europaea␣""Pallida""","espècies	=	Tilia␣europaea␣""Collada"""
-species,Tilia␣platyphyllos,espècies	=	Tilia␣platyphyllos
-species,Tilia␣sp,espècies	=	Tilia␣sp
-species,Tilia␣sp.,espècies	=	Tilia␣sp.
-species,Tilia␣tomentosa,espècies	=	Tília␣tomentosa
-species,TILIA␣TOMENTOSA␣(SIN.␣T.␣ARGENTEA),espècies	=	TILIA␣TOMENTOSA␣(SENSE.␣T.␣ARGENTEA)
-species,Tilia␣x␣euchlora,espècies	=	Tilia␣x␣euchlora
-species,Tilia␣x␣europaea,espècies	=	Tilia␣x␣europaea
-species,Tilia␣x␣europea,espècies	=	Tilia␣x␣europea
+species,Tilia␣americana,espècies	=	Tilia_americana
+species,Tilia␣cordata,espècies	=	Tilia_cordata
+species,Tilia␣euchlora␣x,espècies	=	Tilia_euchlora_x
+species,Tilia␣Europaea,espècies	=	Tilia_Europaea
+species,"Tilia␣europaea␣""Pallida""","espècies	=	Tilia_europaea_""Collada"""
+species,Tilia␣platyphyllos,espècies	=	Tilia_platyphyllos
+species,Tilia␣sp,espècies	=	Tilia_sp
+species,Tilia␣sp.,espècies	=	Tilia_sp.
+species,Tilia␣tomentosa,espècies	=	Tília_tomentosa
+species,TILIA␣TOMENTOSA␣(SIN.␣T.␣ARGENTEA),espècies	=	TILIA_TOMENTOSA_(SENSE._T._ARGENTEA)
+species,Tilia␣x␣euchlora,espècies	=	Tilia_x_euchlora
+species,Tilia␣x␣europaea,espècies	=	Tilia_x_europaea
+species,Tilia␣x␣europea,espècies	=	Tilia_x_europea
 species,Tilp,espècies	=	inclinació
 species,tomentosa,espècies	=	tomentosa
-species,Trachycarpus␣fortunei,espècies	=	Trachycarpus␣fortunei
-species,Ulmus␣americana,espècies	=	Ulmus␣americana
+species,Trachycarpus␣fortunei,espècies	=	Trachycarpus_fortunei
+species,Ulmus␣americana,espècies	=	Ulmus_americana
 species,Ulmus␣carpinifolia,espècies	=
 species,Ulmus␣glabra,espècies	=
 species,Ulmus␣minor,espècies	=
 species,Ulmus␣parvifolia,espècies	=
 species,Ulmus␣pumila,espècies	=
-species,Washingtonia␣filifera,espècies	=	Washingtonia␣filifera
-species,Washingtonia␣robusta,espècies	=	Washingtonia␣robusta
-species,x␣carnea,espècies	=	x␣carnea
-species,x␣europaea,espècies	=	x␣europaea
-species,x␣hispanica,espècies	=	x␣hispana
-species,Zelkova␣serrata,espècies	=	Zelkova␣serrata
+species,Washingtonia␣filifera,espècies	=	Washingtonia_filifera
+species,Washingtonia␣robusta,espècies	=	Washingtonia_robusta
+species,x␣carnea,espècies	=	x_carnea
+species,x␣europaea,espècies	=	x_europaea
+species,x␣hispanica,espècies	=	x_hispana
+species,Zelkova␣serrata,espècies	=	Zelkova_serrata
 species:de,Ahornblättrige Platane,
 species:de,Gemeine Esche,
 species:de,Holländische-Linde,
@@ -7643,10 +7626,10 @@ species:de,Stiel-Eiche,
 species:de,Winter-Linde,
 species:en,Honey Locust,
 species:en,Norway Maple,
-species:en,Norway␣Maple,espècies:	=	Noruega␣Arce
+species:en,Norway␣Maple,espècies:	=	Noruega_Arce
 species:en,Red Maple,
 species:en,Sugar Maple,
-species:en,Sugar␣Maple,espècies:	=	Sucre␣Arce
+species:en,Sugar␣Maple,espècies:	=	Sucre_Arce
 species:it,Olivo,espècies:	=	oliva
 species:wikidata,Q156907,
 species:wikidata,Q156944,
@@ -7923,8 +7906,8 @@ surface,clay,superfície	=	argila
 surface,cobblestone,superfície	=	còdols
 surface,cobblestone:flattened,superfície	=	llamborda: aplanat
 surface,compacted,superfície	=	comprimit
-surface,concrete,"El formigó és un material compost dur i durador fet de ciment, àrids i aigua, utilitzat per a diverses superfícies | superfície	=	concret"
-surface,concrete:lanes,superfície	=	concret:carrils
+surface,concrete,"El formigó és un material compost dur i durador fet de ciment, àrids i aigua, utilitzat per a diverses superfícies | superfície	=	formigó"
+surface,concrete:lanes,superfície	=	formigó:carrils
 surface,concrete:plates,superfície	=	formigó: plaques
 surface,dirt,superfície	=	brutícia
 surface,dirt/sand,superfície	=	terra/sorra
@@ -8001,7 +7984,7 @@ survey:date,2020,
 survey:date,2022,
 survey:date,2023,
 survey:name,PDC PhilAWARE,
-survey:name,PDC␣PhilAWARE,enquesta:nom	=	PDC␣PhilAWARE
+survey:name,PDC␣PhilAWARE,enquesta:nom	=	PDC_PhilAWARE
 swimming_pool,inground,piscina	=	soterrada
 swimming_pool,outdoor,piscina	=	exterior
 swimming_pool,personal,
@@ -8021,9 +8004,9 @@ tank_trap,czech_hedgehog,trampa de tanc	=	eriçó txec
 taxi_type,motorcycle,tipus de taxi	=	motocicleta
 taxi_vehicle,motorcycle,vehicle taxi	=	motocicleta
 taxon,Acer platanoides,
-taxon,Acer␣platanoides,tàxon	=	Acer␣platanoides
+taxon,Acer␣platanoides,tàxon	=	Acer_platanoides
 taxon,Aesculus hippocastanum,
-taxon,Aesculus␣hippocastanum,tàxon	=	Aesculus␣hippocastanum
+taxon,Aesculus␣hippocastanum,tàxon	=	Aesculus_hippocastanum
 taxon:family,Arecaceae,taxó: família	=	arecàcies
 telecom,antenna,telecomunicacions	=	antena
 telecom,central_office,telecomunicacions	=	oficina central
@@ -8048,7 +8031,7 @@ telescope:type,radio,telescopi: tipus	=	ràdio
 teryt:rm,1,costats	=	*
 teryt:stan_na,2009-01-01,nhd:data	=	*
 teryt:updated_by,teryt2osm combine.py v. 43,
-teryt:updated_by,teryt2osm␣combine.py␣v.␣43,teryt:actualitzat_per	=	teryt2osm␣combine.py␣v.␣43
+teryt:updated_by,teryt2osm␣combine.py␣v.␣43,teryt:actualitzat_per	=	teryt2osm_combine.py_v._43
 thc:designation,Historical Marker,
 theatre:genre,philharmonic,teatre:gènere	=	filharmònic
 theatre:type,amphi,teatre: tipus	=	amphi
@@ -8571,7 +8554,7 @@ voltage:secondary,400,clc:codi	=	*
 wall,brick,paret	=	maó
 wall,castle_wall,paret	=	la paret del castell
 wall,concrete,paret	=	formigó
-wall,concrete_block,paret	=	bloc de concret
+wall,concrete_block,paret	=	bloc de formigó
 wall,dry_stone,paret	=	pedra seca
 wall,flint,paret	=	pedernal
 wall,flood_wall,paret	=	inundació_paret
@@ -8586,7 +8569,7 @@ wall,stone,paret	=	pedra
 wall,stone_wall,paret	=	Paret de pedra
 wall,tire_barrier,paret	=	barrera de pneumàtics
 wall,training_wall,paret	=	mur d'entrenament
-wall:material,concrete,paret: material	=	concret
+wall:material,concrete,paret: material	=	formigó
 waste,ash,desaprofitar	=	cendra
 waste,cigarettes,desaprofitar	=	cigarretes
 waste,dog_excrement,desaprofitament	=	excrement_de_gos
