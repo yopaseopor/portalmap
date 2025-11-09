@@ -1,6 +1,6 @@
 key,value,definition
 *-tip/pista,guagua,ALERTA:Si vols buscar guagua usa bus
-4wd_only,recommended,
+4wd_only,recommended,4x4 =recomanat
 abandoned:amenity,prison,abandonat: amenitat/servei	=	presó
 abandoned:amenity,prison_camp,abandonat: amenitat/servei	=	camp de presoners
 abandoned:highway,path,"abandonat: carretera= sender , corriol"
@@ -8,8 +8,8 @@ abandoned:highway,track,"abandonat: carretera = pista , camí"
 abandoned:landuse,landfill,abandonat: ús de la terra	=	abocador
 abandoned:landuse,quarry,abandonat: ús de la terra	=	pedrera
 abandoned:man_made,petroleum_well,abandonat:fet per lhome	=	pou_de_petroli
-abandoned:man_made,pipeline,
-abandoned:place,hamlet,
+abandoned:man_made,pipeline,abandonat: fet per lhome=oleducte
+abandoned:place,hamlet,abandonat:lloc=llogaret
 abandoned:railway,rail,abandonat: ferrocarril	=	carril
 abandoned:railway,station,abandonat: ferrocarril	=	estació
 abutters,industrial,confina amb	=	industrial
@@ -29,7 +29,7 @@ access,exclusion_zone,accés	=	Zona d'exclusió
 access,forestry,accés	=	silvicultura
 access,licence,accés	=	llicència
 access,license,accés	=	llicència
-access,military,
+access,military,accés=militar
 access,no,accés	=	no
 access,official,accés	=	oficial
 access,permissive,accés	=	permissiu
@@ -51,41 +51,34 @@ accuracy,10,nivell_administrador	=	*
 accuracy:meters,10,precisió	=	*
 accuracy:meters,21,edifici:ruian:tipus	=	*
 accuracy:meters,22,precisió: metres	=	*
-accuracy:meters,25,precisió: metres	=	*
-accuracy:meters,26,precisió: metres	=	*
 actuator,electric_motor,solenoide	=	motor elèctric
 actuator,hydraulic_cylinder,solenoide	=	Cilindre hidràulic
 actuator,manual,solenoide	=	manual
 actuator,pneumatic_cylinder,solenoide	=	cilindre pneumàtic
 addr:block,*,
 addr:block_number,1,sostre:nivells	=	*
-addr:block_number,2,
-addr:block_number,3,
 addr:block:en,Block 1,
 addr:block:en,Block␣1,adreça: bloc:	=	Bloc␣1
 addr:city,'s-Gravenhage,
-addr:city,*,direcció: bloc	=	*
+addr:city,*,adreça: bloc	=	*
 addr:city:ar,الــوادي,
 addr:city:de,Bozen,
 addr:city:en,10th of Rammadan City,
-addr:city:en,October␣Gardens␣City,direcció:ciutat:ca	=	Octubre␣Jardins␣Ciutat
-addr:city:it,Bolzano,direcció:ciutat:it	=	Bolzano
+addr:city:en,October␣Gardens␣City,adreça:ciutat:ca	=	Octubre␣Jardins␣Ciutat
+addr:city:it,Bolzano,adreça:ciutat:it	=	Bolzano
 addr:city:simc,918123,
-addr:community,Nima,direcció:comunitat	=	nima
+addr:community,Nima,adreça:comunitat	=	nima
 addr:conscriptionnumber,1,
 addr:conscriptionnumber,9,comptador_de_passos	=	*
-addr:country,*,direcció:ciutat	=	*
+addr:country,*,adreça:ciutat	=	*
 addr:country,AE,
-addr:county,Stafford County,
 addr:county,Tuttlingen,adreça: comtat	=	Tuttlingen
-addr:county,Washington,
-addr:county,Washoe,
-addr:district,*,direcció: país	=	*
+addr:district,*,
 addr:district,26 de Octubre,
 addr:district,龜山區,
 addr:district:en,Al Agouza,
 addr:district:en,Western␣Al␣Omraneya,adreça:districte:ca	=	Occidental␣Al␣Omraneia
-addr:division,Kawempe,direcció:divisió	=	Kawempe
+addr:division,Kawempe,adreça:divisió	=	Kawempe
 addr:division,Rajshahi,
 addr:flats,1-2,adreça: pisos	=	*
 addr:flats,1-20,
@@ -98,17 +91,17 @@ addr:floor,Floor␣2,adreça:pis	=	Pis␣2
 addr:hamlet,*,adreça:pis	=	*
 addr:hamlet,三和里,
 addr:housenumber,0,
-addr:inclusion,actual,direcció: inclusió	=	actual
-addr:inclusion,estimate,direcció: inclusió	=	estimar
-addr:inclusion,potential,direcció: inclusió	=	potencial
-addr:interpolation,all,direcció:interpolació	=	tots
-addr:interpolation,even,direcció:interpolació	=	fins i tot
-addr:interpolation,odd,direcció:interpolació	=	estrany
+addr:inclusion,actual,adreça: inclusió	=	actual
+addr:inclusion,estimate,adreça: inclusió	=	estimar
+addr:inclusion,potential,adreça: inclusió	=	potencial
+addr:interpolation,all,adreça:interpolació	=	tots
+addr:interpolation,even,adreça:interpolació	=	fins i tot
+addr:interpolation,odd,adreça:interpolació	=	estrany
 addr:municipality,Aabenraa,
-addr:municipality,Vordingborg,direcció: municipi	=	Vordingborg
+addr:municipality,Vordingborg,adreça: municipi	=	Vordingborg
 addr:neighbourhood,1,
 addr:neighbourhood,*,adreça: número de casa	=	*
-addr:place,*,direcció: barri	=	*
+addr:place,*,adreça: barri	=	*
 addr:place,المجاورة 1,
 addr:place:en,Area A,
 addr:postcode,100,
@@ -118,15 +111,15 @@ addr:postcode:source,*,adreça: codi postal	=	*
 addr:postcode:source,"Date de la Poșta Română, publicate sub Licența pentru Guvernare Deschisă v1.0 la http://date.gov.ro/organization/posta-romana",
 addr:province,*,adreça: codi postal: font	=	*
 addr:province,AB,
-addr:province:en,*,direcció: província	=	*
+addr:province:en,*,adreça: província	=	*
 addr:province:en,Al Beheira,
 addr:region,*,adreça:província:ca	=	*
 addr:region,Farg'ona Viloyati,
 addr:source,Gatineau.ca/donneesouvertes 08Aug2015,
 addr:source,NRW-Atlas,
-addr:state,*,direcció: regió	=	*
+addr:state,*,adreça: regió	=	*
 addr:state,AK,
-addr:street,*,direcció: estat	=	*
+addr:street,*,adreça: estat	=	*
 addr:street,1 Maja,
 addr:street,民生路,
 addr:street:en,Omar Ibn Al Khatab Street,
@@ -145,13 +138,13 @@ addr:street:type,Street,
 addr:streetnumber,1,
 addr:streetnumber,9,adreça: número de conscripció	=	*
 addr:streetnumber,10,
-addr:subdistrict,*,direcció: carrer	=	*
+addr:subdistrict,*,adreça: carrer	=	*
 addr:subdistrict,Olaines pagasts,
-addr:subdistrict:en,*,direcció:subdistricte	=	*
+addr:subdistrict:en,*,adreça:subdistricte	=	*
 addr:subdistrict:en,Al Agamy,
 addr:suburb,*,dir:subdistricte:ca	=	*
 addr:suburb,Centro,
-addr:town,*,direcció:suburbi	=	*
+addr:town,*,adreça:suburbi	=	*
 addr:TW:dataset,120044,
 addr:TW:dataset,137998,ngbe: codi	=	*
 addr:type,water,adreça: tipus	=	aigua
@@ -658,9 +651,6 @@ attraction,roller_coaster,atracció	=	muntanya russa
 attraction,summer_toboggan,atracció	=	trineu_d'estiu
 attraction,train,atracció	=	tren
 attraction,water_slide,atracció	=	tobogan
-attribution,«Ces données géographiques proviennent du Référentiel Géographique Commun (www.rgc.cd).»,
-attribution,*,at_bev:dir_data	=	*
-attribution,"2001 Her Majesty the Queen in Right of Manitoba, as represented by the Minister of Conservation. All rights reserved.",
 attribution,"2001␣Her␣Majesty␣the␣Queen␣in␣Right␣of␣Manitoba,␣as␣represented␣by␣the␣Minister␣of␣Conservation.␣All␣rights␣reserved.",atribució	=	*
 automated,no,
 autonomy,excluded,autonomia	=	exclòs
@@ -836,17 +826,17 @@ bonnet:colour,red,
 books,comic,llibres	=	còmic
 books,textbook,llibres	=	llibre de text
 booth,K6,
-border_type,baseline,tipus de vora	=	base
-border_type,city,border_type	=	ciutat
-border_type,contiguous,tipus de vora	=	contigu
-border_type,continuous,tipus de vora	=	continu
-border_type,county,border_type	=	comtat
-border_type,eez,tipus de vora	=	eez
-border_type,freguesia,border_type	=	freguesia
-border_type,harbour_limits,tipus de vora	=	límits del port
-border_type,nation,border_type	=	nació
-border_type,territorial,tipus de vora	=	territorial
-border_type,town,border_type	=	poble
+border_type,baseline,tipus frontera	=	base
+border_type,city,tipus frontera	=	ciutat
+border_type,contiguous,tipus frontera	=	contigu
+border_type,continuous,tipus frontera	=	continu
+border_type,county,tipus frontera	=	comtat
+border_type,eez,tipus frontera	=	eez
+border_type,freguesia,tipus frontera	=	freguesia
+border_type,harbour_limits,tipus frontera	=	límits del port
+border_type,nation,tipus frontera	=	nació
+border_type,territorial,tipus frontera	=	territorial
+border_type,town,tipus frontera	=	poble
 border_zone,5km_zone,zona fronterera	=	zona de 5km
 borracha,dinamitera,cuélebre	=	trasgu
 boules,bocce,petanca	=	petanca
@@ -854,50 +844,50 @@ boules,boule_de_fort,petanca	=	bola de forta
 boules,breton,petanca	=	bretó
 boules,lyonnaise,petanca	=	Lleonesa
 boules,petanque,petanca	=	petanca
-boundary,aboriginal_lands,Perímetre	=	terres_aborígens
-boundary,administrative,Perímetre	=	administratiu
-boundary,administrative_cooperation,Perímetre	=	cooperació administrativa
-boundary,border_zone,Perímetre	=	zona fronterera
-boundary,census,Perímetre	=	cens
-boundary,civil,Perímetre	=	civil
-boundary,civil_parish,Perímetre	=	parròquia civil
-boundary,disputed,Perímetre	=	qüestionat
-boundary,economic,Perímetre	=	econòmic
-boundary,enclave,Perímetre	=	enclavament
-boundary,exclave,Perímetre	=	enclavament
-boundary,fence,Perímetre	=	tanca
-boundary,forest,Perímetre	=	bosc
-boundary,forest_compartment,Perímetre	=	bosc_compartiment
-boundary,forestry,Perímetre	=	silvicultura
-boundary,forestry_compartment,Perímetre	=	compartiment_forestal
-boundary,hazard,Perímetre	=	perill
-boundary,health,Perímetre	=	salut
-boundary,historic,Perímetre	=	històric
-boundary,historic_parish,Perímetre	=	parròquia_històrica
-boundary,limited_traffic_zone,Perímetre	=	zona de trànsit limitat
-boundary,local_authority,Perímetre	=	autoritat local
-boundary,lot,Perímetre	=	lot
-boundary,low_emission_zone,Perímetre	=	zona de baixa emissió
-boundary,maritime,Perímetre	=	marítim
-boundary,marker,Perímetre	=	marcador
-boundary,military_district,Perímetre	=	districte militar
-boundary,national,Perímetre	=	nacional
-boundary,national_park,Perímetre	=	parc Nacional
-boundary,parcel,Perímetre	=	parcel·la
-boundary,place,Perímetre	=	lloc
-boundary,political,Perímetre	=	polític
-boundary,postal_code,Perímetre	=	codi postal
-boundary,protected_area,Perímetre	=	àrea protegida
-boundary,regional_park,Perímetre	=	parc regional
-boundary,religious_administration,Perímetre	=	administració_religiosa
-boundary,safety_region,Perímetre	=	regió de seguretat
-boundary,special_economic_zone,Perímetre	=	zona economica especial
-boundary,timezone,Perímetre	=	zona horària
-boundary,treaty,Perímetre	=	tractat
-boundary,urban,Perímetre	=	urbà
-boundary,vice_county,Perímetre	=	vice comtat
-boundary,waste_collection,Perímetre	=	col·lecció d'escombraries
-boundary,water_protection_area,Perímetre	=	àrea de protecció de l'aigua
+boundary,aboriginal_lands,Límit	=	terres_aborígens
+boundary,administrative,Límit	=	administratiu
+boundary,administrative_cooperation,Límit	=	cooperació administrativa
+boundary,border_zone,Límit	=	zona fronterera
+boundary,census,Límit	=	cens
+boundary,civil,Límit	=	civil
+boundary,civil_parish,Límit	=	parròquia civil
+boundary,disputed,Límit	=	qüestionat
+boundary,economic,Límit	=	econòmic
+boundary,enclave,Límit	=	enclavament
+boundary,exclave,Límit	=	enclavament
+boundary,fence,Límit	=	tanca
+boundary,forest,Límit	=	bosc
+boundary,forest_compartment,Límit	=	bosc_compartiment
+boundary,forestry,Límit	=	silvicultura
+boundary,forestry_compartment,Límit	=	compartiment_forestal
+boundary,hazard,Límit	=	perill
+boundary,health,Límit	=	salut
+boundary,historic,Límit	=	històric
+boundary,historic_parish,Límit	=	parròquia_històrica
+boundary,limited_traffic_zone,Límit	=	zona de trànsit limitat
+boundary,local_authority,Límit	=	autoritat local
+boundary,lot,Límit	=	lot
+boundary,low_emission_zone,Límit	=	zona de baixa emissió
+boundary,maritime,Límit	=	marítim
+boundary,marker,Límit	=	marcador
+boundary,military_district,Límit	=	districte militar
+boundary,national,Límit	=	nacional
+boundary,national_park,Límit	=	parc Nacional
+boundary,parcel,Límit	=	parcel·la
+boundary,place,Límit	=	lloc
+boundary,political,Límit	=	polític
+boundary,postal_code,Límit	=	codi postal
+boundary,protected_area,Límit	=	àrea protegida
+boundary,regional_park,Límit	=	parc regional
+boundary,religious_administration,Límit	=	administració_religiosa
+boundary,safety_region,Límit	=	regió de seguretat
+boundary,special_economic_zone,Límit	=	zona economica especial
+boundary,timezone,Límit	=	zona horària
+boundary,treaty,Límit	=	tractat
+boundary,urban,Límit	=	urbà
+boundary,vice_county,Límit	=	vice comtat
+boundary,waste_collection,Límit	=	col·lecció d'escombraries
+boundary,water_protection_area,Límit	=	àrea de protecció de l'aigua
 boundary_name:cs,Česko-německá státní hranice,
 brand,*,atribució	=	*
 brand,7-Eleven,
@@ -7860,21 +7850,8 @@ statue,equestrian,estàtua	=	eqüestre
 statue,virgin,estàtua	=	verge
 status,abandoned,estat	=	abandonat
 status,река,
-step_count,1,
-step_count,2,endoll: tipus 2	=	*
-step_count,3,estrelles	=	*
-step_count,4,estrelles	=	*
-step_count,5,seients	=	*
-step_count,6,font:geometria:versió	=	*
-step_count,7,carrils	=	*
-step_count,8,herència	=	*
-step_count,9,
-step_count,10,maxaxleload	=	*
-step_count,11,
-step_count,12,
-step_count,13,
-step_count,15,
-STIF:zone,5,comptador_de_passos	=	*
+step_count,1,comptador_de_passos	=	*
+STIF:zone,5,
 stile,stepover,escala per passar una tanca	=	pas a pas
 stone_type,khachkar,tipus de pedra	=	jachkar
 stop,all,
