@@ -364,7 +364,8 @@ function initValueSearch() {
     $('#execute-query-btn').on('click', function() {
         if (currentKey && currentValue) {
             executeTagQuery(currentKey, currentValue);
-            $(this).prop('disabled', true).text('Executing...');
+            const executingText = window.getTranslation ? window.getTranslation('executing') || 'Executing...' : 'Executing...';
+            $(this).prop('disabled', true).text(executingText);
         }
     });
 
@@ -1139,7 +1140,8 @@ function initValueSearch() {
 
         if (selectedKey && valueInput) {
             executeTagQuery(selectedKey, valueInput);
-            $(this).prop('disabled', true).text('Executing...');
+            const executingText = window.getTranslation ? window.getTranslation('executing') || 'Executing...' : 'Executing...';
+            $(this).prop('disabled', true).text(executingText);
         } else {
             console.error('Execute button clicked but missing key or value');
         }

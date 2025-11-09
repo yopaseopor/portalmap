@@ -473,6 +473,7 @@ export const es = {
     noKeysFound: 'No se encontraron claves',
     noDescriptionAvailable: 'No hay descripción disponible',
     executeKeyQuery: 'Ejecutar Consulta de Clave',
+    reexecuteQuery: 'Re-ejecutar Consulta',
     queryExecuted: 'Consulta Ejecutada',
     queryError: 'Error de Consulta',
     parseError: 'Error de Análisis',

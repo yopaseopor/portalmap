@@ -1228,24 +1228,20 @@ function updatePermalink() {
 
     // Get current tag queries from the legend (with safety check)
     const tagQueries = window.tagQueryLegend ? window.tagQueryLegend.getVisibleQueries() : [];
-    console.log('🔗 Legend queries:', tagQueries);
+    // console.log('🔗 Legend queries:', tagQueries);
 
     // Check map layers for tag queries as primary method
     if (window.map) {
-        console.log('🔗 Scanning map layers for tag queries');
+        // console.log('🔗 Scanning map layers for tag queries');
         const allTagQueryLayers = [];
 
         // Recursively search through all layers (including layer groups)
         function findTagQueryLayers(layers) {
             layers.forEach(layer => {
-                // console.log('🔗 Checking layer:', layer.get ? layer.get('id') : 'no id', layer.get ? layer.get('title') : 'no title');
-
                 // Check if this layer is a tag query layer
                 if (layer.get && layer.get('id') && layer.get('id').startsWith('tag_')) {
                     const layerId = layer.get('id');
                     const title = layer.get('title') || '';
-                    console.log(`🔗 Found tag layer: ${layerId} with title: ${title}`);
-
                     // Parse key=value from title, ignoring count information
                     const match = title.match(/^([^=]+)=([^(\s]+)\s*(\([^)]*\))?$/);
                     if (match) {
@@ -1256,16 +1252,14 @@ function updatePermalink() {
                             value: value,
                             overlayId: layerId
                         });
-                        console.log(`🔗 Parsed tag query: ${key}:${value}`);
                     } else {
-                        console.log(`🔗 Could not parse title: ${title}`);
                     }
+
                 }
 
                 // If this layer is a group, recursively search its layers
                 if (layer.getLayers && typeof layer.getLayers === 'function') {
                     const subLayers = layer.getLayers().getArray();
-                    console.log(`🔗 Layer group found with ${subLayers.length} sublayers`);
                     if (subLayers.length > 0) {
                         findTagQueryLayers(subLayers);
                     }
@@ -1274,26 +1268,26 @@ function updatePermalink() {
         }
 
         const mapLayers = window.map.getLayers().getArray();
-        console.log(`🔗 Starting recursive search with ${mapLayers.length} top-level layers`);
+        // console.log(`🔗 Starting recursive search with ${mapLayers.length} top-level layers`);
         findTagQueryLayers(mapLayers);
 
-        console.log('🔗 Total tag query layers found:', allTagQueryLayers);
+        // console.log('🔗 Total tag query layers found:', allTagQueryLayers);
 
         // Use found layers as tag queries
         if (allTagQueryLayers.length > 0) {
             tagQueries.push(...allTagQueryLayers);
-            console.log('🔗 Using map layer queries:', tagQueries);
+            // console.log('🔗 Using map layer queries:', tagQueries);
         }
     }
 
-    console.log('🔗 Final tag queries to add to URL:', tagQueries);
+    // console.log('🔗 Final tag queries to add to URL:', tagQueries);
 
     // Build URL parameters
     const params = new URLSearchParams();
 
     // Add tag queries to URL
     tagQueries.forEach((query, index) => {
-        console.log('🔗 Adding tag to URL:', query.key, query.value);
+        // console.log('🔗 Adding tag to URL:', query.key, query.value);
         params.append('tag', `${query.key}:${query.value}`);
     });
 

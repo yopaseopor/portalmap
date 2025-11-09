@@ -325,6 +325,7 @@ export const en = {
     noKeysFound: 'No keys found',
     noDescriptionAvailable: 'No description available',
     executeKeyQuery: 'Execute Key Query',
+    reexecuteQuery: 'Re-execute Query',
     queryExecuted: 'Query Executed',
     queryError: 'Query Error',
     parseError: 'Parse Error',

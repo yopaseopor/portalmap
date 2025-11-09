@@ -57,27 +57,27 @@ function loadTaginfoDefinitions() {
     return new Promise((resolve, reject) => {
         // Check if already loaded
         if (window.taginfoData.loaded) {
-            console.log('📊 Taginfo data already loaded');
+            // console.log('📊 Taginfo data already loaded');
             resolve();
             return;
         }
 
-        console.log('📊 Loading taginfo definitions from CSV...');
+        // console.log('📊 Loading taginfo definitions from CSV...');
         const csvPath = getTaginfoCsvPath(false);
-        console.log('📊 Loading CSV from:', csvPath);
+        // console.log('📊 Loading CSV from:', csvPath);
         fetch(csvPath)
             .then(response => {
-                console.log('📊 CSV fetch response:', response.status);
+                // console.log('📊 CSV fetch response:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.text();
             })
             .then(csvText => {
-                console.log('📊 CSV loaded, length:', csvText.length);
+                // console.log('📊 CSV loaded, length:', csvText.length);
                 parseCSVDataSimple(csvText, window.taginfoData);
                 window.taginfoData.loaded = true;
-                console.log('📊 Taginfo data loaded successfully');
+                // console.log('📊 Taginfo data loaded successfully');
                 resolve();
             })
             .catch(error => {
@@ -91,27 +91,27 @@ function loadTaginfoDefinitions() {
 function loadTaginfoDefinitionsYes() {
     return new Promise((resolve, reject) => {
         if (window.taginfoDataYes.loaded) {
-            console.log('📊 Taginfo YES data already loaded');
+            // console.log('📊 Taginfo YES data already loaded');
             resolve();
             return;
         }
 
-        console.log('📊 Loading yes/no-focused taginfo definitions from CSV...');
+        // console.log('📊 Loading yes/no-focused taginfo definitions from CSV...');
         const csvPath = getTaginfoCsvPath(true);
-        console.log('📊 Loading YES/NO CSV from:', csvPath);
+        // console.log('📊 Loading YES/NO CSV from:', csvPath);
         fetch(csvPath)
             .then(response => {
-                console.log('📊 YES CSV fetch response:', response.status);
+                // console.log('📊 YES CSV fetch response:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.text();
             })
             .then(csvText => {
-                console.log('📊 YES CSV loaded, length:', csvText.length);
+                // console.log('📊 YES CSV loaded, length:', csvText.length);
                 parseCSVDataSimple(csvText, window.taginfoDataYes);
                 window.taginfoDataYes.loaded = true;
-                console.log('📊 Taginfo YES data loaded successfully');
+                // console.log('📊 Taginfo YES data loaded successfully');
                 resolve();
             })
             .catch(error => {
@@ -125,21 +125,15 @@ function loadTaginfoDefinitionsYes() {
  * Parse simplified CSV data (key, value, definition_ca) and organize it for fast searching
  */
 function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
-    console.log('📊 Parsing simplified CSV data...');
     const lines = csvText.split('\n');
 
     if (lines.length === 0) {
-        console.error('❌ CSV file is empty!');
+        console.error('Empty CSV data');
         return;
     }
 
-    console.log('📊 CSV has', lines.length, 'lines');
-
-    // Parse header
     const headers = lines[0].split(',');
-    console.log('📊 CSV headers:', headers);
 
-    // Process data rows (limit for performance)
     for (let i = 1; i < lines.length && i < 50000; i++) {
         const line = lines[i].trim();
         if (!line) continue;
@@ -148,9 +142,7 @@ function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
         if (values.length >= 3) {  // Simplified structure (3 columns)
             const key = values[0];
             const value = values[1];
-            // Fix encoding issues in the definition
             let definition = values[2];
-            // Replace common encoding issues
             definition = definition
                 .replace(/Ã³/g, 'ó')
                 .replace(/Ã©/g, 'é')
@@ -161,7 +153,6 @@ function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
                 .replace(/Ã§/g, 'ç')
                 .replace(/Ã/g, 'í');
 
-            // Add to keys map
             if (!targetData.keys.has(key)) {
                 targetData.keys.set(key, {
                     definition: definition || '',
@@ -173,27 +164,22 @@ function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
 
             const keyData = targetData.keys.get(key);
 
-            // Allow multiple entries for the same key=value pair
             if (!keyData.values.has(value)) {
                 keyData.values.set(value, []);
             }
 
-            // Get the current language and store the definition in the appropriate field
-            const lang = getCurrentLanguage();
             const entry = {
                 definition: definition || '',
                 countAll: 0 // No count data in simplified CSV
             };
             
-            // Store the definition in the language-specific field
+            const lang = getCurrentLanguage();
             entry[`definition_${lang}`] = definition || '';
             
-            // Add the entry to the array for this value
             keyData.values.get(value).push(entry);
 
             keyData.totalCount += 1; // Increment by 1 for each entry
 
-            // Add to values map (for global value search)
             if (!targetData.values.has(value)) {
                 targetData.values.set(value, {
                     totalCount: 0
@@ -201,46 +187,27 @@ function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
             }
             targetData.values.get(value).totalCount += 1;
 
-            // Add to definitions
             const tag = `${key}=${value}`;
             if (tag) {
                 targetData.definitions.set(tag, definition || '');
             }
-
-            // Debug first few entries
-            if (i <= 3) {
-                console.log('📊 Sample entry:', {
-                    key,
-                    value,
-                    definition: definition ? 'present' : 'empty'
-                });
-            }
         }
     }
-
-    console.log('📊 Parsed keys:', targetData.keys.size);
-    console.log('📊 Parsed values:', targetData.values.size);
 }
 
 /**
  * Parse CSV data and organize it for fast searching
  */
 function parseCSVData(csvText, targetData = window.taginfoData) {
-    console.log('📊 Parsing CSV data...');
     const lines = csvText.split('\n');
 
     if (lines.length === 0) {
-        console.error('❌ CSV file is empty!');
+        console.error('Empty CSV data');
         return;
     }
 
-    console.log('📊 CSV has', lines.length, 'lines');
-
-    // Parse header
     const headers = lines[0].split(',');
-    console.log('📊 CSV headers:', headers);
 
-    // Process data rows (limit for performance)
     for (let i = 1; i < lines.length && i < 50000; i++) {
         const line = lines[i].trim();
         if (!line) continue;
@@ -254,7 +221,6 @@ function parseCSVData(csvText, targetData = window.taginfoData) {
                 in_wiki, projects, key_ca, value_ca, key_es, value_es
             ] = values;
 
-            // Add to keys map
             if (!targetData.keys.has(key)) {
                 targetData.keys.set(key, {
                     definition: definition_en || definition_ca || definition_es || '',  // Try multiple description fields
@@ -270,12 +236,10 @@ function parseCSVData(csvText, targetData = window.taginfoData) {
 
             const keyData = targetData.keys.get(key);
 
-            // Allow multiple entries for the same key=value pair
             if (!keyData.values.has(value)) {
                 keyData.values.set(value, []);
             }
 
-            // Add this entry to the array for this value
             keyData.values.get(value).push({
                 tag: tag,
                 definition: definition_en || definition_ca || definition_es || '',  // Try multiple description fields
@@ -292,7 +256,6 @@ function parseCSVData(csvText, targetData = window.taginfoData) {
 
             keyData.totalCount += parseInt(count_all) || 0;
 
-            // Add to values map (for global value search)
             if (!targetData.values.has(value)) {
                 targetData.values.set(value, {
                     totalCount: 0
@@ -300,24 +263,11 @@ function parseCSVData(csvText, targetData = window.taginfoData) {
             }
             targetData.values.get(value).totalCount += parseInt(count_all) || 0;
 
-            // Add to definitions
             if (tag) {
                 targetData.definitions.set(tag, definition_en || definition_ca || definition_es || '');
             }
-
-            // Debug first few entries
-            if (i <= 3) {
-                console.log('📊 Sample entry:', {
-                    key,
-                    value,
-                    definition: definition ? 'present' : 'empty'
-                });
-            }
         }
     }
-
-    console.log('📊 Parsed keys:', targetData.keys.size);
-    console.log('📊 Parsed values:', targetData.values.size);
 }
 
 /**
@@ -333,15 +283,12 @@ function parseCSVLine(line) {
 
         if (char === '"') {
             if (inQuotes && line[i + 1] === '"') {
-                // Escaped quote
                 current += '"';
                 i++; // Skip next quote
             } else {
-                // Toggle quote state
                 inQuotes = !inQuotes;
             }
         } else if (char === ',' && !inQuotes) {
-            // End of field
             values.push(current);
             current = '';
         } else {
@@ -349,7 +296,6 @@ function parseCSVLine(line) {
         }
     }
 
-    // Add final field
     values.push(current);
 
     return values;
@@ -366,11 +312,7 @@ function removeDiacritics(str) {
  * Search for keys matching a query string
  */
 function searchKeys(query, limit = 20) {
-    console.log('🔍 searchKeys called with:', query, 'limit:', limit);
-    console.log('🔍 Available keys count:', window.taginfoData.keys.size);
-
     if (!query || query.length < 1) {
-        console.log('🔍 Empty query, returning empty results');
         return [];
     }
 
@@ -378,16 +320,12 @@ function searchKeys(query, limit = 20) {
     const queryLower = query.toLowerCase();
     const queryNormalized = removeDiacritics(queryLower);
 
-    console.log('🔍 Searching through keys...');
     let matchCount = 0;
     for (const [key, keyData] of window.taginfoData.keys) {
-        // Search in key and all definition columns
         const searchTexts = [];
 
-        // Prioritize key name much higher than descriptions
-        searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));  // Key name gets highest weight
+        searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));  
 
-        // Add definition columns with lower weight
         searchTexts.push(removeDiacritics(`${keyData.definition_en || ''}`.toLowerCase()));
         searchTexts.push(removeDiacritics(`${keyData.definition_ca || ''}`.toLowerCase()));
         searchTexts.push(removeDiacritics(`${keyData.definition_es || ''}`.toLowerCase()));
@@ -400,17 +338,14 @@ function searchKeys(query, limit = 20) {
         for (const searchText of searchTexts) {
             if (searchText.includes(queryNormalized)) {
                 matchFound = true;
-                // Give much higher scores to key names vs descriptions
-                if (searchText === removeDiacritics(`${key}`.toLowerCase())) matchScore += 1000;  // Exact key match
-                else if (searchText.startsWith(queryNormalized)) matchScore += 100;  // Starts with query
-                else matchScore += 1;  // Description match (lowest priority)
+                if (searchText === removeDiacritics(`${key}`.toLowerCase())) matchScore += 1000;  
+                else if (searchText.startsWith(queryNormalized)) matchScore += 100;  
+                else matchScore += 1;  
             }
         }
 
         if (matchFound) {
             matchCount++;
-            console.log('🔍 Match found:', key, 'count:', keyData.totalCount, 'definition:', keyData.definition);
-
             results.push({
                 key: key,
                 definition: keyData.definition || '',
@@ -423,29 +358,24 @@ function searchKeys(query, limit = 20) {
             });
 
             if (results.length >= limit) {
-                console.log('🔍 Reached limit, stopping search');
                 break;
             }
         }
     }
 
-    // Sort by relevance score first, then by count (most popular first)
     results.sort((a, b) => {
-        const aScore = (a.matchScore || 0) * 100;  // Give higher weight to relevance
+        const aScore = (a.matchScore || 0) * 100;  
         const bScore = (b.matchScore || 0) * 100;
 
-        // First sort by relevance score (higher is better)
         if (aScore !== bScore) {
             return bScore - aScore;
         }
 
-        // Then sort by count (most popular first)
         const aCount = a.totalCount || 0;
         const bCount = b.totalCount || 0;
         return bCount - aCount;
     });
 
-    console.log('🔍 Found', results.length, 'key results from', matchCount, 'matches');
     return results;
 }
 
@@ -653,10 +583,10 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
             searchTexts.push(removeDiacritics(`${value}`.toLowerCase()));  // Value name gets highest weight
             searchTexts.push(removeDiacritics(`${keysWithValue.join(' ')}`.toLowerCase()));  // Key names get high weight
 
-            // Debug: Log what we're searching for
-            console.log('🔍 Searching for value:', value, 'keys:', keysWithValue);
-            console.log('🔍 Query normalized:', queryNormalized);
-            console.log('🔍 Search texts:', searchTexts);
+            // Debug: Log what we're searching for (commented out for production)
+            // console.log('🔍 Searching for value:', value, 'keys:', keysWithValue);
+            // console.log('🔍 Query normalized:', queryNormalized);
+            // console.log('🔍 Search texts:', searchTexts);
 
             // Add definition columns with lower weight - search in ALL entries for each key
             for (const valueKey of keysWithValue) {
@@ -686,11 +616,11 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
 
                 if (searchText.includes(queryNormalized)) {
                     matchFound = true;
-                    console.log('🔍 Match found! searchText:', searchText, 'query:', queryNormalized);
+                    // console.log('🔍 Match found! searchText:', searchText, 'query:', queryNormalized);
                     // Give much higher scores to exact matches vs partial matches
                     if (searchText === removeDiacritics(`${value}`.toLowerCase())) {
                         matchScore += 1000;  // Exact value match gets highest priority
-                        console.log('🔍 Exact value match for:', value);
+                        // console.log('🔍 Exact value match for:', value);
                     } else if (searchText === removeDiacritics(`${keysWithValue.join(' ')}`.toLowerCase())) {
                         matchScore += 500;   // Exact key name match
                     } else if (searchText.startsWith(queryNormalized)) {
@@ -869,12 +799,12 @@ function getTagDefinition(tag) {
  * @param {Array<string>} elementTypes - Array of element types to search ['node', 'way', 'relation']
  */
 function generateOverpassQuery(key, value = null, bbox, elementTypes = ['node', 'way', 'relation']) {
-    console.log('🔧 generateOverpassQuery called with:');
-    console.log('🔧 key:', JSON.stringify(key), 'value:', JSON.stringify(value));
-    console.log('🔧 key length:', key ? key.length : 'null', 'value length:', value ? value.length : 'null');
-    console.log('🔧 bbox:', bbox);
-    console.log('🔧 elementTypes:', elementTypes);
-    console.log('🔧 elementTypes.includes("node"):', elementTypes.includes('node'));
+    // console.log('🔧 generateOverpassQuery called with:');
+    // console.log('🔧 key:', JSON.stringify(key), 'value:', JSON.stringify(value));
+    // console.log('🔧 key length:', key ? key.length : 'null', 'value length:', value ? value.length : 'null');
+    // console.log('🔧 bbox:', bbox);
+    // console.log('🔧 elementTypes:', elementTypes);
+    // console.log('🔧 elementTypes.includes("node"):', elementTypes.includes('node'));
     console.log('🔧 elementTypes.includes("way"):', elementTypes.includes('way'));
     console.log('🔧 elementTypes.includes("relation"):', elementTypes.includes('relation'));
 

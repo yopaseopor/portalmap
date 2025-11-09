@@ -129,13 +129,13 @@ function initKeySearch() {
     });
 
     function performKeySearch(query) {
-        console.log('🔑 performKeySearch called with:', query);
-        console.log('🔑 taginfoData.loaded:', window.taginfoData.loaded);
+        // console.log('🔑 performKeySearch called with:', query);
+        // console.log('🔑 taginfoData.loaded:', window.taginfoData.loaded);
 
         if (!window.taginfoData.loaded) {
-            console.log('🔑 Taginfo data not loaded, initializing...');
+            // console.log('🔑 Taginfo data not loaded, initializing...');
             window.initTaginfoAPI().then(() => {
-                console.log('🔑 Taginfo API initialized, retrying search');
+                // console.log('🔑 Taginfo API initialized, retrying search');
                 performKeySearch(query);
             }).catch(error => {
                 console.error('🔑 Failed to initialize taginfo API:', error);
@@ -143,11 +143,11 @@ function initKeySearch() {
             return;
         }
 
-        console.log('🔑 Searching for keys with query:', query);
-        console.log('🔑 Available keys in map:', window.taginfoData.keys.size);
+        // console.log('🔑 Searching for keys with query:', query);
+        // console.log('🔑 Available keys in map:', window.taginfoData.keys.size);
 
         const results = window.searchKeys(query, 10);
-        console.log('🔑 Key search results:', results);
+        // console.log('🔑 Key search results:', results);
         displayKeyResults(results, query);
 
         // Trigger custom event for other components
@@ -155,19 +155,19 @@ function initKeySearch() {
     }
 
     function displayKeyResults(results, query) {
-        console.log('🔑 displayKeyResults called with:', results.length, 'results');
+        // console.log('🔑 displayKeyResults called with:', results.length, 'results');
         resultsContainer.empty();
 
         if (results.length === 0) {
-            console.log('🔑 No results to display');
+            // console.log('🔑 No results to display');
             resultsContainer.append(`<div class="no-results">${window.getTranslation ? window.getTranslation('noKeysFound') : 'No keys found'}</div>`);
             resultsContainer.show();
             return;
         }
 
-        console.log('🔑 Displaying results...');
+        // console.log('🔑 Displaying results...');
         results.forEach((result, index) => {
-            console.log('🔑 Result', index, ':', result.key);
+            // console.log('🔑 Result', index, ':', result.key);
 
             // Find which definition contains the search term to show the most relevant one
             let bestDefinition = result.definition_en || result.definition_ca || result.definition_es || result.definition || `${window.getTranslation ? window.getTranslation('noDescriptionAvailable') : 'No description available'}`;
@@ -228,7 +228,6 @@ function initKeySearch() {
             resultsContainer.append(resultElement);
         });
 
-        console.log('🔑 Results displayed, showing container');
         resultsContainer.show();
     }
 
@@ -241,21 +240,16 @@ function initKeySearch() {
         }
 
         if (result.key) {
-            currentKey = result.key; // Store the selected key
+            currentKey = result.key; 
             searchInput.val(result.key);
             resultsContainer.empty().hide();
 
-            // Communicate with value search - set the selected key
             const valueSearchInput = $('#value-search');
             if (valueSearchInput.length) {
-                console.log('🔗 Setting key for value search:', result.key);
                 valueSearchInput.data('selectedKey', result.key);
-
-                // Trigger event for value search to know a key was selected
                 valueSearchInput.trigger('keySelected', [result]);
             }
 
-            // Show execute and clear buttons for generic key queries
             showKeyExecuteButton(result.key);
 
             console.log('✅ Key selected:', result.key);
@@ -280,15 +274,11 @@ function initKeySearch() {
     }
 
     function formatKeyCount(count, definition) {
-        console.log('🔑 formatKeyCount called with count:', count, 'definition:', definition);
         if (count > 0) {
             const formatted = `${formatNumber(count)} uses`;
-            console.log('🔑 formatKeyCount returning:', formatted);
             return formatted;
         } else {
-            // For keys with 0 uses, show a brief description instead
             const shortDesc = definition ? definition.substring(0, 60) + (definition.length > 60 ? '...' : '') : `${window.getTranslation ? window.getTranslation('noDescriptionAvailable') : 'No description available'}`;
-            console.log('🔑 formatKeyCount returning description:', shortDesc);
             return shortDesc;
         }
     }
@@ -299,7 +289,6 @@ function initKeySearch() {
             const $btn = $(this);
             const executingText = window.getTranslation ? window.getTranslation('executingQuery') || 'Executing query...' : 'Executing query...';
             $btn.prop('disabled', true).text(executingText);
-            // If user typed key=value in the input, pass it as-is. Otherwise this will be the key only.
             executeGenericKeyQuery(currentKey);
         }
     });
@@ -310,7 +299,6 @@ function initKeySearch() {
         const key = $(this).data('key');
         const value = $(this).data('value');
         console.log('🔑 Value suggestion clicked:', key, value);
-        // Fill input and execute query for key=value (treat '*' or empty as wildcard)
         currentKey = `${key}${value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')}`;
         $('#key-search').val(key + (value && value !== '*' ? '=' + value : (value === '*' ? '=*' : '')));
         showKeyExecuteButton(currentKey);
@@ -324,7 +312,6 @@ function initKeySearch() {
     $('#clear-key-search-btn').on('click', function() {
         console.log('🧹 Key search clear button clicked');
 
-        // Clear UI state
         currentKey = null;
         currentResults = [];
 
@@ -350,36 +337,26 @@ function initKeySearch() {
     }
 
     function executeGenericKeyQuery(keyOrKeyValue) {
-        console.log('🚀 executeGenericKeyQuery called with:', keyOrKeyValue);
-
-        // Allow input forms: "key", "key=value", or "key=*" (wildcard)
         let key = keyOrKeyValue;
         let value = null;
-        if (typeof keyOrKeyValue === 'string' && keyOrKeyValue.indexOf('=') !== -1) {
+
+        if (keyOrKeyValue.includes('=')) {
             const parts = keyOrKeyValue.split('=');
-            key = parts.shift();
-            value = parts.join('=');
-            if (value === '*' || value === '') {
-                // Treat '*' or empty value as generic key (no specific value)
-                value = null;
-            }
+            key = parts[0];
+            value = parts[1] || '';  
         }
 
-        console.log('🚀 Resolved key:', key, 'value:', value);
-
         if (!window.map) {
-            console.log('🚀 Map not ready, retrying in 500ms');
             setTimeout(() => executeGenericKeyQuery(keyOrKeyValue), 500);
             return;
         }
 
         if (typeof window.map.getView !== 'function') {
-            console.log('🚀 Map view not ready, retrying in 500ms');
             setTimeout(() => executeGenericKeyQuery(keyOrKeyValue), 500);
             return;
         }
 
-    console.log('🚀 Map is ready, getting bbox');
+        console.log('🚀 Map is ready, getting bbox');
 
         // Get current map bbox
         const view = window.map.getView();
@@ -414,7 +391,8 @@ function initKeySearch() {
         }
 
         // Update button state
-        $('#execute-key-query-btn').prop('disabled', true).text('Executing...');
+        const executingText = window.getTranslation ? window.getTranslation('executing') || 'Executing...' : 'Executing...';
+        $('#execute-key-query-btn').prop('disabled', true).text(executingText);
         console.log('🚀 Button state updated to executing');
 
         // Create overlay for results (pass key and value so overlay id/name can reflect value)

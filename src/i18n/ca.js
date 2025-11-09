@@ -474,6 +474,7 @@ export const ca = {
     noKeysFound: 'No s\'han trobat claus',
     noDescriptionAvailable: 'No hi ha descripció disponible',
     executeKeyQuery: 'Executar Consulta de Clau',
+    reexecuteQuery: 'Tornar a executar Consulta',
     queryExecuted: 'Consulta Executada',
     queryError: 'Error de Consulta',
     parseError: 'Error d\'Anàlisi',
