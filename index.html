@@ -3,14 +3,16 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com; img-src 'self' data: https: https://tiles.versatiles.org; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com;">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: https://tiles.versatiles.org https://cdn.jsdelivr.net; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:;">
 	<title>Portal Map</title>
 	<!--@@ Título a modificar para la descripción -->
 	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
 	<link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css" type="text/css"/>
+	<link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
+	<link href="https://unpkg.com/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
@@ -77,8 +79,39 @@
 	<!-- Core Libraries -->
 	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
 	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-	<!-- OpenLayers -->
-	<script src="src/api/openlayers/v6.2.2-custom/ol.js"></script>
+	<!-- OpenLayers must be loaded before ol-cesium -->
+	<script>
+        // Create a promise that resolves when OpenLayers is loaded
+        window.olLoaded = new Promise(resolve => {
+            const olScript = document.createElement('script');
+            olScript.src = 'src/api/openlayers/v6.2.2-custom/ol.js';
+            olScript.onload = resolve;
+            document.head.appendChild(olScript);
+        });
+    </script>
+    <!-- Cesium and ol-cesium -->
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcs.css" rel="stylesheet">
+    <script>
+        // Configure Cesium base URL before loading it
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/';
+        
+        // Load Cesium and ol-cesium after OpenLayers is ready
+        window.olLoaded.then(() => {
+            // Now load Cesium and ol-cesium
+            return new Promise(resolve => {
+                const cesiumScript = document.createElement('script');
+                cesiumScript.src = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Cesium.js';
+                cesiumScript.onload = () => {
+                    const olCesiumScript = document.createElement('script');
+                    olCesiumScript.src = 'https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.js';
+                    olCesiumScript.onload = resolve;
+                    document.head.appendChild(olCesiumScript);
+                };
+                document.head.appendChild(cesiumScript);
+            });
+        }).catch(console.error);
+    </script>
 	<!-- osmtogeojson for data conversion -->
 	<script src="https://unpkg.com/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
 	<!-- Proj4 for coordinate transformations -->
@@ -112,6 +145,29 @@
 	<script src="src/panoramax_viewer.js"></script>
 	<script src="src/mapillary_viewer.js"></script>
 	<script src="src/router.js"></script>
-	<script src="src/index.js"></script>
+	<script>
+        // Wait for all dependencies to load before initializing the application
+        Promise.all([
+            window.olLoaded,
+            new Promise(resolve => {
+                if (window.Cesium) resolve();
+                else {
+                    const checkCesium = setInterval(() => {
+                        if (window.Cesium) {
+                            clearInterval(checkCesium);
+                            resolve();
+                        }
+                    }, 100);
+                }
+            })
+        ]).then(() => {
+            // All dependencies are loaded, now load the main application
+            const appScript = document.createElement('script');
+            appScript.src = 'src/index.js';
+            document.body.appendChild(appScript);
+        }).catch(error => {
+            console.error('Error loading dependencies:', error);
+        });
+    </script>
 </body>
 </html>

@@ -879,37 +879,116 @@ $(function () {
 	}));
 
 
-	// Rotate left button
-	var rotateleftControlBuild = function () {
-		var container = $('<div>').addClass('ol-control ol-unselectable osmcat-rotateleft').html($('<button type="button"><i class="fa fa-undo"></i></button>').on('click', function () {
-			var currentRotation = view.getRotation();
-			if (currentRotation > -6.1) { //360º = 2 Pi r =aprox 6.2
-				view.setRotation(round(currentRotation - 0.1, 2));
-			} else {
-				view.setRotation(0);
-			}
-		}));
-		return container[0];
-	};
-	map.addControl(new ol.control.Control({
-		element: rotateleftControlBuild()
-	}));
-
 	// Rotate right button
-	var rotaterightControlBuild = function () {
-		var container = $('<div>').addClass('ol-control ol-unselectable osmcat-rotateright').html($('<button type="button"><i class="fa fa-repeat"></i></button>').on('click', function () {
-			var currentRotation = view.getRotation();
-			if (currentRotation < 6.1) { //360º = 2 Pi r =aprox 6.2
-				view.setRotation(round(currentRotation + 0.1, 2));
-			} else {
-				view.setRotation(0);
-			}
-		}));
-		return container[0];
-	};
-	map.addControl(new ol.control.Control({
-		element: rotaterightControlBuild()
-	}));
+var rotaterightControlBuild = function () {
+    var container = $('<div>').addClass('ol-control ol-unselectable ol-rotate-right').html($('<button type="button" title="Rotate right"><i class="fa fa-undo fa-flip-horizontal"></i></button>').on('click', function () {
+        var currentRotation = view.getRotation();
+        if (currentRotation < 6.1) { //360º = 2 Pi r =aprox 6.2
+            view.setRotation(round(currentRotation + 0.1, 2));
+        } else {
+            view.setRotation(0);
+        }
+    }));
+    return container[0];
+};
+
+// Rotate left button
+var rotateleftControlBuild = function () {
+    var container = $('<div>').addClass('ol-control ol-unselectable ol-rotate-left').html($('<button type="button" title="Rotate left"><i class="fa fa-undo"></i></button>').on('click', function () {
+        var currentRotation = view.getRotation();
+        if (currentRotation > -6.1) { //360º = 2 Pi r =aprox 6.2
+            view.setRotation(round(currentRotation - 0.1, 2));
+        } else {
+            view.setRotation(0);
+        }
+    }));
+    return container[0];
+};
+
+// 3D Toggle button
+function toggle3DControlBuild() {
+    const button = document.createElement('button');
+    button.innerHTML = '<i class="fa fa-cube"></i>';
+    button.title = '3D View (Coming Soon)';
+    
+    const element = document.createElement('div');
+    element.className = 'ol-unselectable ol-control ol-3d-toggle';
+    element.appendChild(button);
+    
+    // Disable 3D functionality for now
+    button.disabled = true;
+    button.style.opacity = '0.5';
+    button.style.cursor = 'not-allowed';
+
+    button.addEventListener('click', function() {
+        alert('3D view is currently under development and will be available in a future update.');
+    });
+
+    return element;
+}
+
+// Add controls to the map with proper positioning
+const rotateRightControl = new ol.control.Control({
+    element: rotaterightControlBuild()
+});
+rotateRightControl.set('className', 'ol-rotate-right ol-unselectable ol-control');
+map.addControl(rotateRightControl);
+
+const rotateLeftControl = new ol.control.Control({
+    element: rotateleftControlBuild()
+});
+rotateLeftControl.set('className', 'ol-rotate-left ol-unselectable ol-control');
+map.addControl(rotateLeftControl);
+
+// Add 3D toggle button with higher z-index to ensure it's on top
+const toggle3DControl = new ol.control.Control({
+    element: toggle3DControlBuild()
+});
+toggle3DControl.set('className', 'ol-3d-toggle ol-unselectable ol-control');
+map.addControl(toggle3DControl);
+
+// Add some CSS to position the controls properly
+const style = document.createElement('style');
+style.textContent = `
+    .ol-3d-toggle {
+        right: 8.5em !important;  /* Moved further left */
+        top: 0.5em !important;
+    }
+    .ol-zoom-in,
+    .ol-zoom-out,
+    .ol-zoom-extent {
+        right: 0.5em !important;
+    }
+    .ol-zoom-in {
+        top: 0.5em !important;
+    }
+    .ol-zoom-out {
+        top: 3em !important;
+    }
+    .ol-rotate {
+        right: 6em !important;  /* Moved left to make space for 3D button */
+        top: 0.5em !important;
+    }
+    .ol-rotate-right {
+        right: 3.5em !important;  /* Adjusted to make space for 3D button */
+        top: 0.5em !important;
+    }
+    .ol-rotate-left {
+        right: 1em !important;  /* Rightmost position */
+        top: 0.5em !important;
+    }
+    .ol-3d-toggle button {
+        background-color: rgba(255,255,255,0.4);
+        border: 2px solid rgba(0,60,136,0.5);
+    }
+    .ol-3d-toggle button:hover {
+        background-color: white;
+    }
+    .ol-3d-toggle button:focus {
+        outline: none;
+    }
+`;
+document.head.appendChild(style);
 
 	// Add mobile menu toggle button (only on mobile) - moved to after map is ready
 	$(document).ready(function() {
