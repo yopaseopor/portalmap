@@ -92,13 +92,17 @@
 	<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
 	
 	<!-- Cesium and ol-cesium -->
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        @import url(https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css);
+    </style>
     <script>
         // Configure Cesium before loading it
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/';
         // Disable source maps to prevent console warnings
         window.CESIUM_sourceMap = false;
-        // Disable web workers for better compatibility
-        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL + 'Source/';
+        // Configure Cesium to use CDN for assets
+        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL.replace('Source/', '');
     </script>
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Cesium.js"></script>
     

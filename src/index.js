@@ -933,15 +933,40 @@ function toggle3DControlBuild() {
                 if (!cesiumInitialized) {
                     ol3d = new olcs.OLCesium({
                         map: map,
-                        time() { return Cesium.JulianDate.now(); }
+                        time() { return Cesium.JulianDate.now(); },
+                        // Configure Cesium to use the CDN for assets
+                        target: 'map',
+                        createSvg: true,
+                        useDefaultRenderLoop: true
                     });
-                    const scene = ol3d.getCesiumScene();
-                    scene.terrainProvider = Cesium.createWorldTerrain({
+                    
+                    // Initialize terrain provider asynchronously
+                    Cesium.createWorldTerrainAsync({
                         requestWaterMask: true,
                         requestVertexNormals: true
+                    }).then(function(terrainProvider) {
+                        const scene = ol3d.getCesiumScene();
+                        scene.terrainProvider = terrainProvider;
+                        scene.globe.enableLighting = true;
+                        
+                        // Configure Cesium ion
+                        Cesium.Ion.defaultAccessToken = ''; // Add your Cesium ion token if needed
+                        
+                        // Set default imagery
+                        scene.imageryLayers.addImageryProvider(
+                            new Cesium.ArcGisMapServerImageryProvider({
+                                url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+                                enablePickFeatures: false
+                            })
+                        );
+                        
+                        cesiumInitialized = true;
+                    }).catch(function(error) {
+                        console.error('Error initializing Cesium terrain:', error);
+                        // Fallback to no terrain if there's an error
+                        ol3d.getCesiumScene().terrainProvider = new Cesium.EllipsoidTerrainProvider();
+                        cesiumInitialized = true;
                     });
-                    scene.globe.enableLighting = true;
-                    cesiumInitialized = true;
                 }
                 
                 // Enable Cesium
