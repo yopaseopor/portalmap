@@ -926,7 +926,7 @@ function toggle3DControlBuild() {
     let is3d = false;
     let cesiumInitialized = false;
 
-    button.addEventListener('click', function() {
+    button.addEventListener('click', async function() {
         try {
             if (!is3d) {
                 // Initialize Cesium if not already done
@@ -973,12 +973,14 @@ function toggle3DControlBuild() {
                     scene.imageryLayers.removeAll();
                     
                     // Add a simple basemap that doesn't require authentication
-                    const imageryProvider = new Cesium.SingleTileImageryProvider({
-                        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/0/0/0',
-                        rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-                        tileHeight: 256,
-                        tileWidth: 256
-                    });
+                    const imageryProvider = await Cesium.SingleTileImageryProvider.fromUrl(
+                        'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/0/0/0',
+                        {
+                            rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
+                            tileHeight: 256,
+                            tileWidth: 256
+                        }
+                    );
                     scene.imageryLayers.addImageryProvider(imageryProvider);
                     
                     // Disable Cesium ion features that require authentication
