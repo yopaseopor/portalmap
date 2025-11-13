@@ -9,10 +9,14 @@
 	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
-	<link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css" type="text/css"/>
-	<link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+	<!-- OpenLayers -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css" type="text/css"/>
+	<!-- Cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<!-- ol-cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/olcs.css" rel="stylesheet">
+	<!-- Font Awesome -->
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
-	<link href="https://unpkg.com/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
@@ -77,23 +81,21 @@
 		</div>
 	</div>
 	<!-- Core Libraries -->
-	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
-	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-	<!-- OpenLayers must be loaded before ol-cesium -->
-	<script src="src/api/openlayers/v6.2.2-custom/ol.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+	<!-- Proj4 for coordinate transformations (must be loaded before OpenLayers) -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.2/proj4.min.js"></script>
+	<!-- OpenLayers (must be loaded before ol-cesium) -->
+	<script src="https://cdn.jsdelivr.net/npm/ol@8.2.0/dist/ol.js"></script>
 	<!-- Cesium and ol-cesium -->
-    <link href="https://cdn.jsdelivr.net/npm/cesium@1.65.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.10.0/dist/olcs.css" rel="stylesheet">
     <script>
         // Configure Cesium base URL before loading it
-        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.65.0/Build/Cesium/';
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/';
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/cesium@1.65.0/Build/Cesium/Cesium.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.10.0/dist/olcesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Cesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/dist/olcesium.js"></script>
 	<!-- osmtogeojson for data conversion -->
-	<script src="https://unpkg.com/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
-	<!-- Proj4 for coordinate transformations -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/osmtogeojson.min.js"></script>
 
 	<!-- Vector Tile Style -->
 	<script src="src/assets/styles/vector-tile-style.js"></script>

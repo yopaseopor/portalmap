@@ -909,19 +909,70 @@ var rotateleftControlBuild = function () {
 function toggle3DControlBuild() {
     const button = document.createElement('button');
     button.innerHTML = '<i class="fa fa-cube"></i>';
-    button.title = '3D View (Coming Soon)';
+    button.title = 'Toggle 3D View';
     
     const element = document.createElement('div');
     element.className = 'ol-unselectable ol-control ol-3d-toggle';
     element.appendChild(button);
-    
-    // Disable 3D functionality for now
-    button.disabled = true;
-    button.style.opacity = '0.5';
-    button.style.cursor = 'not-allowed';
+
+    let ol3d = null;
+    let is3d = false;
+    let cesiumInitialized = false;
 
     button.addEventListener('click', function() {
-        alert('3D view is currently under development and will be available in a future update.');
+        try {
+            if (!is3d) {
+                // Initialize Cesium if not already done
+                if (!cesiumInitialized) {
+                    ol3d = new olcs.OLCesium({
+                        map: map,
+                        time() { return Cesium.JulianDate.now(); }
+                    });
+                    const scene = ol3d.getCesiumScene();
+                    scene.terrainProvider = Cesium.createWorldTerrain({
+                        requestWaterMask: true,
+                        requestVertexNormals: true
+                    });
+                    scene.globe.enableLighting = true;
+                    cesiumInitialized = true;
+                }
+                
+                // Enable Cesium
+                ol3d.setEnabled(true);
+                
+                // Sync camera position
+                const view = map.getView();
+                const center = ol.proj.toLonLat(view.getCenter());
+                const camera = ol3d.getCesiumScene().camera;
+                camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(center[0], center[1], 2000),
+                    orientation: {
+                        heading: 0.0,
+                        pitch: -Cesium.Math.PI_OVER_TWO,
+                        roll: 0.0
+                    }
+                });
+                
+                button.innerHTML = '<i class="fa fa-map"></i>';
+                button.title = 'Switch to 2D';
+            } else {
+                // Switch back to 2D
+                if (ol3d) {
+                    ol3d.setEnabled(false);
+                }
+                button.innerHTML = '<i class="fa fa-cube"></i>';
+                button.title = 'Switch to 3D';
+            }
+            is3d = !is3d;
+        } catch (error) {
+            console.error('Error toggling 3D view:', error);
+            alert('Failed to initialize 3D view. Please check the console for details.');
+            
+            // Disable button if there was an error
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+        }
     });
 
     return element;
