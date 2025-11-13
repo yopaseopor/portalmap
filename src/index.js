@@ -364,8 +364,7 @@ $(function () {
 				loading.show();
 				var me = this;
 				var epsg4326Extent = ol.proj.transformExtent(extent, projection, 'EPSG:4326');
-				var query = '[maxsize:536870912];' + overlay['query']; // Memory limit 512 MiB
-				//var query = layerQuery;
+				var query = '[out:xml][timeout:25];' + overlay['query']; // Added timeout parameter
 				query = query.replace(/{{bbox}}/g, epsg4326Extent[1] + ',' + epsg4326Extent[0] + ',' + epsg4326Extent[3] + ',' + epsg4326Extent[2]);
 
 				var client = new XMLHttpRequest();
@@ -374,16 +373,24 @@ $(function () {
 					loading.hide();
 				};
 				client.onerror = function () {
-					console.error('[' + client.status + '] Error loading data.');
+					console.error('[' + (client.status || 'unknown') + '] Error loading data.');
 					me.removeLoadedExtent(extent);
-					vector.setVisible(false);
+					if (vector) vector.setVisible(false);
 				};
 				client.onload = function () {
 					if (client.status === 200) {
-						var xmlDoc = $.parseXML(client.responseText),
-								xml = $(xmlDoc),
-								remark = xml.find('remark'),
-								nodosLength = xml.find('node').length;
+						try {
+							var parser = new DOMParser();
+							var xmlDoc = parser.parseFromString(client.responseText, 'text/xml');
+							var remark = xmlDoc.getElementsByTagName('remark');
+							var nodes = xmlDoc.getElementsByTagName('node');
+							var nodosLength = nodes ? nodes.length : 0;
+						} catch (e) {
+							console.error('Error parsing OSM XML response:', e);
+							me.removeLoadedExtent(extent);
+							if (vector) vector.setVisible(false);
+							return;
+						}
 
 						if (remark.length !== 0) {
 							console.error('Error:', remark.text());

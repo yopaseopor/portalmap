@@ -93,8 +93,12 @@
 	
 	<!-- Cesium and ol-cesium -->
     <script>
-        // Configure Cesium base URL before loading it
+        // Configure Cesium before loading it
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/';
+        // Disable source maps to prevent console warnings
+        window.CESIUM_sourceMap = false;
+        // Disable web workers for better compatibility
+        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL + 'Source/';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Cesium.js"></script>
     
