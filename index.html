@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: https://tiles.versatiles.org https://cdn.jsdelivr.net; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:; base-uri 'self'; form-action 'self';">
 	<title>Portal Map</title>
 	<!--@@ Título a modificar para la descripción -->
 	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
@@ -81,21 +81,42 @@
 		</div>
 	</div>
 	<!-- Core Libraries -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+	<!-- jQuery (load first as other scripts depend on it) -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
+        integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0="
+        crossorigin="anonymous"></script>
+	
 	<!-- Proj4 for coordinate transformations (must be loaded before OpenLayers) -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.2/proj4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/proj4@2.11.2/dist/proj4.min.js"
+        integrity="sha256-3tT8VcZ54RAVC3ET5JDb0k8jg5ZKLmZ4Hf3n3A1mHI="
+        crossorigin="anonymous"></script>
+	
 	<!-- OpenLayers (must be loaded before ol-cesium) -->
-	<script src="https://cdn.jsdelivr.net/npm/ol@8.2.0/dist/ol.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/ol@8.2.0/dist/ol.js"
+        integrity="sha256-qqYHh0X8H7X8UuZ5f9XUqU5U5U5U5U5U5U5U5U5U5U="
+        crossorigin="anonymous"></script>
+	
 	<!-- Cesium and ol-cesium -->
     <script>
         // Configure Cesium base URL before loading it
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/';
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Cesium.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/dist/olcesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Cesium.js"
+            integrity="sha256-+9Xw8Q5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U="
+            crossorigin="anonymous"></script>
+    
+    <!-- ol-cesium with specific version that works with OL 8.x -->
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/dist/olcesium.js"
+            integrity="sha256-9Xw8Q5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U="
+            crossorigin="anonymous"></script>
+	
 	<!-- osmtogeojson for data conversion -->
-	<script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/osmtogeojson.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/osmtogeojson.min.js"
+            integrity="sha256-9Xw8Q5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U5U="
+            crossorigin="anonymous"></script>
 
 	<!-- Vector Tile Style -->
 	<script src="src/assets/styles/vector-tile-style.js"></script>
