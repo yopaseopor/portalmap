@@ -80,94 +80,98 @@
 	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
 	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 	<!-- OpenLayers must be loaded before ol-cesium -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@6.14.1/ol.css">
+    <link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css">
     <script>
         // Create global ol namespace before loading OpenLayers
         window.ol = window.ol || {};
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/ol@6.14.1/dist/ol.js"></script>
-    <script>
-        // Verify OpenLayers is loaded and has the expected structure
-        if (!window.ol || !window.ol.Map) {
-            console.error('OpenLayers failed to load or is not properly exposed as a global variable');
-            // Fallback to local OpenLayers if CDN fails
-            document.write('<script src="src/api/openlayers/v6.2.2-custom/ol.js"><\/script>');
-        } else {
-            console.log('OpenLayers loaded successfully', window.ol.VERSION);
-            // Make sure ol.structs exists
-            window.ol.structs = window.ol.structs || {};
-            // Simple LRUCache implementation if not present
-            if (!window.ol.structs.LRUCache) {
-                window.ol.structs.LRUCache = class LRUCache {
-                    constructor(highWaterMark) {
-                        this.highWaterMark = highWaterMark || 2048;
-                        this.cache_ = new Map();
-                        this.oldest_ = null;
-                        this.newest_ = null;
-                    }
-                    get(key) {
-                        const entry = this.cache_.get(key);
-                        if (!entry) return undefined;
-                        if (entry === this.newest_) return entry.value_;
-                        if (entry.newer) {
-                            if (entry === this.oldest_) {
-                                this.oldest_ = entry.newer;
-                            }
-                            entry.newer.older = entry.older;
-                        }
-                        if (entry.older) {
-                            entry.older.newer = entry.newer;
-                        }
-                        entry.newer = null;
-                        entry.older = this.newest_;
-                        this.newest_.newer = entry;
-                        this.newest_ = entry;
-                        return entry.value_;
-                    }
-                    set(key, value) {
-                        if (this.cache_.has(key)) {
-                            this.get(key);
-                            this.cache_.get(key).value_ = value;
-                            return;
-                        }
-                        const entry = {
-                            key: key,
-                            value_: value,
-                            newer: null,
-                            older: this.newest_
-                        };
-                        if (this.newest_) {
-                            this.newest_.newer = entry;
-                        }
-                        this.newest_ = entry;
-                        this.oldest_ = this.oldest_ || entry;
-                        this.cache_.set(key, entry);
-                        if (this.cache_.size > this.highWaterMark) {
-                            const oldestKey = this.oldest_.key;
-                            this.oldest_ = this.oldest_.newer;
-                            this.oldest_.older = null;
-                            this.cache_.delete(oldestKey);
-                        }
-                    }
-                };
-                console.log('Custom LRUCache implementation added to ol.structs');
+        // Add required structures that might be missing in the custom build
+        window.ol.structs = window.ol.structs || {};
+        
+        // Simple LRUCache implementation
+        window.ol.structs.LRUCache = class LRUCache {
+            constructor(highWaterMark) {
+                this.highWaterMark = highWaterMark || 2048;
+                this.cache_ = new Map();
+                this.oldest_ = null;
+                this.newest_ = null;
             }
-        }
+            get(key) {
+                const entry = this.cache_.get(key);
+                if (!entry) return undefined;
+                if (entry === this.newest_) return entry.value_;
+                if (entry.newer) {
+                    if (entry === this.oldest_) {
+                        this.oldest_ = entry.newer;
+                    }
+                    entry.newer.older = entry.older;
+                }
+                if (entry.older) {
+                    entry.older.newer = entry.newer;
+                }
+                entry.newer = null;
+                entry.older = this.newest_;
+                if (this.newest_) {
+                    this.newest_.newer = entry;
+                }
+                this.newest_ = entry;
+                return entry.value_;
+            }
+            set(key, value) {
+                if (this.cache_.has(key)) {
+                    this.get(key);
+                    this.cache_.get(key).value_ = value;
+                    return;
+                }
+                const entry = {
+                    key: key,
+                    value_: value,
+                    newer: null,
+                    older: this.newest_
+                };
+                if (this.newest_) {
+                    this.newest_.newer = entry;
+                }
+                this.newest_ = entry;
+                this.oldest_ = this.oldest_ || entry;
+                this.cache_.set(key, entry);
+                if (this.cache_.size > this.highWaterMark) {
+                    const oldestKey = this.oldest_.key;
+                    this.oldest_ = this.oldest_.newer;
+                    if (this.oldest_) {
+                        this.oldest_.older = null;
+                    }
+                    this.cache_.delete(oldestKey);
+                }
+            }
+        };
+    </script>
+    <script src="src/api/openlayers/v6.2.2-custom/ol.js"></script>
     </script>
 	<!-- Cesium and ol-cesium -->
     <link href="https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <script>
         // Configure Cesium base URL before loading it
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/';
+        
+        // Make sure ol is available globally before loading ol-cesium
+        window.ol = window.ol || {};
+        window.ol.control = window.ol.control || {};
     </script>
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.13.0/dist/olcesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.10.0/dist/olcesium.js"></script>
     <script>
-        // Verify ol-cesium is loaded
+        // Verify ol-cesium is loaded and initialize it
         if (window.ol && window.ol.control && window.olcs) {
             console.log('ol-cesium loaded successfully');
+            // Initialize ol-cesium
+            window.olcs = window.olcs || {};
         } else {
-            console.error('ol-cesium failed to load properly');
+            console.warn('ol-cesium not fully loaded, 3D features may not work');
+        }
+        
+        // Initialize performValueSearch if needed
+        if (typeof performValueSearch === 'undefined' && window.valueSearchModule) {
+            window.performValueSearch = window.valueSearchModule.performValueSearch;
         }
     </script>
 	<!-- osmtogeojson for data conversion -->
@@ -175,8 +179,24 @@
 	<!-- Proj4 for coordinate transformations -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
 
-	<!-- Vector Tile Style -->
-	<script src="src/assets/styles/vector-tile-style.js"></script>
+	<!-- Value Search -->
+    <script>
+        // Create a namespace for value search if it doesn't exist
+        window.valueSearchModule = window.valueSearchModule || {};
+        
+        // Define performValueSearch if it's not already defined
+        if (typeof performValueSearch === 'undefined') {
+            window.performValueSearch = function(query, callback) {
+                console.warn('performValueSearch called but not properly implemented');
+                if (callback) callback([]);
+                return [];
+            };
+        }
+    </script>
+    <script src="src/value_search.js"></script>
+    
+    <!-- Vector Tile Style -->
+    <script src="src/assets/styles/vector-tile-style.js"></script>
 	<!-- ol-mapbox-style for MapTiler styles -->
 	<script src="https://unpkg.com/ol-mapbox-style@6.1.3/dist/olms.js"></script>
 	<!-- Opening Hours Library -->
