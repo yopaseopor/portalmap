@@ -3,16 +3,16 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://tiles.versatiles.org https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org https://cdn.jsdelivr.net https://unpkg.com; font-src 'self' https: data: https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:; media-src 'self' blob:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://tiles.versatiles.org https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https: http: wss: ws:; font-src 'self' data: https:; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:; media-src 'self' blob:; object-src 'none'; base-uri 'self';">
 	<title>Portal Map</title>
 	<!--@@ Título a modificar para la descripción -->
 	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
 	<link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css" type="text/css"/>
-	<link rel="stylesheet" href="https://unpkg.com/ol-cesium@2.14.0/dist/olcs.css" type="text/css">
-	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
-	<link rel="stylesheet" href="https://unpkg.com/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol-cesium@2.13.0/dist/olcs.css" type="text/css">
+    <link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.95/Build/Cesium/Widgets/widgets.css" type="text/css">
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
@@ -80,15 +80,96 @@
 	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
 	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 	<!-- OpenLayers must be loaded before ol-cesium -->
-	<script src="src/api/openlayers/v6.2.2-custom/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@6.14.1/ol.css">
+    <script>
+        // Create global ol namespace before loading OpenLayers
+        window.ol = window.ol || {};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/ol@6.14.1/dist/ol.js"></script>
+    <script>
+        // Verify OpenLayers is loaded and has the expected structure
+        if (!window.ol || !window.ol.Map) {
+            console.error('OpenLayers failed to load or is not properly exposed as a global variable');
+            // Fallback to local OpenLayers if CDN fails
+            document.write('<script src="src/api/openlayers/v6.2.2-custom/ol.js"><\/script>');
+        } else {
+            console.log('OpenLayers loaded successfully', window.ol.VERSION);
+            // Make sure ol.structs exists
+            window.ol.structs = window.ol.structs || {};
+            // Simple LRUCache implementation if not present
+            if (!window.ol.structs.LRUCache) {
+                window.ol.structs.LRUCache = class LRUCache {
+                    constructor(highWaterMark) {
+                        this.highWaterMark = highWaterMark || 2048;
+                        this.cache_ = new Map();
+                        this.oldest_ = null;
+                        this.newest_ = null;
+                    }
+                    get(key) {
+                        const entry = this.cache_.get(key);
+                        if (!entry) return undefined;
+                        if (entry === this.newest_) return entry.value_;
+                        if (entry.newer) {
+                            if (entry === this.oldest_) {
+                                this.oldest_ = entry.newer;
+                            }
+                            entry.newer.older = entry.older;
+                        }
+                        if (entry.older) {
+                            entry.older.newer = entry.newer;
+                        }
+                        entry.newer = null;
+                        entry.older = this.newest_;
+                        this.newest_.newer = entry;
+                        this.newest_ = entry;
+                        return entry.value_;
+                    }
+                    set(key, value) {
+                        if (this.cache_.has(key)) {
+                            this.get(key);
+                            this.cache_.get(key).value_ = value;
+                            return;
+                        }
+                        const entry = {
+                            key: key,
+                            value_: value,
+                            newer: null,
+                            older: this.newest_
+                        };
+                        if (this.newest_) {
+                            this.newest_.newer = entry;
+                        }
+                        this.newest_ = entry;
+                        this.oldest_ = this.oldest_ || entry;
+                        this.cache_.set(key, entry);
+                        if (this.cache_.size > this.highWaterMark) {
+                            const oldestKey = this.oldest_.key;
+                            this.oldest_ = this.oldest_.newer;
+                            this.oldest_.older = null;
+                            this.cache_.delete(oldestKey);
+                        }
+                    }
+                };
+                console.log('Custom LRUCache implementation added to ol.structs');
+            }
+        }
+    </script>
 	<!-- Cesium and ol-cesium -->
-    <link href="https://cdn.jsdelivr.net/npm/cesium@1.95/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <script>
         // Configure Cesium base URL before loading it
-        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95/Build/Cesium/';
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/';
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/cesium@1.95/Build/Cesium/Cesium.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.13.0/dist/olcesium.js"></script>
+    <script>
+        // Verify ol-cesium is loaded
+        if (window.ol && window.ol.control && window.olcs) {
+            console.log('ol-cesium loaded successfully');
+        } else {
+            console.error('ol-cesium failed to load properly');
+        }
+    </script>
 	<!-- osmtogeojson for data conversion -->
 	<script src="https://unpkg.com/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
 	<!-- Proj4 for coordinate transformations -->
