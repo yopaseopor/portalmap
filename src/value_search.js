@@ -1477,7 +1477,7 @@ function initValueSearch() {
                             console.error('Overpass error:', remark.text());
                             reject(new Error(`Overpass error: ${remark.text()}`));
                         } else {
-                            const features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
+                            const features = new ol.format.OSMXML().readFeatures(xmlDoc, {
                                 featureProjection: window.map.getView().getProjection()
                             });
                             resolve(features);
