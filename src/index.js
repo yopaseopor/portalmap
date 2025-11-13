@@ -931,19 +931,43 @@ function toggle3DControlBuild() {
             if (!is3d) {
                 // Initialize Cesium if not already done
                 if (!cesiumInitialized) {
+                    // Configure Cesium to not use ion services
+                    Cesium.Ion.defaultAccessToken = null;
+                    Cesium.buildModuleUrl.setBaseUrl('https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/');
+                    
                     ol3d = new olcs.OLCesium({
                         map: map,
                         time: function() { return Cesium.JulianDate.now(); },
                         target: 'map',
                         createSvg: true,
-                        useDefaultRenderLoop: true
+                        useDefaultRenderLoop: true,
+                        sceneOptions: {
+                            // Disable features that might require authentication
+                            terrainExaggeration: 1.0,
+                            fog: {
+                                enabled: false
+                            },
+                            skyAtmosphere: {
+                                enabled: false
+                            },
+                            skyBox: {
+                                enabled: false
+                            }
+                        }
                     });
                     
                     const scene = ol3d.getCesiumScene();
                     
                     // Use EllipsoidTerrainProvider as a simple fallback
-                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
+                        requestVertexNormals: false,
+                        requestWaterMask: false
+                    });
                     scene.globe.enableLighting = true;
+                    
+                    // Disable all terrain-related features that might require authentication
+                    Cesium.CreditDisplay.cesiumCredit = new Cesium.Credit('', true);
+                    Cesium.terrainProvider = scene.terrainProvider;
                     
                     // Clear any existing imagery layers
                     scene.imageryLayers.removeAll();
