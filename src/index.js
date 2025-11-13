@@ -359,7 +359,7 @@ $(function () {
       })
     } else {
 			var vectorSource = new ol.source.Vector({ 
-			format: new ol.format.OSMXML2(),
+			format: new ol.format.OSMXML(),
 			loader: function (extent, resolution, projection) {
 				loading.show();
 				var me = this;
