@@ -925,12 +925,187 @@ function toggle3DControlBuild() {
     let ol3d = null;
     let is3d = false;
     let cesiumInitialized = false;
+    let cesiumInitializing = false;
     
     // Check if ol-cesium is available
     function isOlCesiumAvailable() {
         return window.olcs && window.olcs.OLCesium;
     }
 
+    // Function to initialize Cesium
+    async function initializeCesium() {
+        if (cesiumInitialized || cesiumInitializing) return;
+        
+        console.log('Initializing Cesium...');
+        cesiumInitializing = true;
+        button.disabled = true;
+        button.title = 'Initializing 3D...';
+        
+        try {
+            // Wait for Cesium to be fully loaded
+            if (typeof Cesium === 'undefined') {
+                console.error('Cesium is not loaded');
+                throw new Error('Cesium not loaded');
+            }
+            
+            // Configure Cesium
+            window.Cesium = window.Cesium || {};
+            Cesium.Ion = Cesium.Ion || {};
+            Cesium.Ion.defaultAccessToken = ''; // Disable Cesium ion
+            
+            if (!Cesium.buildModuleUrl) {
+                console.error('Cesium.buildModuleUrl is not available');
+                throw new Error('Cesium not properly initialized');
+            }
+            
+            // Set base URL for Cesium assets
+            Cesium.buildModuleUrl.setBaseUrl('https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/');
+            
+            // Initialize ol3d
+            ol3d = new window.olcs.OLCesium({
+                map: map,
+                target: 'map',
+                createSvg: true,
+                useDefaultRenderLoop: true,
+                sceneOptions: {
+                    scene3DOnly: true,
+                    orderIndependentTranslucency: false,
+                    terrainExaggeration: 1.0,
+                    fog: { enabled: false },
+                    skyAtmosphere: { enabled: true },
+                    skyBox: { enabled: true },
+                    contextOptions: {
+                        webgl: {
+                            alpha: true,
+                            depth: true,
+                            stencil: true,
+                            antialias: true,
+                            premultipliedAlpha: true,
+                            preserveDrawingBuffer: true,
+                            failIfMajorPerformanceCaveat: false
+                        }
+                    }
+                }
+            });
+            
+            // Get the Cesium scene
+            const scene = ol3d.getCesiumScene();
+            
+            // Configure scene settings
+            scene.screenSpaceCameraController.enableTilt = true;
+            scene.screenSpaceCameraController.maximumZoomDistance = 20000000;
+            scene.screenSpaceCameraController.minimumZoomDistance = 100;
+            
+            // Set up terrain
+            scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
+                requestVertexNormals: true,
+                requestWaterMask: false
+            });
+            
+            // Clear any existing imagery layers
+            scene.imageryLayers.removeAll();
+            
+            // Add a simple basemap that doesn't require authentication
+            scene.imageryLayers.addImageryProvider(
+                new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c', 'd'],
+                    credit: '© OpenStreetMap contributors, © CartoDB'
+                })
+            );
+            
+            // Mark as initialized
+            cesiumInitialized = true;
+            console.log('Cesium initialized successfully');
+            return true;
+            
+        } catch (error) {
+            console.error('Failed to initialize Cesium:', error);
+            button.title = '3D initialization failed';
+            button.disabled = true;
+            throw error;
+        } finally {
+            cesiumInitializing = false;
+        }
+    }
+
+    // Function to switch to 3D view
+    async function switchTo3D() {
+        if (!cesiumInitialized) {
+            try {
+                await initializeCesium();
+            } catch (error) {
+                console.error('Failed to initialize 3D view:', error);
+                return false;
+            }
+        }
+
+        try {
+            // Enable 3D view
+            ol3d.setEnabled(true);
+            
+            // Update button state
+            button.innerHTML = '<i class="fa fa-globe"></i>';
+            button.title = 'Switch to 2D';
+            button.classList.add('active');
+            
+            // Update state
+            is3d = true;
+            
+            // Sync the 3D camera with the 2D view
+            ol3d.syncActivated = true;
+            
+            // Force a render to update the view
+            map.renderSync();
+            
+            // Get the Cesium scene and camera
+            const scene = ol3d.getCesiumScene();
+            const camera = scene.camera;
+            
+            // Get current map view and center
+            const view = map.getView();
+            const center = ol.proj.toLonLat(view.getCenter(), view.getProjection());
+            const zoom = view.getZoom();
+            
+            // Calculate appropriate height based on zoom level
+            const height = 1000 * Math.pow(2, zoom);
+            
+            // Set up the camera to look at the current location
+            camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(center[0], center[1], height),
+                orientation: {
+                    heading: 0.0,
+                    pitch: -Cesium.Math.PI_OVER_TWO * 0.7, // Slight angle for better 3D view
+                    roll: 0.0
+                },
+                duration: 1.0, // Animation duration in seconds
+                complete: function() {
+                    console.log('3D view transition complete');
+                }
+            });
+            
+            console.log('3D view enabled');
+            return true;
+        } catch (error) {
+            console.error('Error switching to 3D view:', error);
+            button.disabled = true;
+            button.title = 'Failed to switch to 3D view. Check console for details.';
+            return false;
+        }
+    }
+
+    // Function to switch to 2D view
+    function switchTo2D() {
+        if (ol3d) {
+            ol3d.setEnabled(false);
+        }
+        button.innerHTML = '<i class="fa fa-cube"></i>';
+        button.title = 'Switch to 3D';
+        button.classList.remove('active');
+        is3d = false;
+    }
+
+    // Handle button click
     button.addEventListener('click', async function() {
         // Check if ol-cesium is available
         if (!isOlCesiumAvailable()) {
@@ -946,108 +1121,9 @@ function toggle3DControlBuild() {
 
         try {
             if (!is3d) {
-                // Initialize Cesium if not already done
-                if (!cesiumInitialized) {
-                    console.log('Initializing Cesium...');
-                    
-                    // Configure Cesium
-                    Cesium.Ion.defaultAccessToken = ''; // Disable Cesium ion
-                    Cesium.buildModuleUrl.setBaseUrl('https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/');
-                    
-                    // Initialize ol3d
-                    ol3d = new window.olcs.OLCesium({
-                        map: map,
-                        target: 'map',
-                        createSvg: true,
-                        useDefaultRenderLoop: true,
-                        sceneOptions: {
-                            scene3DOnly: true,
-                            orderIndependentTranslucency: false,
-                            terrainExaggeration: 1.0,
-                            fog: { enabled: false },
-                            skyAtmosphere: { enabled: false },
-                            skyBox: { enabled: false },
-                            contextOptions: {
-                                webgl: {
-                                    alpha: true,
-                                    depth: true,
-                                    stencil: true,
-                                    antialias: true,
-                                    premultipliedAlpha: true,
-                                    preserveDrawingBuffer: true,
-                                    failIfMajorPerformanceCaveat: false
-                                }
-                            }
-                        }
-                    });
-                    
-                    // Get the Cesium scene
-                    const scene = ol3d.getCesiumScene();
-                    
-                    // Configure scene settings
-                    scene.screenSpaceCameraController.enableTilt = true;
-                    scene.screenSpaceCameraController.maximumZoomDistance = 20000000;
-                    scene.screenSpaceCameraController.minimumZoomDistance = 100;
-                    
-                    // Set up terrain
-                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
-                        requestVertexNormals: true,
-                        requestWaterMask: false
-                    });
-                    
-                    // Clear any existing imagery layers
-                    scene.imageryLayers.removeAll();
-                    
-                    // Add a simple basemap that doesn't require authentication
-                    const imageryProvider = await Cesium.SingleTileImageryProvider.fromUrl(
-                        'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/0/0/0',
-                        {
-                            rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-                            tileHeight: 256,
-                            tileWidth: 256
-                        }
-                    );
-                    scene.imageryLayers.addImageryProvider(imageryProvider);
-                    
-                    // Mark as initialized
-                    cesiumInitialized = true;
-                    console.log('Cesium initialized successfully');
-                }
-
-                // Enable 3D view and update UI
-                ol3d.setEnabled(true);
-                is3d = true;
-                button.classList.add('active');
-                button.innerHTML = '<i class="fa fa-map"></i>';
-                button.title = 'Switch to 2D';
-                console.log('3D view enabled');
-                
-                // Get the Cesium scene and camera
-                const scene = ol3d.getCesiumScene();
-                const camera = scene.camera;
-                
-                // Set up camera position for 3D view
-                const view = map.getView();
-                const center = ol.proj.toLonLat(view.getCenter());
-                
-                // Fly to the current map position in 3D
-                camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(center[0], center[1], 2000),
-                    orientation: {
-                        heading: 0.0,
-                        pitch: -Cesium.Math.PI_OVER_TWO,
-                        roll: 0.0
-                    }
-                });
+                await switchTo3D();
             } else {
-                // Switch back to 2D
-                if (ol3d) {
-                    ol3d.setEnabled(false);
-                }
-                button.innerHTML = '<i class="fa fa-cube"></i>';
-                button.title = 'Switch to 3D';
-                button.classList.remove('active');
-                is3d = false;
+                switchTo2D();
             }
         } catch (error) {
             console.error('Error toggling 3D view:', error);
