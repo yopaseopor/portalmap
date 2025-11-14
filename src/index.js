@@ -941,32 +941,19 @@ function toggle3DControlBuild() {
                     
                     const scene = ol3d.getCesiumScene();
                     
-                    // Set up terrain provider with proper error handling
-                    const setupTerrain = async () => {
-                        try {
-                            // Set the token first
-                            Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYjMzNTY2MS0zZDhiLTQ2NWItOTRmZi1kOGQ3YWEzNzBkMzYiLCJpZCI6MjU3NTcsImlhdCI6MTc2MzE0ODE4OH0.2EgP2K98pgGdXlu6JycCUjzeA1eY60dHu5lrlyFgyC0';
-                            
-                            // Try to create world terrain
-                            const terrainProvider = await Cesium.createWorldTerrainAsync({
-                                requestVertexNormals: false,  // Disable water mask and normals to reduce errors
-                                requestWaterMask: false
-                            });
-                            
-                            // If we get here, we have a valid terrain provider
-                            scene.terrainProvider = terrainProvider;
-                            console.log('Using Cesium World Terrain');
-                            return true;
-                        } catch (error) {
-                            console.warn('Could not load Cesium World Terrain, falling back to EllipsoidTerrainProvider:', error);
-                            // Fallback to simple terrain if world terrain fails
-                            scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-                            return false;
-                        }
-                    };
-                    
-                    // Run the async setup
-                    await setupTerrain();
+                    // Set up a simple terrain provider that doesn't require authentication
+                    try {
+                        // First try to create a world terrain
+                        scene.terrainProvider = await Cesium.createWorldTerrainAsync({
+                            requestVertexNormals: true,
+                            requestWaterMask: true
+                        });
+                        console.log('Using Cesium World Terrain');
+                    } catch (error) {
+                        console.warn('Could not load Cesium World Terrain, falling back to EllipsoidTerrainProvider:', error);
+                        // Fallback to simple terrain if world terrain fails
+                        scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+                    }
                     
                     // Enable lighting for better 3D effect
                     scene.globe.enableLighting = true;
