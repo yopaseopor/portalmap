@@ -1,0 +1,42 @@
+/**
+ * Test script to verify sprites are working correctly
+ */
+
+// Test if sprites can be loaded
+const testSprites = async () => {
+    try {
+        console.log('Testing sprite loading...');
+
+        // Test sprite JSON
+        const response = await fetch('src/assets/sprites/basics/sprites.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const sprites = await response.json();
+        console.log('✅ Sprites JSON loaded successfully');
+        console.log(`📊 Found ${Object.keys(sprites).length} sprite definitions`);
+
+        // Test sprite image
+        const imgResponse = await fetch('src/assets/sprites/basics/sprites.png');
+        if (!imgResponse.ok) {
+            throw new Error(`HTTP error! status: ${imgResponse.status}`);
+        }
+        console.log('✅ Sprite image loaded successfully');
+
+        // Test high-res sprites
+        const img2xResponse = await fetch('src/assets/sprites/basics/sprites@2x.png');
+        if (img2xResponse.ok) {
+            console.log('✅ Sprite @2x image available');
+        }
+
+        console.log('🎉 All sprite tests passed!');
+        return true;
+
+    } catch (error) {
+        console.error('❌ Sprite loading failed:', error);
+        return false;
+    }
+};
+
+// Run the test
+testSprites();

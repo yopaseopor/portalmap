@@ -10,11 +10,11 @@
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
 	<!-- OpenLayers -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css" type="text/css"/>
-	<!-- Cesium -->
-	<link href="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-	<!-- ol-cesium -->
-	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/olcs.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css" type="text/css"/>
+    <!-- Load Cesium CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <!-- Load ol-cesium CSS from a working version -->
+    <link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
@@ -93,23 +93,61 @@
 	<!-- OpenLayers (must be loaded before ol-cesium) -->
 	<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
 	
-	<!-- Cesium and ol-cesium -->
+	    <!-- Cesium and ol-cesium -->
     <link href="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <style>
-        @import url(https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css);
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/olcs/olcs.css" rel="stylesheet">
+    
+    <!-- Configure Cesium before loading it -->
     <script>
-        // Configure Cesium before loading it
+        // Configure Cesium base URL and disable source maps
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/';
-        // Disable source maps to prevent console warnings
-        window.CESIUM_sourceMap = false;
-        // Configure Cesium to use CDN for assets
         window.CESIUM_BASE_URL = window.CESIUM_BASE_URL.replace('Source/', '');
+        window.CESIUM_sourceMap = false;
+        
+        // Create global olcs object if it doesn't exist
+        window.olcs = window.olcs || {};
+        
+        // Disable Cesium ion by default
+        if (window.Cesium) {
+            window.Cesium.Ion = window.Cesium.Ion || {};
+            window.Cesium.Ion.defaultAccessToken = '';
+        }
     </script>
+    
+    <!-- Load Cesium -->
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Cesium.js"></script>
     
-    <!-- ol-cesium with specific version that works with OL 7.x -->
-    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.13.0/dist/olcesium.js"></script>
+    <!-- Load ol-cesium -->
+    <script src="https://unpkg.com/ol-cesium@2.14.0/dist/olcesium.umd.js" onerror="console.error('Failed to load ol-cesium')"></script>
+    
+    <!-- Initialize Cesium -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.Cesium) {
+            console.log('Cesium loaded successfully');
+            
+            // Configure Cesium
+            window.Cesium.Ion = window.Cesium.Ion || {};
+            window.Cesium.Ion.defaultAccessToken = '';
+            window.Cesium.buildModuleUrl.setBaseUrl('https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/');
+            
+            // Check ol-cesium
+            if (window.olcs && window.olcs.OLCesium) {
+                console.log('ol-cesium is properly loaded');
+            } else {
+                console.error('ol-cesium not properly initialized');
+                console.log('Available globals:', {
+                    ol: typeof ol,
+                    Cesium: typeof Cesium,
+                    olcs: typeof olcs,
+                    olcsOLCesium: window.olcs ? typeof window.olcs.OLCesium : 'no olcs'
+                });
+            }
+        } else {
+            console.error('Cesium not loaded');
+        }
+    });
+    </script>
     
     <!-- osmtogeojson for data conversion -->
     <script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>

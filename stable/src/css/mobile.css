@@ -1,0 +1,206 @@
+/* ===============================================
+   MOBILE STYLES - osmkeyvalue mobile.css
+   ===============================================
+   Mobile-specific styles for screens < 600px
+   Separated from desktop styles for maintainability
+*/
+
+/* Mobile/Responsive Mode (screens < 600px) */
+@media only screen and (max-width: 599px) {
+    /* Mobile layout: Full screen map with bottom sliding menu */
+    .flex-row {
+        flex-direction: column; /* Stack map and menu vertically */
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .map {
+        height: 100vh; /* Full height for map when menu hidden */
+        width: 100vw;
+        border: none;
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 100vw;
+    }
+
+    /* When menu is visible, reduce map height */
+    .flex-row.menu-active .map {
+        height: 20vh; /* Small map when menu is open */
+        transition: height 0.3s ease-in-out;
+    }
+
+    /* Menu slides up from bottom */
+    .menu {
+        height: 0; /* Hidden by default */
+        min-height: 0;
+        width: 100vw;
+        background: white;
+        border-top: 3px solid #567CAC;
+        transform: translateY(0); /* Start in normal position */
+        transition: height 0.3s ease-in-out, min-height 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Menu visible state - expand to show content */
+    .menu.menu-visible {
+        height: 80vh; /* Large menu when visible */
+        min-height: 400px; /* Minimum usable height */
+    }
+
+    /* Menu content - horizontal scrolling when visible */
+    .menu.menu-visible .osmcat-menu {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+        height: calc(100% - 60px);
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 1px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    /* Individual menu sections in horizontal layout */
+    .menu.menu-visible .osmcat-layer,
+    .menu.menu-visible .osmcat-overlay,
+    .menu.menu-visible .osmcat-router-section,
+    .menu.menu-visible .query-statistics {
+        flex: 0 0 auto;
+        width: 280px;
+        min-width: 250px;
+        border: 1px solid #BBB;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: white;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: calc(80vh - 80px);
+    }
+
+    /* Query Statistics in horizontal layout */
+    .menu.menu-visible .query-statistics {
+        background: #f8f9fa;
+        padding: 8px;
+        max-height: calc(80vh - 80px);
+    }
+
+    /* Default menu layout when hidden (2 columns) */
+    .osmcat-menu {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+        height: calc(100% - 60px);
+        overflow: visible;
+        gap: 1px;
+    }
+
+    /* Default 2-column layout for hidden menu */
+    .osmcat-layer:first-of-type {
+        flex: 1 1 50%;
+        width: 50%;
+        border-right: 1px solid #BBB;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: white;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: 100%;
+    }
+
+    .osmcat-layer:nth-of-type(2),
+    .osmcat-overlay {
+        flex: 1 1 50%;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: white;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: 100%;
+    }
+
+    /* Query Statistics styling */
+    .query-statistics {
+        width: 100%;
+        padding: 8px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    /* Mobile control buttons positioning */
+    .osmcat-geobutton,
+    .osmcat-infobutton,
+    .osmcat-sharebutton,
+    .osmcat-clearoverlaybutton,
+    .osmcat-panoramax,
+    .osmcat-mapillary,
+    .osmcat-router {
+        right: 8px;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px;
+        z-index: 1001;
+        position: fixed; /* Keep buttons fixed since they need to stay on map */
+    }
+
+    /* Button positions */
+    .osmcat-router { top: 80px; }
+    .osmcat-clearoverlaybutton { top: 120px; }
+    .osmcat-mapillary { bottom: 260px; }
+    .osmcat-panoramax { bottom: 210px; }
+    .osmcat-sharebutton { bottom: 160px; }
+    .osmcat-geobutton { bottom: 110px; }
+    .osmcat-infobutton { bottom: 80px; }
+
+    /* Menu toggle button */
+    .menu-toggle {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        z-index: 1002;
+        width: 50px;
+        height: 50px;
+        background: #567CAC;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .menu-toggle:hover {
+        background: #34587C;
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .menu-toggle.active {
+        background: #05CB63;
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(5, 203, 99, 0.4);
+    }
+
+    /* Enhanced Mapillary button when active */
+    .osmcat-mapillary.active {
+        background-color: #05CB63 !important;
+    }
+}

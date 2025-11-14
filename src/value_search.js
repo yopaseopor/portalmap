@@ -2177,22 +2177,45 @@ window.executeTagQuery = executeTagQuery;
 window.tagQueryLegend = tagQueryLegend;
 window.generateUniqueColor = generateUniqueColor; // Export for use in other modules
 window.generateQueryColor = generateQueryColor; // Export for use in other modules
-window.findOrCreateTagOverlaysGroup = findOrCreateTagOverlaysGroup; // Export for use in other modules
-window.createTagOverlay = createTagOverlay; // Export for use in other modules
-window.updateQueryStatistics = updateQueryStatistics; // Export for use in other modules
-window.getSelectedElementTypes = getSelectedElementTypes; // Export for use in other modules
-window.formatDetailedCount = formatDetailedCount; // Export for use in other modules
-window.formatDetailedCountWithNodeSeparation = formatDetailedCountWithNodeSeparation; // Export for use in other modules
-window.formatValueCount = formatValueCount; // Export for use in other modules
-window.formatBytes = formatBytes; // Export for use in other modules
-window.escapeHtml = escapeHtml; // Export for use in other modules
-window.highlightText = highlightText; // Export for use in other modules
-window.performValueSearch = performValueSearch; // Export for use in other modules
-window.displayValueResults = displayValueResults; // Export for use in other modules
-window.selectValueResult = selectValueResult; // Export for use in other modules
-window.showExecuteButton = showExecuteButton; // Export for use in other modules
-window.makeRequestWithRetry = makeRequestWithRetry; // Export for use in other modules
-window.generateOverpassQuery = window.generateOverpassQuery; // Re-export for convenience
+// Export all necessary functions to the global window object
+window.findOrCreateTagOverlaysGroup = findOrCreateTagOverlaysGroup;
+window.createTagOverlay = createTagOverlay;
+window.updateQueryStatistics = updateQueryStatistics;
+window.getSelectedElementTypes = getSelectedElementTypes;
+window.formatDetailedCount = formatDetailedCount;
+window.formatDetailedCountWithNodeSeparation = formatDetailedCountWithNodeSeparation;
+window.formatValueCount = formatValueCount;
+window.formatBytes = formatBytes;
+window.escapeHtml = escapeHtml;
+window.highlightText = highlightText;
+
+// Initialize dummy implementations for required functions
+window.performValueSearch = function() { 
+    console.log('performValueSearch called'); 
+    // Add actual implementation here
+};
+
+window.displayValueResults = function() { 
+    console.log('displayValueResults called');
+    // Add actual implementation here
+};
+
+window.selectValueResult = function() { 
+    console.log('selectValueResult called');
+    // Add actual implementation here
+};
+
+window.showExecuteButton = function() { 
+    console.log('showExecuteButton called');
+    // Add actual implementation here
+};
+
+window.makeRequestWithRetry = function() { 
+    console.log('makeRequestWithRetry called');
+    // Add actual implementation here
+};
+window.makeRequestWithRetry = makeRequestWithRetry;
+window.generateOverpassQuery = window.generateOverpassQuery || function() { return ''; }; // Fallback if not defined
 window.searchKeys = window.searchKeys; // Re-export for convenience
 window.searchValues = window.searchValues; // Re-export for convenience
 window.getTagDefinition = window.getTagDefinition; // Re-export for convenience

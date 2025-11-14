@@ -1,0 +1,1092 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+.row::after {
+    clear: both;
+    content: "";
+    display: block;
+}
+
+[class*="col-"] {
+    position: relative;
+    float: left;
+    padding: 15px;
+    width: 100%;
+}
+
+[class*="w-"] {
+    width: 100%;
+}
+
+html,
+body {
+    font: 62.5% sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+body * {
+    font-size: 1.4rem;
+}
+a {
+	color: #00447B;
+}
+a:hover {
+	color: #40F;
+}
+.flex-row{
+	display: flex;
+	flex-wrap: wrap;
+	height: 100%;
+}
+
+.map{
+	border: 1px solid;
+	height: 80%;
+	width: 100%;
+}
+
+.menu {
+    height: 100vh;
+    width: 320px;
+    min-width: 260px;
+    max-width: 400px;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.03);
+    padding: 10px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+#language-selector-container {
+    padding: 0 10px 10px 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+#overlay-list {
+    background: #fff;
+    border-radius: 6px;
+    margin: 0 8px 0 8px; /* Removed bottom margin */
+    padding: 8px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    min-height: 40px;
+    flex: 0 1 auto; /* Don't take all remaining space */
+    max-height: 50vh; /* Limit height to 50% of viewport */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay-list-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.overlay-list-item img {
+    max-width: 30px;
+    max-height: 30px;
+    width: auto;
+    height: auto;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.overlay-list-item:hover {
+    background-color: #f0f0f0;
+}
+
+
+#overlay-search-container {
+    margin: 8px 8px 4px 8px;
+    padding: 0 0 2px 0;/*
+====================================
+CLEAR ACTIVE OVERLAY BUTTON
+====================================
+*/
+
+
+
+.clear-active-overlay-btn {
+    width: 40px;
+    height: 40px;
+    background: #ffeaea;
+    color: #b00;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0;
+    margin: 0;
+}
+
+
+.clear-active-overlay-btn i {
+    color: #b00;
+    font-size: 1.2em;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-active-overlay-btn i {
+    color: #b00;
+    font-size: 1.2em;
+}
+.clear-active-overlay-btn:hover, .clear-active-overlay-btn:focus {
+    background: #ffcccc;
+    outline: none;
+}
+@media only screen and (max-width: 599px) {
+    .clear-active-overlay-btn {
+        width: 40px;
+        height: 40px;
+        margin: 0 4px;
+    }
+}
+
+    margin: 8px 8px 0 8px;
+}
+
+/* ====================================
+   BASE GRAPHIC CONTROL BUTTONS
+   ====================================
+   Unified styling for all map control buttons positioned on the right side
+*/
+
+.osmcat-geobutton,
+.osmcat-infobutton,
+.osmcat-sharebutton,
+.osmcat-clearoverlaybutton,
+.osmcat-panoramax,
+.osmcat-mapillary,
+.osmcat-router {
+    position: absolute;
+    right: 8px;
+    width: 25px !important;
+    height: 25px !important;
+    background-color: #567CAC;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    margin: 2px;
+    transition: background-color 0.2s, color 0.2s;
+    z-index: 1001;
+    font-size: 1em;
+}
+
+.osmcat-geobutton:hover,
+.osmcat-infobutton:hover,
+.osmcat-sharebutton:hover,
+.osmcat-clearoverlaybutton:hover,
+.osmcat-panoramax:hover,
+.osmcat-mapillary:hover,
+.osmcat-router:hover,
+.osmcat-geobutton:focus,
+.osmcat-infobutton:focus,
+.osmcat-sharebutton:focus,
+.osmcat-clearoverlaybutton:focus,
+.osmcat-panoramax:focus,
+.osmcat-mapillary:focus,
+.osmcat-router:focus {
+    background-color: #34587C;
+    color: #fff;
+    outline: none;
+}
+
+.osmcat-geobutton i,
+.osmcat-infobutton i,
+.osmcat-sharebutton i,
+.osmcat-clearoverlaybutton i,
+.osmcat-panoramax i,
+.osmcat-mapillary i,
+.osmcat-router i {
+    color: #fff;
+    font-size: 1.2em;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.osmcat-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%; /* Use full available height */
+    overflow-y: auto; /* Enable vertical scrollbar when needed */
+    scrollbar-width: thin; /* For Firefox */
+}
+
+/* Custom scrollbar for WebKit browsers */
+.osmcat-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.osmcat-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.osmcat-menu::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.osmcat-menu::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.osmcat-select {
+	background: none;
+	border: 0;
+	font-weight: 700;
+	width: 100%;
+}
+
+.osmcat-layer {
+    border: 1px solid #BBB;
+    padding-left: 5px;
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%; /* Use full available height */
+    overflow-y: auto;
+}
+
+
+.osmcat-layer > div {
+	width: 100%;
+}
+.osmcat-content {
+	border-top: 1px solid;
+    max-height: 100%; /* Use full available height */
+    overflow-y: auto;
+}
+.osmcat-content > div {
+	margin-top: 3px;
+}
+.osmcat-content > div.active {
+	background-color: rgba(0,60,136,.3);
+}
+
+.osmcat-map-pin {
+	min-width: 10px;
+	text-align: center;
+}
+
+.osmcat-loading {
+	bottom: 50%;
+	display: none;
+	right: 50%;
+	z-index: 9999;
+}
+
+.ol-mouse-position {
+	top: 36px;
+}
+
+.ol-rotate {
+	right:5.5em;
+}
+
+.osmcat-rotateleft {
+	top: .5em;
+	right: .5em;
+}
+
+.osmcat-rotateright {
+	top: .5em;
+	right: 3em;
+}
+
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+
+/* Nominatim Search Styles */
+.nominatim-search {
+	top: 30px;
+	left: 44px;
+}
+
+.nominatim-search button {
+    background-color: #567CAC;
+    border: none;
+    border-radius: 2px;
+    padding: 2px;
+    cursor: pointer;
+}
+.nominatim-search button i {
+    color: #FFFFFF;
+}
+.nominatim-search button:hover {
+    background-color: #34587C;
+}
+.nominatim-search button.active {
+    background-color: #34587C;
+    color: #fff;
+}
+
+.nominatim-search input {
+    position: absolute;
+    left: 30px;
+    top: 0;
+    width: 250px;
+    padding: 5px;
+    border: none;
+    border-radius: 2px;
+    background-color: rgba(255,255,255,0.8);
+}
+
+.nominatim-search .search-results {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.nominatim-search .search-results li {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.nominatim-search .search-results li:hover {
+    background-color: rgba(0,60,136,.3);
+}
+
+.nominatim-search .search-results li.no-results {
+    font-style: italic;
+    color: #666;
+    cursor: default;
+}
+
+.nominatim-search .search-results li.no-results:hover {
+    background-color: transparent;
+}
+
+.nominatim-search.loading button i {
+    animation: spin 1s linear infinite;
+}
+
+.nominatim-marker {
+    color: #ff0000;
+    font-size: 24px;
+    text-shadow: 0 0 3px white;
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Mobile/Responsive Mode (screens < 600px) */
+
+/* Mapillary dot styles - for both PC and mobile */
+.map .ol-layer canvas {
+    z-index: 1;
+}
+
+/* Style for normal Mapillary dots */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer circle {
+    fill: #05CB63;
+    stroke: #fff;
+    stroke-width: 1px;
+    r: 4;
+}
+
+/* Style for active/selected Mapillary dot */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer circle.active {
+    fill: #FF0000;
+    stroke: #FFFFFF;
+    stroke-width: 3px;
+    r: 8;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+    animation: pulse 1.5s infinite;
+}
+
+/* Style for sequence lines */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer path {
+    stroke: #05CB63;
+    stroke-width: 2px;
+    opacity: 0.6;
+}
+
+/* Style for active sequence */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer path.active {
+    stroke: #FF0000;
+    stroke-width: 3px;
+    opacity: 1;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+}
+
+@keyframes pulse {
+    0% { r: 8; opacity: 1; }
+    50% { r: 12; opacity: 0.7; }
+    100% { r: 8; opacity: 1; }
+}
+
+/* Keep PC mode (min-width:600px) untouched */
+
+/* Big screen */
+@media only screen and (min-width:600px) {
+	.flex-row{
+		flex-wrap: nowrap;
+	}
+
+	.map{
+		height: 100%;
+	}
+
+	.menu{
+		height: 100%;
+		width: 300px;
+	}
+	.osmcat-menu{
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	/* Layers and Overlays side by side - Overlay takes 1/3, Layers take 2/3 */
+	.osmcat-layer {
+		width: 100%;
+		flex: 1 1 66.67%; /* Take 2/3 of the space */
+		max-height: 100%; /* Allow full height */
+		overflow-y: auto;
+	}
+
+	.osmcat-overlay {
+		width: 100%;
+		flex: 1 1 33.33%; /* Take 1/3 of the space */
+		height: 100%; /* Use full allocated height */
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.osmcat-content > div:hover {
+		cursor: pointer;
+		background-color: rgba(36,0,136,.3);
+	}
+}
+
+/* PanoraMax Viewer Styles */
+.panoramax-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.panoramax-viewer.active {
+    display: block;
+}
+
+.panoramax-viewer iframe {
+    width: 100%;
+    height: calc(100% - 30px);
+    border: none;
+    margin-top: -80px; /* Adjust for mobile */
+    position: relative;
+    z-index: 1;
+}
+
+.panoramax-viewer .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255,255,255,0.4);
+    border: none;
+    border-radius: 2px;
+    padding: 2px;
+    width: 25px !important;
+    height: 25px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.panoramax-viewer .close-button:hover {
+    background-color: rgba(255,255,255,0.6);
+}
+
+.panoramax-viewer .credits {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-size: 12px;
+    padding: 0 10px;
+    z-index: 1001;
+}
+
+.panoramax-viewer .credits .credit {
+    display: flex;
+    align-items: center;
+}
+
+.panoramax-viewer .credits a {
+    color: rgba(0,60,136,.7);
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.panoramax-viewer .credits a:hover {
+    color: rgba(0,60,136,1);
+}
+
+/* Responsive styles */
+@media only screen and (min-width: 600px) {
+    .panoramax-viewer {
+        top: 50%;
+        left: auto;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        transform: translate(100%, -50%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .panoramax-viewer.active {
+        transform: translate(0, -50%);
+    }
+
+    .panoramax-viewer iframe {
+        margin-top: -60px; /* Adjust for desktop */
+    }
+
+    .map.viewer-active {
+        width: 60% !important;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .panoramax-viewer {
+        width: 50%;
+    }
+
+    .panoramax-viewer iframe {
+        margin-top: -40px; /* Adjust for larger screens */
+    }
+
+    .map.viewer-active {
+        width: 50% !important;
+    }
+}
+
+/* ====================================
+   ORDERED GRAPHIC CONTROL BUTTONS
+   ====================================
+   Buttons positioned on the right side in logical order from top to bottom
+*/
+
+/* Top buttons - Router and Clear */
+.osmcat-router {
+    top: 80px;
+    background-color: #567CAC !important;
+    color: #fff !important;
+}
+
+.osmcat-clearoverlaybutton {
+    top: 140px;
+}
+
+/* Mapillary viewer button */
+.osmcat-mapillary {
+    bottom: 260px;
+}
+
+/* PanoraMax viewer button */
+.osmcat-panoramax {
+    bottom: 210px;
+}
+
+/* Share button */
+.osmcat-sharebutton {
+    bottom: 160px;
+}
+
+/* Geolocation button */
+.osmcat-geobutton {
+	bottom: 110px;
+}
+
+/* Info button (bottom) */
+.osmcat-infobutton {
+	bottom: 30px;
+}
+
+/* PanoraMax viewer styles update */
+.panoramax-viewer .close-button {
+    background-color: rgba(255,255,255,0.4);
+    border: none;
+    border-radius: 2px;
+    padding: 2px;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.panoramax-viewer .close-button:hover {
+    background-color: rgba(255,255,255,0.6);
+}
+
+.panoramax-viewer .credits a {
+    color: rgba(0,60,136,.7);
+}
+
+.panoramax-viewer .credits a:hover {
+    color: rgba(0,60,136,1);
+}
+
+/* Search button in router form */
+.router-input .search-button {
+    position: relative;
+    padding: 2px;
+    width: 25px !important;
+    height: 25px !important;
+}
+
+/* Calculate route button */
+.router-input .calculate-route {
+    width: 100%;
+    padding: 8px;
+    background-color: rgba(0,60,136,.7);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.router-input .calculate-route:hover {
+    background-color: rgba(0,60,136,.9);
+}
+
+/* Mapillary dot styles */
+.map .ol-layer canvas {
+    z-index: 1;
+}
+
+/* Style for normal Mapillary dots */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer circle {
+    fill: #05CB63;
+    stroke: #fff;
+    stroke-width: 1px;
+}
+
+/* Style for active/selected Mapillary dot */
+.map.viewer-active .ol-layers .ol-layer .ol-vector-layer circle.active {
+    fill: #FF4444;
+    stroke: #fff;
+    stroke-width: 2px;
+    r: 6;  /* Make active dot slightly larger */
+}
+
+.clear-active-overlay-btn {
+  cursor: pointer;
+  padding: 6px 10px;
+  background: #ffeaea;
+  color: #b00;
+  font-weight: bold;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: auto;
+  text-align: center;
+  transition: background 0.2s;
+}
+.clear-active-overlay-btn:hover, .clear-active-overlay-btn:focus {
+  background: #ffcccc;
+  outline: none;
+}
+
+/* Overlay search bar styles */
+#overlay-search-container, #layer-search-container {
+  position: relative;
+}
+#overlay-search, #layer-search {
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+.overlay-search-dropdown, #layer-search-dropdown {
+  border: 1px solid #bbb;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: none;
+}
+.overlay-search-option, .layer-search-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #222;
+}
+.overlay-search-option:hover, .overlay-search-option:focus,
+.layer-search-option:hover, .layer-search-option:focus {
+  background: #f0f0f0;
+  outline: none;
+}
+.overlay-search-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #222;
+}
+.overlay-search-option:hover, .overlay-search-option:focus {
+  background: #f0f0f0;
+  outline: none;
+}
+
+/* Overlay search spinner - center of page */
+#overlay-search-spinner {
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.4);
+  z-index: 9999;
+}
+#overlay-search-spinner .spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Standardize button sizes and colors */
+.osmcat-button.disabled,
+.osmcat-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #666 !important;
+    color: #999 !important;
+}
+
+.osmcat-routerbutton .router-btn.blue {
+    background-color: #34587C;
+    color: #fff;
+}
+.osmcat-routerbutton .router-btn.blue i {
+    color: #fff;
+}
+
+.osmcat-routerbutton {
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.osmcat-routerbutton button:hover,
+.osmcat-routerbutton button.active {
+    background-color: #34587C;
+    color: #fff;
+}
+
+.osmcat-routerbutton button i {
+    color: #567CAC;
+}
+
+.osmcat-routerbutton button.active i {
+    color: #fff;
+}
+
+/* Overlay summary control - next to scale bar */
+.overlay-summary-control {
+    position: absolute;
+    left: 120px; /* adjust as needed to be just right of the scale bar */
+    bottom: 8px;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    z-index: 1001;
+    pointer-events: none;
+    min-width: 80px;
+    text-align: center;
+    display: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    transition: opacity 0.2s;
+}
+
+/* Tag Search Styles */
+#key-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 500px;
+    overflow-y: auto;
+    z-index: 999; /* Lower z-index to avoid overlapping value search */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#value-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 500px;
+    overflow-y: auto;
+    z-index: 1000; /* Higher z-index for value search dropdown */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.key-search-result,
+.value-search-result {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: block;
+    position: relative;
+}
+
+.key-search-result:hover,
+.value-search-result:hover,
+.key-search-result.highlighted,
+.value-search-result.highlighted {
+    background-color: #f0f0f0;
+}
+
+.key-name,
+.value-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.key-definition,
+.value-definition,
+.value-definition-en,
+.value-definition-ca,
+.value-definition-es {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 3px;
+    line-height: 1.2;
+}
+
+.key-count,
+.value-count {
+    font-size: 9px;
+    color: #888;
+    margin-bottom: 0;
+}
+
+.value-key {
+    font-size: 10px;
+    color: #007cba;
+    margin-bottom: 2px;
+}
+
+.value-tag {
+    font-size: 10px;
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-bottom: 2px;
+}
+
+/* Highlighting styles */
+mark {
+    background-color: #ffff00;
+    color: #000;
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: inherit;
+}
+
+.custom-value-option {
+    background-color: #e8f4fd !important;
+    border-left: 3px solid #007cba;
+}
+
+.custom-value-option:hover {
+    background-color: #d0e9f7 !important;
+}
+
+/* Element Type Filter */
+.element-type-filter {
+    margin: 10px 0;
+    padding: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.element-type-filter label {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 12px;
+}
+
+/* Query Statistics Styles */
+.query-statistics {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.query-statistics h4 {
+    color: #495057;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    padding: 0;
+    font-weight: 600;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 12px;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: #495057;
+    font-weight: 600;
+    font-family: monospace;
+    min-width: 60px;
+    text-align: right;
+}
+
+.stat-value.color-indicator {
+    position: relative;
+    padding-left: 16px;
+}
+
+.stat-value.color-indicator::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
