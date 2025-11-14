@@ -931,51 +931,73 @@ function toggle3DControlBuild() {
             if (!is3d) {
                 // Initialize Cesium if not already done
                 if (!cesiumInitialized) {
-                    ol3d = new olcs.OLCesium({
-                        map: map,
-                        time: function() { return Cesium.JulianDate.now(); },
-                        target: 'map',
-                        createSvg: true,
-                        useDefaultRenderLoop: true
-                    });
-                    
-                    const scene = ol3d.getCesiumScene();
-                    
-                    // Use EllipsoidTerrainProvider as a simple fallback
-                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-                    scene.globe.enableLighting = true;
-                    
-                    // Clear any existing imagery layers
-                    scene.imageryLayers.removeAll();
-                    
-                    // Add a simple basemap that doesn't require authentication
-                    scene.imageryLayers.addImageryProvider(
-                        Cesium.SingleTileImageryProvider.fromUrl(
-                            'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/0/0/0',
-                            {
-                                rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
+                    try {
+                        // Initialize OLCesium with minimal configuration
+                        ol3d = new olcs.OLCesium({
+                            map: map,
+                            target: 'map',
+                            createSvg: false, // Disable SVG creation which can cause issues
+                            useDefaultRenderLoop: true,
+                            time: function() { return Cesium.JulianDate.now(); }
+                        });
+                        
+                        const scene = ol3d.getCesiumScene();
+                        
+                        // Configure scene
+                        scene.globe.enableLighting = true;
+                        scene.globe.depthTestAgainstTerrain = false; // Disable terrain depth test for better performance
+                        
+                        // Set up terrain provider
+                        scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
+                            tilingScheme: new Cesium.GeographicTilingScheme()
+                        });
+                        
+                        // Clear any existing imagery layers
+                        scene.imageryLayers.removeAll();
+                        
+                        // Add a simple basemap that doesn't require authentication
+                        scene.imageryLayers.addImageryProvider(
+                            new Cesium.UrlTemplateImageryProvider({
+                                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                subdomains: ['a', 'b', 'c'],
+                                tileWidth: 256,
                                 tileHeight: 256,
-                                tileWidth: 256
+                                minimumLevel: 0,
+                                maximumLevel: 19
+                            })
+                        );
+                        
+                        // Disable Cesium ion features that require authentication
+                        Cesium.Ion.defaultAccessToken = null;
+                        
+                        // Set a default view with a reasonable height
+                        const view = map.getView();
+                        const center = ol.proj.toLonLat(view.getCenter());
+                        const zoom = view.getZoom();
+                        
+                        // Convert OpenLayers zoom to Cesium height
+                        const height = 10000000 / Math.pow(1.5, zoom);
+                        
+                        // Set initial camera position
+                        scene.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(
+                                center[0],
+                                center[1],
+                                Math.max(height, 1000) // Ensure minimum height
+                            ),
+                            orientation: {
+                                heading: 0.0,
+                                pitch: -Cesium.Math.PI_OVER_TWO,
+                                roll: 0.0
                             }
-                        )
-                    );
-                    
-                    // Disable Cesium ion features that require authentication
-                    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYjMzNTY2MS0zZDhiLTQ2NWItOTRmZi1kOGQ3YWEzNzBkMzYiLCJpZCI6MjU3NTcsImlhdCI6MTc2MzE0ODE4OH0.2EgP2K98pgGdXlu6JycCUjzeA1eY60dHu5lrlyFgyC0';
-                    
-                    // Set a default view with a reasonable height
-                    const camera = scene.camera;
-                    const position = Cesium.Cartesian3.fromDegrees(0, 0, 20000000);
-                    camera.setView({
-                        destination: position,
-                        orientation: {
-                            heading: 0.0,
-                            pitch: -Cesium.Math.PI_OVER_TWO,
-                            roll: 0.0
-                        }
-                    });
-                    
-                    cesiumInitialized = true;
+                        });
+                        
+                        cesiumInitialized = true;
+                    } catch (error) {
+                        console.error('Error initializing 3D view:', error);
+                        alert('Error initializing 3D view. Please check console for details.');
+                        return;
+                    }
                 }
                 
                 // Enable Cesium
