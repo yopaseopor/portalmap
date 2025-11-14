@@ -10,11 +10,11 @@
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
 	<!-- OpenLayers -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css" type="text/css"/>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css" type="text/css"/>
 	<!-- Cesium -->
-	<link href="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 	<!-- ol-cesium -->
-	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/olcs.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
@@ -93,10 +93,12 @@
 	<!-- OpenLayers (must be loaded before ol-cesium) -->
 	<script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
 	
-	<!-- Cesium and ol-cesium -->
-    <link href="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<!-- Cesium configuration -->
     <style>
-        @import url(https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css);
+        /* Cesium widget styles */
+        .cesium-widget-credits {
+            display: none !important;
+        }
     </style>
     <script>
         // Configure Cesium before loading it
@@ -122,6 +124,9 @@
 	<!-- Opening Hours Library (local copy) -->
 	<script src="src/vendor/opening_hours.min.js"></script>
 
+	<!-- Vector tile styles -->
+	<script src="src/assets/vector-tile-styles.js"></script>
+	
 	<!-- Configuration -->
 	<script src="src/config.js"></script>
 

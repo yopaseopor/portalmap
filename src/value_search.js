@@ -436,41 +436,7 @@ function initValueSearch() {
         }
     });
 
-    function performValueSearch(query, key, useYesCsv = false) {
-        const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
-
-        // Choose appropriate loaded flag depending on dataset
-        const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
-
-        if (!loadedFlag) {
-            if (ensureLoaded) {
-                ensureLoaded().then(() => {
-                    performValueSearch(query, key, useYesCsv);
-                }).catch(error => {
-                    console.error('Failed to initialize taginfo API for requested dataset:', error);
-                });
-            } else {
-                console.error('No init function for requested taginfo dataset');
-            }
-            return;
-        }
-
-        const results = window.searchValues(query, key, 25, useYesCsv);
-
-        currentResults = results;
-        // The display function is part of the original file; call it if defined
-        if (typeof displayValueResults === 'function') {
-            displayValueResults(results, query);
-        } else {
-            // Fallback: show raw results in console and simple container
-            resultsContainer.empty();
-            results.forEach(r => resultsContainer.append($('<div>').text((r.key? r.key + '=' : '') + (r.value || r.tag || ''))));
-            resultsContainer.show();
-        }
-
-        // Trigger custom event for other components
-        searchInput.trigger('valueSearchResults', [results, key]);
-    }
+    // First definition of performValueSearch removed - using the one at line 1204 instead
 
     // Listen for key selection from key search
     searchInput.on('keySelected', function(e, keyResult) {
@@ -796,7 +762,7 @@ function createTagOverlay(key, value, query) {
 
     // Create vector source without loader initially to prevent automatic queries
     const vectorSource = new ol.source.Vector({
-        format: new ol.format.OSMXML2(),
+        format: new ol.format.OSMXML(),
         // No loader here as we handle loading state in the query execution
         loader: function() {
             // Explicitly do nothing - loading is handled in executeTagQuery
@@ -1201,32 +1167,43 @@ function initValueSearch() {
         }
     });
 
-    function performValueSearch(query, key) {
-        // Read checkbox state (default false)
-        const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
+    // Define performValueSearch as a global function
+    window.performValueSearch = function(query, key) {
+        try {
+            // Read checkbox state (default false)
+            const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
 
-        // Choose appropriate loader/init function
-        const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
-        const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
+            // Choose appropriate loader/init function
+            const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
+            const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
 
-        if (!loadedFlag) {
-            console.log('Taginfo data for requested dataset not loaded, initializing...');
-            if (ensureLoaded) {
-                ensureLoaded().then(() => {
-                    console.log('Taginfo API (requested dataset) initialized, retrying search');
-                    performValueSearch(query, key);
-                }).catch(error => {
-                    console.error('Failed to initialize taginfo API for requested dataset:', error);
-                });
-            } else {
-                console.error('No init function for requested taginfo dataset');
+            if (!loadedFlag) {
+                console.log('Taginfo data for requested dataset not loaded, initializing...');
+                if (ensureLoaded) {
+                    ensureLoaded().then(() => {
+                        console.log('Taginfo API (requested dataset) initialized, retrying search');
+                        window.performValueSearch(query, key);
+                    }).catch(error => {
+                        console.error('Failed to initialize taginfo API for requested dataset:', error);
+                    });
+                } else {
+                    console.error('No init function for requested taginfo dataset');
+                }
+                return;
             }
-            return;
-        }
 
-        const results = window.searchValues(query, key, 100, useYesCsv);
-        currentResults = results;
-        displayValueResults(results, query);
+            const results = window.searchValues(query, key, 100, useYesCsv);
+            currentResults = results;
+            
+            // Check if displayValueResults exists before calling it
+            if (typeof displayValueResults === 'function') {
+                displayValueResults(results, query);
+            } else {
+                console.error('displayValueResults is not defined');
+            }
+        } catch (error) {
+            console.error('Error in performValueSearch:', error);
+        }
 
         // Trigger custom event for other components
         searchInput.trigger('valueSearchResults', [results, key]);
@@ -1563,7 +1540,7 @@ function initValueSearch() {
         // Create vector layer
         const vectorLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
-                format: new ol.format.OSMXML2(),
+                format: new ol.format.OSMXML(),
                 loader: function() {
                     // Explicitly do nothing - loading is handled in executeTagQuery
                     return null;

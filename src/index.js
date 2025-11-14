@@ -413,9 +413,9 @@ $(function () {
 									}
 								});
 							}
-							var features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
-								featureProjection: map.getView().getProjection()
-							});
+							var features = new ol.format.OSMXML().readFeatures(xmlDoc, {
+					featureProjection: map.getView().getProjection()
+				});
 							me.addFeatures(features);
 						}
 					} else {

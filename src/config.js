@@ -76,115 +76,92 @@ var config = {
 	//@@ Mapas de fondo
 	layers: [
 				
-		// Maptiler Vector Tiles - MapTiler Basic with style.json
+		// Maptiler Vector Tiles - MapTiler Basic with simplified style
 		(function() {
+			const source = new ol.source.VectorTile({
+				tilePixelRatio: 1,
+				tileGrid: ol.tilegrid.createXYZ({
+					minZoom: 0,
+					maxZoom: 14
+				}),
+				format: new ol.format.MVT(),
+				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
+				attributions: [
+					'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
+					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+				]
+			});
+
 			const layer = new ol.layer.VectorTile({
 				title: 'MapTiler Basic',
 				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
 				visible: false,
 				opacity: 1.0,
-				source: new ol.source.VectorTile({
-					tilePixelRatio: 1,
-					tileGrid: ol.tilegrid.createXYZ({
-						minZoom: 0,
-						maxZoom: 14 // Preserving this zoom for this layer
-					}),
-					format: new ol.format.MVT(),
-					url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
-					attributions: [
-						'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-					]
-				})
+				source: source,
+				style: function(feature, resolution) {
+					return vectorTileStyles['openmaptiles'](feature, resolution);
+				}
 			});
 
-			const styleUrl = 'src/assets/style.json';
-			const apiKey = 'Faz9gJu55zrWejNF55oZ';
-			fetch(styleUrl)
-				.then(response => response.text())
-				.then(text => {
-					const style = JSON.parse(text.replace(/{key}/g, apiKey));
-					olms.applyStyle(layer, style, 'openmaptiles')
-						.then(() => console.log('MapTiler style applied successfully for MapTiler Basic.'))
-						.catch(err => console.error('Error applying MapTiler style for MapTiler Basic:', err));
-				}).catch(err => {
-					console.error('Failed to load or apply style.json for MapTiler Basic:', err);
-				});
 			return layer;
 		})(),
 		
-		//Versatiles colorful
-				(function() {
-			const colorfulLayer = new ol.layer.VectorTile({
-				title: 'Versatiles colorful',
+		// Versatiles with simplified style
+		(function() {
+			const source = new ol.source.VectorTile({
+				tilePixelRatio: 1,
+				tileGrid: ol.tilegrid.createXYZ({
+					minZoom: 0,
+					maxZoom: 14
+				}),
+				format: new ol.format.MVT(),
+				url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
+				attributions: [
+					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+				]
+			});
+
+			const layer = new ol.layer.VectorTile({
+				title: 'Versatiles Basic',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: false,
 				opacity: 1.0,
-				source: new ol.source.VectorTile({
-					tilePixelRatio: 1,
-					tileGrid: ol.tilegrid.createXYZ({
-						minZoom: 0,
-						maxZoom: 14
-					}),
-					format: new ol.format.MVT(),
-					url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
-					attributions: [
-						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-					]
-				}),
+				source: source,
+				style: function(feature, resolution) {
+					return vectorTileStyles['versatiles-shortbread'](feature, resolution);
+				},
 				declutter: true
 			});
 
-			const styleUrl = 'src/assets/colorful.json';
-			fetch(styleUrl)
-				.then(response => response.json())
-				.then(style => {
-					// Fix sprite URL if needed
-					if (style.sprite && typeof style.sprite === 'string') {
-						// Ensure sprite URL doesn't have trailing colon or incorrect format
-						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-						console.log('Fixed sprite URL:', style.sprite);
-					}
-
-					// Also handle array format for sprites (like in versatilescolorful.json)
-					if (style.sprite && Array.isArray(style.sprite)) {
-						style.sprite.forEach(sprite => {
-							if (sprite.url) {
-								sprite.url = sprite.url.replace(/[:\s]*$/, '');
-								console.log('Fixed sprite array URL:', sprite.url);
-							}
-						});
-					}
-					return olms.applyStyle(colorfulLayer, style, 'versatiles-shortbread')
-						.then(() => console.log('Colorful style applied successfully for OSM Shortbread.'))
-						.catch(err => console.error('Error applying Colorful style for OSM Shortbread:', err));
-				}).catch(err => {
-					console.error('Failed to load or apply colorful.json for OSM Shortbread:', err);
-					console.log('This might be due to sprite loading issues. The map will still function without sprites.');
-				});
-			return colorfulLayer;
+			return layer;
 		})(),
 		
 	
 
+		// OSM Vector Tiles with simplified style
 		(function() {
+			const source = new ol.source.VectorTile({
+				tilePixelRatio: 1,
+				tileGrid: ol.tilegrid.createXYZ({
+					minZoom: 0,
+					maxZoom: 14
+				}),
+				format: new ol.format.MVT(),
+				url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
+				attributions: [
+					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+				]
+			});
+
 			const customLayer = new ol.layer.VectorTile({
-				title: 'OSM Customyopaseopor',
+				title: 'OSM Vector Tiles',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: true,
 				opacity: 1.0,
-				source: new ol.source.VectorTile({
-					tilePixelRatio: 1,
-					tileGrid: ol.tilegrid.createXYZ({
-						minZoom: 0,
-						maxZoom: 14
-					}),
-					format: new ol.format.MVT(),
-					url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
-					attributions: [
-						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-					]
-				}),
+				source: source,
+				style: function(feature, resolution) {
+					return vectorTileStyles['versatiles-shortbread'](feature, resolution);
+				},
 				declutter: true
 			});
 

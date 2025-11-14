@@ -307,16 +307,24 @@ CLEAR ACTIVE OVERLAY BUTTON
 }
 
 .ol-mouse-position {
-	top: 36px;
+    top: 80px;  /* Position 50px below rotate buttons */
+    right: 0.5em;
+    left: auto;
+    text-align: right;
+    background: rgba(255,255,255,0.7);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
 }
 
 .ol-rotate {
-	right:5.5em;
+    right: 5.5em;
 }
 
 .osmcat-rotateleft {
-	top: .5em;
-	right: .5em;
+    top: .5em;
+    right: .5em;
 }
 
 .osmcat-rotateright {
@@ -370,14 +378,21 @@ CLEAR ACTIVE OVERLAY BUTTON
 }
 
 .nominatim-search button {
-    background-color: #567CAC;
-    border: none;
-    border-radius: 2px;
-    padding: 2px;
+    background-color: #1976d2 !important; /* Force blue background */
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px !important;
     cursor: pointer;
+    color: white !important;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
 }
+
 .nominatim-search button i {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 .nominatim-search button:hover {
     background-color: #34587C;
