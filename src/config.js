@@ -4,38 +4,39 @@
  * OSM Cat config
  */
 
+// opening_hours loader: use local vendored file loaded synchronously from index.html.
+// Resolve to the OpeningHours constructor (or the opening_hours factory) or reject if missing.
+var openingHoursPromise = new Promise(function(resolve, reject) {
+	function isAvailable() {
+		return (typeof window.OpeningHours === 'function') || (typeof window.opening_hours === 'function');
+	}
+
+	if (isAvailable()) {
+		resolve(window.OpeningHours || window.opening_hours);
+		return;
+	}
+
+	// If not yet available (unexpected), wait briefly for synchronous include to execute.
+	var waited = 0;
+	var interval = setInterval(function() {
+		if (isAvailable()) {
+			clearInterval(interval);
+			resolve(window.OpeningHours || window.opening_hours);
+			return;
+		}
+		waited += 50;
+		if (waited > 5000) {
+			clearInterval(interval);
+			reject(new Error('opening_hours library not available (expected local file at src/vendor/opening_hours.min.js)'));
+		}
+	}, 50);
+});
+
 //@@ Ruta de imágenes
-const imgSrc = 'src/img/';
+var imgSrc = 'src/img/';
 
-// Main configuration object
-const config = {
-    // opening_hours loader: use local vendored file loaded synchronously from index.html.
-    // Resolve to the OpeningHours constructor (or the opening_hours factory) or reject if missing.
-    openingHoursPromise: new Promise(function(resolve, reject) {
-        function isAvailable() {
-            return (typeof window.OpeningHours === 'function') || (typeof window.opening_hours === 'function');
-        }
-
-        if (isAvailable()) {
-            resolve(window.OpeningHours || window.opening_hours);
-            return;
-        }
-
-        // If not yet available (unexpected), wait briefly for synchronous include to execute.
-        let waited = 0;
-        const interval = setInterval(function() {
-            if (isAvailable()) {
-                clearInterval(interval);
-                resolve(window.OpeningHours || window.opening_hours);
-                return;
-            }
-            waited += 50;
-            if (waited > 5000) {
-                clearInterval(interval);
-                reject(new Error('opening_hours library not available (expected local file at src/vendor/opening_hours.min.js)'));
-            }
-        }, 50);
-    }),
+//@@Coordenadas LONgitud LATitud Rotación Zoom, Zoom de la geolocalización, unidades
+var config = {
 	//@@ API Keys for external services (add your own keys here)
 	apiKeys: {
 		mapillary: 'MLY|25184084394537227|a1d2ba8a7ad819e741b1949b288cb142', // Add your Mapillary API key here: 'your_mapillary_client_token'
@@ -77,82 +78,113 @@ const config = {
 				
 		// Maptiler Vector Tiles - MapTiler Basic with style.json
 		(function() {
-			const source = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
-				attributions: [
-					'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-				]
-			});
-
 			const layer = new ol.layer.VectorTile({
 				title: 'MapTiler Basic',
 				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
 				visible: false,
 				opacity: 1.0,
-				source: source,
-				style: window.getVectorTileStyle // Use our simple style function
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14 // Preserving this zoom for this layer
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
+					attributions: [
+						'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				})
 			});
 
+			const styleUrl = 'src/assets/style.json';
+			const apiKey = 'Faz9gJu55zrWejNF55oZ';
+			fetch(styleUrl)
+				.then(response => response.text())
+				.then(text => {
+					const style = JSON.parse(text.replace(/{key}/g, apiKey));
+					olms.applyStyle(layer, style, 'openmaptiles')
+						.then(() => console.log('MapTiler style applied successfully for MapTiler Basic.'))
+						.catch(err => console.error('Error applying MapTiler style for MapTiler Basic:', err));
+				}).catch(err => {
+					console.error('Failed to load or apply style.json for MapTiler Basic:', err);
+				});
 			return layer;
 		})(),
 		
-		// Versatiles colorful - Simplified for OpenLayers 7.5.2
-		(function() {
-			const source = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
-				attributions: [
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-				]
-			});
-
-			const layer = new ol.layer.VectorTile({
+		//Versatiles colorful
+				(function() {
+			const colorfulLayer = new ol.layer.VectorTile({
 				title: 'Versatiles colorful',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: false,
 				opacity: 1.0,
-				source: source,
-				style: window.getVectorTileStyle, // Use our simple style function
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
+					attributions: [
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				}),
 				declutter: true
 			});
 
-			return layer;
+			const styleUrl = 'src/assets/colorful.json';
+			fetch(styleUrl)
+				.then(response => response.json())
+				.then(style => {
+					// Fix sprite URL if needed
+					if (style.sprite && typeof style.sprite === 'string') {
+						// Ensure sprite URL doesn't have trailing colon or incorrect format
+						style.sprite = style.sprite.replace(/[:\s]*$/, '');
+						console.log('Fixed sprite URL:', style.sprite);
+					}
+
+					// Also handle array format for sprites (like in versatilescolorful.json)
+					if (style.sprite && Array.isArray(style.sprite)) {
+						style.sprite.forEach(sprite => {
+							if (sprite.url) {
+								sprite.url = sprite.url.replace(/[:\s]*$/, '');
+								console.log('Fixed sprite array URL:', sprite.url);
+							}
+						});
+					}
+					return olms.applyStyle(colorfulLayer, style, 'versatiles-shortbread')
+						.then(() => console.log('Colorful style applied successfully for OSM Shortbread.'))
+						.catch(err => console.error('Error applying Colorful style for OSM Shortbread:', err));
+				}).catch(err => {
+					console.error('Failed to load or apply colorful.json for OSM Shortbread:', err);
+					console.log('This might be due to sprite loading issues. The map will still function without sprites.');
+				});
+			return colorfulLayer;
 		})(),
 		
-		// OSM Customyopaseopor - Simplified for OpenLayers 7.5.2
-		(function() {
-			const source = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
-				attributions: [
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-				]
-			});
+	
 
+		(function() {
 			const customLayer = new ol.layer.VectorTile({
 				title: 'OSM Customyopaseopor',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: true,
 				opacity: 1.0,
-				source: source,
-				style: window.getVectorTileStyle, // Use our simple style function
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
+					attributions: [
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				}),
 				declutter: true
 			});
 
@@ -246,20 +278,26 @@ const config = {
 	* Overlay
 	* group: string nom del grup
 	* title: string títol de la capa
-	* query: string consulta tal com https://overpass-turbo.eu
+	* query: string consulta tal como https://overpass-turbo.eu
 	* iconSrc: string ruta de la imatge
 	* style: function see https://openlayers.org/en/latest/apidoc/module-ol_style_Style-Style.html
 	*/
 	overlays: [
-		{
+
+
+
+		
+				
+		
+{
 			group: 'Alimentación',
 			title: 'Supermercados',
 			query: '(nwr["shop"="supermarket"]({{bbox}});node(w););out meta;',
 			iconSrc: imgSrc + 'icones/maxspeed_empty.svg',
 			iconStyle: 'background-color:rgba(255,255,255,0.4)',
-			style: function (feature) {
-				var key_regex = /^name:ca$/;
-				var name_key = feature.getKeys().filter(function(t){return t.match(key_regex)}).pop() || "name";
+style: function (feature) {
+				var key_regex = /^name$/
+				var name_key = feature.getKeys().filter(function(t){return t.match(key_regex)}).pop() || "name"
 				var name = feature.get(name_key) || '';
 				var fill = new ol.style.Fill({
 					color: 'rgba(117,63,79,0.4)'
@@ -268,79 +306,117 @@ const config = {
 					color: 'rgba(117,63,79,1)',
 					width: 1
 				});
-                
-                // Get the geometry type
-                var geom = feature.getGeometry();
-                var isPolygon = geom && (geom.getType() === 'Polygon' || geom.getType() === 'MultiPolygon');
-                
-                var style = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        src: imgSrc + 'icones/maxspeed_empty.svg',
-                        scale: 0.03
-                    }),
-                    text: new ol.style.Text({
-                        text: name,
-                        fill: new ol.style.Fill({
+				var style = new ol.style.Style({
+					image: new ol.style.Icon({
+							src: imgSrc + 'icones/maxspeed_empty.svg',
+							scale:0.03
+						}),
+							text: new ol.style.Text({
+								text: name,
+								offsetX : 7,
+								offsetY : -12,
+								fill: new ol.style.Fill({
                             color: 'rgba(0,0,0,1)'
                         }),
-                        stroke: new ol.style.Stroke({
-                            color: 'rgba(255,255,255,0.7)',
-                            width: 2
-                        }),
-                        placement: isPolygon ? 'point' : 'point',
-                        textAlign: 'center',
-                        textBaseline: 'bottom',
-                        offsetY: isPolygon ? -15 : 0,
-                        overflow: true
-                    }),
-                    fill: fill,
-                    stroke: stroke
-                });
-                
-                return style;
+						}),
+					fill: fill,
+					stroke: stroke
+				});
+				return style;
 			}
-        },
-        {
-            group: 'Economía',
-            title: 'Banco Sabadell',
-            query: '(nwr["brand:wikidata"="Q762330"]({{bbox}});node(w););out meta;',
-            iconSrc: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/BSabadell_Logo.svg/220px-BSabadell_Logo.svg.png',
-            iconStyle: 'background-color:rgba(255,255,255,0.4)',
-            style: function (feature) {
-                var key_regex = /^name:ca$/;
-                var name_key = feature.getKeys().filter(function(t){return t.match(key_regex)}).pop() || "name";
-                var name = feature.get(name_key) || '';
-                var fill = new ol.style.Fill({
-                    color: 'rgba(255,0,0,0.4)'
-                });
-                var stroke = new ol.style.Stroke({
-                    color: 'rgba(255,0,0,1)',
-                    width: 1
-                });
-                
-                var style = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/BSabadell_Logo.svg/220px-BSabadell_Logo.svg.png',
-                        rotation: 0.9,
-                        scale: 0.30
-                    }),
-                    text: new ol.style.Text({
-                        text: name,
-                        font: 'bold 13px Arial, Verdana, Helvetica, sans-serif',
-                        rotation: 0.9,
-                        offsetX: 7,
-                        offsetY: -12,
-                        fill: new ol.style.Fill({
-                            color: 'rgba(255,255,255,1)'
-                        })
-                    }),
-                    fill: fill,
-                    stroke: stroke
-                });
-                
-                return style;
-            }
-        }
+
+/*@@ inicio-fin de copia */			},
+/*   abrir */							{
+    group: 'Alimentación',
+    title: 'Supermercados',
+    query: '(nwr["shop"="supermarket"]({{bbox}});node(w););out meta;',
+    iconSrc: imgSrc + 'icones/maxspeed_empty.svg',
+    iconStyle: 'background-color:rgba(255,255,255,0.4)',
+    style: function (feature) {
+        var key_regex = /^name$/;
+        var name_key = feature.getKeys().filter(function(t){return t.match(key_regex)}).pop() || "name";
+        var name = feature.get(name_key) || '';
+        var fill = new ol.style.Fill({
+            color: 'rgba(117,63,79,0.4)'
+        });
+        var stroke = new ol.style.Stroke({
+            color: 'rgba(117,63,79,1)',
+            width: 1
+        });
+        // Get the geometry type
+        var geom = feature.getGeometry();
+        var isPolygon = geom.getType() === 'Polygon' || geom.getType() === 'MultiPolygon';
+        
+        var style = new ol.style.Style({
+            image: new ol.style.Icon({
+                src: imgSrc + 'icones/maxspeed_empty.svg',
+                scale: 0.03
+            }),
+            text: new ol.style.Text({
+                text: name,
+             			
+                fill: new ol.style.Fill({
+                    color: 'rgba(0,0,0,1)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255,255,255,0.7)',
+                    width: 2
+                }),
+                // For polygons, we'll use a different placement strategy
+                placement: isPolygon ? 'point' : 'point',
+				textAlign: 'center',
+                textBaseline: 'bottom',
+                offsetY: isPolygon ? -15 : 0, // Move text up for polygons
+                overflow: true // Allow text to be rendered outside the view
+            }),
+            fill: fill,
+            stroke: stroke
+        });
+        
+        return style;
+/*   cerrar */								}
+
+/*@@ fin-inicio de copia */			},
+/*   abrir */							{
+/*@@ nombre del grupo al que pertenecen */	group: 'Economía',
+/*@@ título de la opción */					title: 'Banco Sabadell',
+/*@@ consulta overpass */					query: '(nwr["brand:wikidata"="Q762330"]({{bbox}});node(w););out meta;',
+/*@@ ruta del icono (URL o relativa) */		iconSrc: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/BSabadell_Logo.svg/220px-BSabadell_Logo.svg.png',
+/*@@ color del fondo del icono (r,g,b,a) */	iconStyle: 'background-color:rgba(255,255,255,0.4)',
+											style: function (feature) {
+/*@@ etiqueta para texto entre barras / / */	var key_regex = /^name:ca$/
+												var name_key = feature.getKeys().filter(function(t){return t.match(key_regex)}).pop() || "name"
+												var name = feature.get(name_key) || '';
+												var fill = new ol.style.Fill({
+/*@@ color del relleno (r,g,b,a) */					color: 'rgba(255,0,0,0.4)'
+/*   cerrar */									});
+/*subrallado*/									var stroke = new ol.style.Stroke({
+/*@@ color de la línea (r,g,b,a) */					color: 'rgba(255,0,0,1)',
+/*@@ anchura de la línea */							width: 1
+/*   cerrar */									});
+												var style = new ol.style.Style({
+/*   icono */										image: new ol.style.Icon({
+/*@@ ruta del icono (URL o relativa) */					src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/BSabadell_Logo.svg/220px-BSabadell_Logo.svg.png',		
+/*@@ rotación */										rotation:0.9,
+/*@@ tamaño (en relativo) */							scale:0.30
+/*   cerrar */										}),
+/*   texto */												text: new ol.style.Text({
+																text: name,
+/*@@ peso,tamaño y cuerpo del texto */							font: 'bold 13px Arial, Verdana, Helvetica, sans-serif',
+/*@@ rotación del texto */										rotation:0.9,
+/*@@ posición x texto relativa al punto */						offsetX : 7,
+/*@@ posición y texto relativa al punto */						offsetY : -12,
+/* "relleno" del texto */										fill: new ol.style.Fill({
+/*@@ color del texto (r,g,b,a) */           						color: 'rgba(255,255,255,1)'
+/*   cerrar */														}),
+/*   cerrar */												}),
+/*   texto */										fill: fill,
+													stroke: stroke
+/*   cerrar */									});
+											
+				return style;
+			}
+		}
 		
 
 		

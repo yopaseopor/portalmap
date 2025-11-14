@@ -10,11 +10,11 @@
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
 	<!-- OpenLayers -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css" type="text/css"/>
-    <!-- Load Cesium CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <!-- Load ol-cesium CSS from a working version -->
-    <link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css" type="text/css"/>
+	<!-- Cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/cesium@1.113.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<!-- ol-cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.20.0/olcs.css" rel="stylesheet">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
@@ -92,103 +92,24 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css">
 	<!-- OpenLayers (must be loaded before ol-cesium) -->
 	<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
-
-    <!-- Cesium CSS and JS -->
+	
+	<!-- Cesium and ol-cesium -->
     <link href="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    
-    <!-- Configure Cesium and load it -->
+    <style>
+        @import url(https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Widgets/widgets.css);
+    </style>
     <script>
-    (function() {
-        // Configure Cesium base URL
+        // Configure Cesium before loading it
         window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/';
+        // Disable source maps to prevent console warnings
         window.CESIUM_sourceMap = false;
-        
-        // Initialize global objects
-        window.olcs = window.olcs || {};
-        window.Cesium = window.Cesium || {};
-        
-        // Create a promise to track Cesium loading
-        window.cesiumReady = new Promise(function(resolve) {
-            var cesiumScript = document.createElement('script');
-            cesiumScript.src = 'https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Cesium.js';
-            cesiumScript.onload = function() {
-                // Configure Cesium
-                Cesium.Ion.defaultAccessToken = '';
-                Cesium.buildModuleUrl.setBaseUrl(window.CESIUM_BASE_URL);
-                console.log('Cesium loaded successfully');
-                resolve();
-            };
-            cesiumScript.onerror = function() {
-                console.error('Failed to load Cesium');
-                // Try fallback URL
-                cesiumScript.src = 'https://unpkg.com/cesium@1.105.0/Build/Cesium/Cesium.js';
-                document.head.appendChild(cesiumScript);
-            };
-            document.head.appendChild(cesiumScript);
-        });
-        
-        // Load ol-cesium after Cesium is ready
-        window.cesiumReady.then(function() {
-            var olcsScript = document.createElement('script');
-            // Configure ol-cesium script
-            olcsScript.src = 'https://unpkg.com/ol-cesium@2.14.0/dist/olcesium.umd.js';
-            olcsScript.crossOrigin = 'anonymous';
-            
-            // Handle successful load
-            olcsScript.onload = function() {
-                console.log('ol-cesium loaded successfully');
-                if (window.olcs && window.olcs.OLCesium) {
-                    console.log('ol-cesium is properly initialized');
-                    // Initialize the map if it hasn't been initialized yet
-                    if (window.initMap && typeof window.initMap === 'function') {
-                        window.initMap();
-                    }
-                } else {
-                    console.error('ol-cesium loaded but not properly initialized');
-                    console.log('Available properties in olcs:', Object.keys(window.olcs || {}));
-                }
-            };
-            
-            // Handle load error
-            olcsScript.onerror = function() {
-                console.error('Failed to load ol-cesium from CDN, trying fallback');
-                // Try alternative CDN if first one fails
-                var fallbackScript = document.createElement('script');
-                fallbackScript.src = 'https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.umd.js';
-                fallbackScript.crossOrigin = 'anonymous';
-                
-                fallbackScript.onload = function() {
-                    console.log('ol-cesium loaded successfully from fallback CDN');
-                    if (window.olcs && window.olcs.OLCesium) {
-                        console.log('ol-cesium is properly initialized from fallback');
-                        // Initialize the map if it hasn't been initialized yet
-                        if (window.initMap && typeof window.initMap === 'function') {
-                            window.initMap();
-                        }
-                    } else {
-                        console.error('ol-cesium still not properly initialized after fallback');
-                    }
-                };
-                
-                fallbackScript.onerror = function() {
-                    console.error('Failed to load ol-cesium from fallback CDN');
-                    alert('Failed to load 3D functionality. Please check your internet connection and try again.');
-                };
-                
-                document.head.appendChild(fallbackScript);
-            };
-            
-            // Add the script to the document
-            document.head.appendChild(olcsScript);
-        }).catch(function(error) {
-            console.error('Failed to initialize Cesium:', error);
-            alert('Failed to load 3D functionality. Please check your internet connection and try again.');
-        });
-    })();
+        // Configure Cesium to use CDN for assets
+        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL.replace('Source/', '');
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.105.0/Build/Cesium/Cesium.js"></script>
     
-    <!-- ol-cesium CSS -->
-    <link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+    <!-- ol-cesium with specific version that works with OL 7.x -->
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.13.0/dist/olcesium.js"></script>
     
     <!-- osmtogeojson for data conversion -->
     <script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
