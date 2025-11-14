@@ -926,7 +926,7 @@ function toggle3DControlBuild() {
     let is3d = false;
     let cesiumInitialized = false;
 
-    button.addEventListener('click', async function() {
+    button.addEventListener('click', function() {
         try {
             if (!is3d) {
                 // Initialize Cesium if not already done
@@ -941,21 +941,8 @@ function toggle3DControlBuild() {
                     
                     const scene = ol3d.getCesiumScene();
                     
-                    // Set up a simple terrain provider that doesn't require authentication
-                    try {
-                        // First try to create a world terrain
-                        scene.terrainProvider = await Cesium.createWorldTerrainAsync({
-                            requestVertexNormals: true,
-                            requestWaterMask: true
-                        });
-                        console.log('Using Cesium World Terrain');
-                    } catch (error) {
-                        console.warn('Could not load Cesium World Terrain, falling back to EllipsoidTerrainProvider:', error);
-                        // Fallback to simple terrain if world terrain fails
-                        scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-                    }
-                    
-                    // Enable lighting for better 3D effect
+                    // Use EllipsoidTerrainProvider as a simple fallback
+                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
                     scene.globe.enableLighting = true;
                     
                     // Clear any existing imagery layers
