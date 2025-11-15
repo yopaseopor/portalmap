@@ -675,25 +675,21 @@ $(function () {
 				var layerSrc = layer.get('iconSrc'),
 					title = (layerSrc ? '<img src="' + layerSrc + '" height="16"/> ' : '') + layer.get('title'),
 					layerButton = $('<div>').html(title).on('click', function () {
-						var visible = layer.getVisible();
+						// Hide all base layers first
+						config.layers.forEach(function(l) {
+							if (l.get('type') === 'base') {
+								l.setVisible(false);
+							}
+						});
 
-						if (visible) { //Show the previous layer
-							if (previousLayer) {
-								baseLayerIndex = previousLayer.get('layerIndex');
-								layer.setVisible(!visible);
-								previousLayer.setVisible(visible);
-								visibleLayer = previousLayer;
-								previousLayer = layer;
-							}
-						} else { //Active the selected layer and hide the current layer
-							baseLayerIndex = layer.get('layerIndex');
-							layer.setVisible(!visible);
-							if (visibleLayer) {
-								visibleLayer.setVisible(visible);
-							}
-							previousLayer = visibleLayer;
-							visibleLayer = layer;
-						}
+						// Show the clicked layer
+						layer.setVisible(true);
+						
+						// Update the visible layer reference
+						visibleLayer = layer;
+						baseLayerIndex = layer.get('layerIndex');
+						
+						// Update the permalink
 						updatePermalink();
 					});
 

@@ -736,22 +736,23 @@ CLEAR ACTIVE OVERLAY BUTTON
     right: 8px;
 }
 .osmcat-mapillary { 
+    position: absolute !important;
     bottom: 240px;  /* 30px above panoramax (210px + 30px) */
-    right: 8px;
-    top: auto;
-    position: absolute;
+    right: 8px !important;
     width: 25px !important;
     height: 25px !important;
-    background-color: #567CAC;
-    color: #fff;
-    border: none;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    background-color: #567CAC !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+    top: auto !important;
+    left: auto !important;
 }
 .osmcat-sharebutton { bottom: 160px; }
 .osmcat-geobutton { bottom: 110px; }

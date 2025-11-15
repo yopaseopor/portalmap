@@ -75,9 +75,259 @@ var config = {
 	},
 	//@@ Mapas de fondo
 	layers: [
-				
-		// Maptiler Vector Tiles - MapTiler Basic with simplified style
+		// Maptiler Vector Tiles - v3 with text labels
 		(function() {
+			// Style function for features
+			const styleFunction = function(feature, resolution) {
+				try {
+					if (!feature || !feature.getGeometry) {
+						return [];
+					}
+
+					const layer = feature.get('layer') || '';
+					const type = feature.getGeometry().getType();
+					const styles = [];
+
+					// Handle text/label features
+					if ((layer.includes('label') || feature.get('class') === 'label' || feature.get('type') === 'label') && 
+						resolution < 100) { // Only show labels at certain zoom levels
+						const text = feature.get('name') || feature.get('ref') || '';
+						if (text) {
+							const fontSize = feature.get('rank') === 1 ? 14 : 12;
+							const textStyle = new ol.style.Text({
+								text: text,
+								font: `${fontSize}px 'Noto Sans', Arial, sans-serif`,
+								fill: new ol.style.Fill({
+									color: '#333333'
+								}),
+								stroke: new ol.style.Stroke({
+									color: 'rgba(255, 255, 255, 0.7)',
+									width: 2
+								}),
+								offsetY: -10,
+								textAlign: 'center',
+								textBaseline: 'bottom',
+								placement: 'point',
+								maxAngle: 0.4,
+								overflow: true
+							});
+
+							// Add halo effect for better readability
+							if (feature.get('class') === 'place' || feature.get('place')) {
+								textStyle.setFill(new ol.style.Fill({
+									color: '#000000'
+								}));
+								textStyle.setStroke(new ol.style.Stroke({
+									color: 'rgba(255, 255, 255, 0.7)',
+									width: 3
+								}));
+								textStyle.setFont('bold ' + fontSize + 'px \'Noto Sans\', Arial, sans-serif');
+							}
+
+							styles.push(new ol.style.Style({
+								text: textStyle
+							}));
+						}
+						return styles;
+					}
+
+					// Style for water features (both areas and lines)
+					if (layer === 'water' || feature.get('water')) {
+						const isLine = type === 'LineString' || type === 'MultiLineString';
+						styles.push(new ol.style.Style({
+							stroke: isLine ? new ol.style.Stroke({
+								color: 'rgba(100, 160, 200, 0.8)',
+								width: 1.5
+							}) : undefined,
+							fill: !isLine ? new ol.style.Fill({
+								color: 'rgba(170, 211, 223, 0.7)'
+							}) : undefined
+						}));
+
+						// Add road labels
+						if (feature.get('name') && resolution < 20) {
+							styles.push(new ol.style.Style({
+								text: new ol.style.Text({
+									text: feature.get('name'),
+									font: '12px \'Noto Sans\', Arial, sans-serif',
+									fill: new ol.style.Fill({
+										color: '#333333'
+									}),
+									stroke: new ol.style.Stroke({
+										color: 'rgba(255, 255, 255, 0.7)',
+										width: 2
+									}),
+									offsetY: -10,
+									placement: 'line'
+								})
+							}));
+						}
+					} 
+					// Style for transportation features (roads, paths, etc.)
+					else if (layer === 'transportation' || feature.get('highway') || feature.get('railway')) {
+						const roadClass = feature.get('class') || feature.get('highway') || feature.get('railway') || '';
+						let width = 1;
+						let color = '#ffffff';
+						let dash = null;
+
+						switch(roadClass.toLowerCase()) {
+							case 'motorway':
+							case 'trunk':
+								width = 3;
+								color = '#f28cb1';
+								break;
+							case 'primary':
+								width = 2.5;
+								color = '#f7b8b8';
+								break;
+							case 'secondary':
+							case 'tertiary':
+								width = 2;
+								color = '#f7d9d9';
+								break;
+							case 'path':
+							case 'footway':
+							case 'pedestrian':
+								width = 1;
+								color = '#e0e0e0';
+								dash = [4, 4];
+								break;
+							case 'rail':
+							case 'railway':
+								width = 1.5;
+								color = '#999999';
+								dash = [2, 2];
+								break;
+						}
+
+						styles.push(new ol.style.Style({
+							stroke: new ol.style.Stroke({
+								color: color,
+								width: width,
+								lineDash: dash,
+								lineJoin: 'round',
+								lineCap: 'round'
+							})
+						}));
+
+						// Add labels for roads
+						if (feature.get('name') && resolution < 20) {
+							styles.push(new ol.style.Style({
+								text: new ol.style.Text({
+									text: feature.get('name'),
+									font: '12px \'Noto Sans\', Arial, sans-serif',
+									fill: new ol.style.Fill({
+										color: '#333333'
+									}),
+									stroke: new ol.style.Stroke({
+										color: 'rgba(255, 255, 255, 0.7)',
+										width: 2
+									}),
+									offsetY: -10,
+									placement: 'line'
+								})
+							}));
+						}
+					}
+
+					// Style for boundaries and other linear features
+					else if (layer === 'boundary' || feature.get('boundary')) {
+						styles.push(new ol.style.Style({
+							stroke: new ol.style.Stroke({
+								color: 'rgba(150, 150, 150, 0.5)',
+								width: 1,
+								lineDash: [4, 4]
+							})
+						}));
+					}
+					// Style for landuse and natural features
+					else if (layer === 'landuse' || layer === 'natural' || feature.get('landuse') || feature.get('natural')) {
+						const landuseType = feature.get('subclass') || feature.get('class') || feature.get('landuse') || feature.get('natural') || '';
+						let fillColor = 'rgba(200, 250, 200, 0.3)'; // Default green for parks
+						
+						switch(landuseType) {
+							case 'residential':
+								fillColor = 'rgba(220, 220, 220, 0.2)';
+								break;
+							case 'commercial':
+							case 'retail':
+								fillColor = 'rgba(250, 220, 220, 0.3)';
+								break;
+							case 'industrial':
+								fillColor = 'rgba(220, 220, 250, 0.3)';
+								break;
+							case 'grass':
+							case 'grassland':
+								fillColor = 'rgba(200, 250, 200, 0.3)';
+								break;
+							case 'wood':
+							case 'forest':
+								fillColor = 'rgba(180, 230, 180, 0.4)';
+								break;
+						}
+
+						styles.push(new ol.style.Style({
+							fill: new ol.style.Fill({
+								color: fillColor
+							}),
+							stroke: type !== 'Point' ? new ol.style.Stroke({
+								color: 'rgba(180, 180, 180, 0.2)',
+								width: 0.5
+							}) : undefined
+						}));
+
+						// Add labels for parks and other named areas
+						if ((feature.get('name') || feature.get('ref')) && resolution < 50) {
+							styles.push(new ol.style.Style({
+								text: new ol.style.Text({
+									text: feature.get('name') || feature.get('ref'),
+									font: 'italic 12px \'Noto Sans\', Arial, sans-serif',
+									fill: new ol.style.Fill({
+										color: 'rgba(0, 0, 0, 0.7)'
+									}),
+									stroke: new ol.style.Stroke({
+										color: 'rgba(255, 255, 255, 0.7)',
+										width: 2
+									})
+								})
+							}));
+						}
+					}
+					// Style for buildings and other structures
+					else if (layer === 'building' || feature.get('building')) {
+						styles.push(new ol.style.Style({
+							fill: new ol.style.Fill({
+								color: 'rgba(210, 209, 207, 0.7)'
+							}),
+							stroke: new ol.style.Stroke({
+								color: 'rgba(180, 179, 177, 0.7)',
+								width: 0.5
+							})
+						}));
+
+						// Add building labels (e.g., for important buildings)
+						if (feature.get('name') && resolution < 10) {
+							styles.push(new ol.style.Style({
+								text: new ol.style.Text({
+									text: feature.get('name'),
+									font: '10px \'Noto Sans\', Arial, sans-serif',
+									fill: new ol.style.Fill({
+										color: '#333333'
+									}),
+									offsetY: 10
+								})
+							}));
+						}
+					}
+
+					return styles;
+				} catch (e) {
+					console.error('Error applying style:', e);
+					return [];
+				}
+			};
+
+			// Create the vector tile source
 			const source = new ol.source.VectorTile({
 				tilePixelRatio: 1,
 				tileGrid: ol.tilegrid.createXYZ({
@@ -87,20 +337,47 @@ var config = {
 				format: new ol.format.MVT(),
 				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
 				attributions: [
-					'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					'<a href="https://www.maptiler.com/copyright/" target="_blank"> MapTiler</a>',
+					'<a href="https://www.openstreetmap.org/copyright" target="_blank"> OpenStreetMap contributors</a>'
 				]
 			});
 
+			// Create the vector tile layer
 			const layer = new ol.layer.VectorTile({
 				title: 'MapTiler Basic',
 				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
-				visible: false,
+				type: 'base', // Required for the layer control to recognize this as a base layer
+				visible: true, // Set to true to make it visible by default
 				opacity: 1.0,
 				source: source,
-				style: function(feature, resolution) {
-					return vectorTileStyles['openmaptiles'](feature, resolution);
-				}
+				style: styleFunction,
+				extent: ol.proj.get('EPSG:3857').getExtent(),
+				renderMode: 'vector',
+				declutter: true,
+				updateWhileAnimating: true,
+				updateWhileInteracting: true
+			});
+
+			// Add event listeners for layer changes
+			source.on('tileloadstart', function() {
+				console.log('Loading Maptiler tiles...');
+			});
+
+			source.on('tileloadend', function(event) {
+				console.log('Tile loaded:', event.tile.getState());
+			});
+
+			source.on('tileloaderror', function(error) {
+				console.error('Error loading tile:', error);
+			});
+
+			console.log('MapTiler Basic layer with labels initialized');
+			console.log('Layer source URL:', source.getUrls()[0]);
+			console.log('Layer visibility:', layer.getVisible());
+			
+			// Log when the layer is added to the map
+			layer.on('change:visible', function() {
+				console.log('Maptiler Basic layer visibility changed:', this.getVisible());
 			});
 
 			return layer;
@@ -138,7 +415,7 @@ var config = {
 		
 	
 
-		// OSM Vector Tiles with simplified style
+		// OSM Vector Tiles with Customyopaseopor style
 		(function() {
 			const source = new ol.source.VectorTile({
 				tilePixelRatio: 1,
@@ -153,44 +430,20 @@ var config = {
 				]
 			});
 
+			// Create the layer with our custom style function
 			const customLayer = new ol.layer.VectorTile({
 				title: 'OSM Vector Tiles',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
-				visible: true,
-				opacity: 1.0,
+				visible: true,  // Enable by default
+				opacity: 0.9,
 				source: source,
 				style: function(feature, resolution) {
-					return vectorTileStyles['versatiles-shortbread'](feature, resolution);
+					return window.vectorTileStyles['Customyopaseopor'](feature, resolution);
 				},
 				declutter: true
 			});
 
-			const styleUrl = 'src/assets/customyopaseopor.json';
-			fetch(styleUrl)
-				.then(response => response.json())
-				.then(style => {
-					// Fix sprite URL if needed
-					if (style.sprite && typeof style.sprite === 'string') {
-						// Ensure sprite URL doesn't have trailing colon or incorrect format
-						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-						console.log('Fixed sprite URL for customyopaseopor:', style.sprite);
-					}
-
-					// Also handle array format for sprites
-					if (style.sprite && Array.isArray(style.sprite)) {
-						style.sprite.forEach(sprite => {
-							if (sprite.url) {
-								sprite.url = sprite.url.replace(/[:\s]*$/, '');
-								console.log('Fixed sprite array URL for customyopaseopor:', sprite.url);
-							}
-						});
-					}
-					return olms.applyStyle(customLayer, style, 'customyopaseopor')
-						.then(() => console.log('Customyopaseopor style applied successfully for OSM Shortbread.'))
-						.catch(err => console.error('Error applying Customyopaseopor style for OSM Shortbread:', err));
-				}).catch(err => {
-					console.error('Failed to load or apply customyopaseopor.json for OSM Shortbread:', err);
-				});
+			console.log('Customyopaseopor vector tile style applied successfully');
 			return customLayer;
 		})(),
 		
