@@ -420,7 +420,7 @@ function initKeySearch() {
 
         // Create vector source for the query with retry mechanism
         const vectorSource = new ol.source.Vector({
-            format: new ol.format.OSMXML(),
+            format: new ol.format.OSMXML2(),
             loader: function (extent, resolution, projection) {
                 console.log('🎯 Vector loader called');
                 // Show loading indicator
@@ -485,7 +485,7 @@ function initKeySearch() {
                                     $('#execute-key-query-btn').prop('disabled', false).text(`${window.getTranslation ? window.getTranslation('queryError') : 'Query Error'}`);
                                 } else {
                                     console.log('🎯 No errors found, parsing features...');
-                                    const features = new ol.format.OSMXML().readFeatures(xmlDoc, {
+                                    const features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
                                         featureProjection: window.map.getView().getProjection()
                                     });
 

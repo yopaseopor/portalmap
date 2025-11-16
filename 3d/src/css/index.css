@@ -306,21 +306,35 @@ CLEAR ACTIVE OVERLAY BUTTON
 	z-index: 9999;
 }
 
+/* Coordinate display - positioned below rotate buttons */
 .ol-mouse-position {
-	top: 36px;
+    position: absolute !important;
+    top: 40px !important;  /* Below rotate buttons (0.5em + ~30px button height + margin) */
+    right: 1em !important;
+    left: auto !important;
+    text-align: right !important;
+    background: rgba(255,255,255,0.7) !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 12px !important;
+    z-index: 1000 !important;
+    pointer-events: none !important;
+    margin: 0;
 }
 
 .ol-rotate {
-	right:5.5em;
+    right: 5.5em;
+    top: 25px; /* Position below coordinates */
 }
 
 .osmcat-rotateleft {
-	top: .5em;
-	right: .5em;
+    top: 25px; /* Position below coordinates */
+    right: .5em;
 }
 
 .osmcat-rotateright {
-	top: .5em;
+    top: 25px; /* Position below coordinates */
 	right: 3em;
 }
 
@@ -370,14 +384,21 @@ CLEAR ACTIVE OVERLAY BUTTON
 }
 
 .nominatim-search button {
-    background-color: #567CAC;
-    border: none;
-    border-radius: 2px;
-    padding: 2px;
+    background-color: #1976d2 !important; /* Force blue background */
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px !important;
     cursor: pointer;
+    color: white !important;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
 }
+
 .nominatim-search button i {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 .nominatim-search button:hover {
     background-color: #34587C;
@@ -669,63 +690,85 @@ CLEAR ACTIVE OVERLAY BUTTON
    Buttons positioned on the right side in logical order from top to bottom
 */
 
-/* Top buttons - Router and Clear */
-.osmcat-router {
-    top: 80px;
-    background-color: #567CAC !important;
+/* Map control buttons */
+.osmcat-router,
+.osmcat-clearoverlaybutton,
+.osmcat-mapillary,
+.osmcat-panoramax,
+.osmcat-sharebutton,
+.osmcat-geobutton,
+.osmcat-infobutton {
+    background-color: #1976d2 !important;
     color: #fff !important;
 }
 
-.osmcat-clearoverlaybutton {
-    top: 140px;
-}
-
-/* Mapillary viewer button */
-.osmcat-mapillary {
-    bottom: 260px;
-}
-
-/* PanoraMax viewer button */
-.osmcat-panoramax {
-    bottom: 210px;
-}
-
-/* Share button */
-.osmcat-sharebutton {
-    bottom: 160px;
-}
-
-/* Geolocation button */
-.osmcat-geobutton {
-	bottom: 110px;
-}
-
-/* Info button (bottom) */
-.osmcat-infobutton {
-	bottom: 30px;
-}
-
-/* PanoraMax viewer styles update */
-.panoramax-viewer .close-button {
-    background-color: rgba(255,255,255,0.4);
-    border: none;
-    border-radius: 2px;
-    padding: 2px;
-    width: 30px !important;
-    height: 30px !important;
-    display: flex;
+/* Ensure all button icons are properly styled */
+.osmcat-router i.fa,
+.osmcat-clearoverlaybutton i.fa,
+.osmcat-mapillary i.fa,
+.osmcat-panoramax i.fa,
+.osmcat-sharebutton i.fa,
+.osmcat-geobutton i.fa,
+.osmcat-infobutton i.fa,
+.osmcat-button i.fa {
+    color: inherit !important;
+    font-size: 1em;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    width: 1em;
+    height: 1em;
 }
 
-.panoramax-viewer .close-button:hover {
-    background-color: rgba(255,255,255,0.6);
+/* Button positions */
+/* Route button - ensure it stays on the right side */
+.osmcat-router { 
+    top: 80px !important;
+    right: 8px !important;
+    left: auto !important;
+    position: absolute !important;
+}
+.osmcat-clearoverlaybutton { top: 140px; }
+.osmcat-panoramax { 
+    bottom: 210px;
+    right: 8px;
+}
+.osmcat-mapillary { 
+    position: absolute !important;
+    bottom: 240px;  /* 30px above panoramax (210px + 30px) */
+    right: 8px !important;
+    width: 25px !important;
+    height: 25px !important;
+    background-color: #567CAC !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+    top: auto !important;
+    left: auto !important;
+}
+.osmcat-sharebutton { bottom: 160px; }
+.osmcat-geobutton { bottom: 110px; }
+.osmcat-infobutton { bottom: 30px; }
+
+/* Hover states */
+.osmcat-router:hover,
+.osmcat-clearoverlaybutton:hover,
+.osmcat-mapillary:hover,
+.osmcat-panoramax:hover,
+.osmcat-sharebutton:hover,
+.osmcat-geobutton:hover,
+.osmcat-infobutton:hover {
+    background-color: #1565c0 !important;
 }
 
-.panoramax-viewer .credits a {
-    color: rgba(0,60,136,.7);
-}
 
 .panoramax-viewer .credits a:hover {
     color: rgba(0,60,136,1);
@@ -860,16 +903,28 @@ CLEAR ACTIVE OVERLAY BUTTON
 }
 
 /* Standardize button sizes and colors */
+.osmcat-button {
+    position: relative;
+}
+
+.osmcat-button i.fa {
+    display: inline-block;
+    color: inherit !important;
+    width: 1em;
+    text-align: center;
+}
+
 .osmcat-button.disabled,
 .osmcat-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background-color: #666 !important;
-    color: #999 !important;
+    color: #fff !important;
 }
 
+/* Router button */
 .osmcat-routerbutton .router-btn.blue {
-    background-color: #34587C;
+    background-color: #1976d2;
     color: #fff;
 }
 .osmcat-routerbutton .router-btn.blue i {
@@ -882,14 +937,19 @@ CLEAR ACTIVE OVERLAY BUTTON
     vertical-align: middle;
 }
 
-.osmcat-routerbutton button:hover,
-.osmcat-routerbutton button.active {
-    background-color: #34587C;
+.osmcat-routerbutton button {
+    background-color: #1976d2;
     color: #fff;
 }
 
 .osmcat-routerbutton button i {
-    color: #567CAC;
+    color: #fff;
+}
+
+.osmcat-routerbutton button:hover,
+.osmcat-routerbutton button.active {
+    background-color: #1565c0;
+    color: #fff;
 }
 
 .osmcat-routerbutton button.active i {

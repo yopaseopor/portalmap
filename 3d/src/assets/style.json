@@ -702,7 +702,7 @@
         "text-font": ["Noto Sans Regular"],
         "text-letter-spacing": 0.1,
         "text-rotation-alignment": "map",
-        "text-size": {"base": 1.4, "stops": [[10, 8], [20, 14]]},
+        "text-size": {"stops": [[10, 8], [20, 14]]},
         "text-transform": "uppercase",
         "visibility": "visible"
       },

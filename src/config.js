@@ -78,164 +78,72 @@ var config = {
 				
 		// Maptiler Vector Tiles - MapTiler Basic with style.json
 		(function() {
-			const apiKey = 'Faz9gJu55zrWejNF55oZ';
-			
-			// Create a manual source
-			const manualSource = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=' + apiKey,
-				attributions: [
-					'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-				]
-			});
-
-			// Create a basic fallback style in case olms.applyStyle fails
-			const fallbackStyle = function(feature, resolution) {
-				if (!feature) return [];
-				const geometry = feature.getGeometry();
-				if (!geometry) return [];
-				
-				const type = geometry.getType();
-				const style = new ol.style.Style({
-					fill: new ol.style.Fill({
-						color: 'rgba(200, 200, 200, 0.5)'
-					}),
-					stroke: new ol.style.Stroke({
-						color: '#666',
-						width: 1
-					})
-				});
-
-				if (type === 'Point' || type === 'MultiPoint') {
-					style.setImage(new ol.style.Circle({
-						radius: 5,
-						fill: new ol.style.Fill({
-							color: 'rgba(255, 0, 0, 0.7)'
-						})
-					}));
-				}
-
-				return [style];
-			};
-
-			// Create the vector tile layer with source and fallback style
 			const layer = new ol.layer.VectorTile({
 				title: 'MapTiler Basic',
 				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
 				visible: false,
 				opacity: 1.0,
-				declutter: true,
-				source: manualSource,
-				style: fallbackStyle
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14 // Preserving this zoom for this layer
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
+					attributions: [
+						'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				})
 			});
 
 			const styleUrl = 'src/assets/style.json';
+			const apiKey = 'Faz9gJu55zrWejNF55oZ';
 			fetch(styleUrl)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-					return response.text();
-				})
+				.then(response => response.text())
 				.then(text => {
-					let style = JSON.parse(text.replace(/{key}/g, apiKey));
-					// Fix sprite URL if needed
-					if (style.sprite && typeof style.sprite === 'string') {
-						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-					}
-					
-					// Deep clone style to ensure clean processing
-					style = JSON.parse(JSON.stringify(style));
-					
-					// Remove all symbol layers to prevent getScaleArray errors
-					// We'll handle text separately using OpenLayers native styling
-					if (style.layers && Array.isArray(style.layers)) {
-						const symbolLayerCount = style.layers.filter(l => l.type === 'symbol').length;
-						style.layers = style.layers.filter(l => l.type !== 'symbol');
-						if (symbolLayerCount > 0) {
-							//console.log(`Removed ${symbolLayerCount} symbol layers to prevent getScaleArray errors`);
-						}
-					}
-					
-					if (olms && typeof olms.applyStyle === 'function') {
-						// Try to apply the style - it may replace the source
-						return olms.applyStyle(layer, style, 'openmaptiles')
-							.then(() => {
-								//console.log('MapTiler style applied successfully for MapTiler Basic.');
-								// Ensure layer still has a source after style application
-								if (!layer.getSource()) {
-									console.warn('Layer has no source after olms.applyStyle, restoring manual source');
-									layer.setSource(manualSource);
-								}
-							})
-							.catch(err => {
-								console.error('Error applying MapTiler style for MapTiler Basic:', err);
-								
-								// If error is related to text-size/getScaleArray, try again without symbol layers
-								if (err && err.message && (err.message.includes('getScaleArray') || err.message.includes('text-size'))) {
-									console.warn('Text-size error detected, retrying without symbol layers');
-									// Remove all symbol layers and retry
-									const styleWithoutText = JSON.parse(JSON.stringify(style));
-									styleWithoutText.layers = styleWithoutText.layers.filter(l => l.type !== 'symbol');
-									
-									return olms.applyStyle(layer, styleWithoutText, 'openmaptiles')
-										.then(() => {
-											//console.log('MapTiler style applied successfully without text layers.');
-											if (!layer.getSource()) {
-												layer.setSource(manualSource);
-											}
-										})
-										.catch(err2 => {
-											console.error('Error applying style even without text layers:', err2);
-											console.warn('Using manual source and fallback style');
-										});
-								} else {
-									console.warn('Keeping manual source and fallback style');
-								}
-							});
-					} else {
-						console.warn('olms.applyStyle is not available, using manual source and fallback style');
-						// Source and style are already set
-					}
+					const style = JSON.parse(text.replace(/{key}/g, apiKey));
+					olms.applyStyle(layer, style, 'openmaptiles')
+						.then(() => console.log('MapTiler style applied successfully for MapTiler Basic.'))
+						.catch(err => console.error('Error applying MapTiler style for MapTiler Basic:', err));
 				}).catch(err => {
 					console.error('Failed to load or apply style.json for MapTiler Basic:', err);
-					console.warn('Using manual source and fallback style');
-					// Source and style are already set
 				});
 			return layer;
 		})(),
 		
 		//Versatiles colorful
-		(function() {
-			// Create the vector tile layer without source (olms.applyStyle will create it)
+				(function() {
 			const colorfulLayer = new ol.layer.VectorTile({
 				title: 'Versatiles colorful',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: false,
 				opacity: 1.0,
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
+					attributions: [
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				}),
 				declutter: true
 			});
 
 			const styleUrl = 'src/assets/colorful.json';
 			fetch(styleUrl)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-					return response.json();
-				})
+				.then(response => response.json())
 				.then(style => {
 					// Fix sprite URL if needed
 					if (style.sprite && typeof style.sprite === 'string') {
 						// Ensure sprite URL doesn't have trailing colon or incorrect format
 						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-						//console.log('Fixed sprite URL:', style.sprite);
+						console.log('Fixed sprite URL:', style.sprite);
 					}
 
 					// Also handle array format for sprites (like in versatilescolorful.json)
@@ -243,32 +151,10 @@ var config = {
 						style.sprite.forEach(sprite => {
 							if (sprite.url) {
 								sprite.url = sprite.url.replace(/[:\s]*$/, '');
-								//console.log('Fixed sprite array URL:', sprite.url);
+								console.log('Fixed sprite array URL:', sprite.url);
 							}
 						});
 					}
-					
-					// Fix text-size expressions to avoid getScaleArray errors
-					// Convert stops format to simple numbers for compatibility
-					if (style.layers && Array.isArray(style.layers)) {
-						style.layers.forEach(layer => {
-							if (layer.type === 'symbol' && layer.layout && layer.layout['text-size']) {
-								const textSize = layer.layout['text-size'];
-								// If it's an object with stops, convert to a simple number (use middle value)
-								if (typeof textSize === 'object' && textSize.stops && Array.isArray(textSize.stops)) {
-									// Use the middle stop value, or first if only one
-									const stops = textSize.stops;
-									if (stops.length > 0) {
-										const middleIndex = Math.floor(stops.length / 2);
-										layer.layout['text-size'] = stops[middleIndex][1];
-										//console.log(`Fixed text-size for Versatiles layer ${layer.id}: converted stops to ${stops[middleIndex][1]}`);
-									}
-								}
-							}
-						});
-						//console.log('Fixed text-size expressions in Versatiles symbol layers');
-					}
-					
 					return olms.applyStyle(colorfulLayer, style, 'versatiles-shortbread')
 						.then(() => console.log('Colorful style applied successfully for OSM Shortbread.'))
 						.catch(err => console.error('Error applying Colorful style for OSM Shortbread:', err));
@@ -310,7 +196,7 @@ var config = {
 					if (style.sprite && typeof style.sprite === 'string') {
 						// Ensure sprite URL doesn't have trailing colon or incorrect format
 						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-						//console.log('Fixed sprite URL for customyopaseopor:', style.sprite);
+						console.log('Fixed sprite URL for customyopaseopor:', style.sprite);
 					}
 
 					// Also handle array format for sprites
@@ -318,7 +204,7 @@ var config = {
 						style.sprite.forEach(sprite => {
 							if (sprite.url) {
 								sprite.url = sprite.url.replace(/[:\s]*$/, '');
-								//console.log('Fixed sprite array URL for customyopaseopor:', sprite.url);
+								console.log('Fixed sprite array URL for customyopaseopor:', sprite.url);
 							}
 						});
 					}

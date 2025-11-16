@@ -3,13 +3,19 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com; img-src 'self' data: https: https://tiles.versatiles.org; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com;">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:; base-uri 'self'; form-action 'self';">
 	<title>Portal Map</title>
 	<!--@@ Título a modificar para la descripción -->
 	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
 
 	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
-	<link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css" type="text/css"/>
+	<!-- OpenLayers -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css" type="text/css"/>
+	<!-- Cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<!-- ol-cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+	<!-- Font Awesome -->
 	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
@@ -75,14 +81,40 @@
 		</div>
 	</div>
 	<!-- Core Libraries -->
-	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
-	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-	<!-- OpenLayers -->
-	<script src="src/api/openlayers/v6.2.2-custom/ol.js"></script>
-	<!-- osmtogeojson for data conversion -->
-	<script src="https://unpkg.com/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
-	<!-- Proj4 for coordinate transformations -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+	<!-- jQuery (load first as other scripts depend on it) -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+	
+	<!-- Proj4 for coordinate transformations (must be loaded before OpenLayers) -->
+	<script src="https://cdn.jsdelivr.net/npm/proj4@2.10.0/dist/proj4.js"></script>
+	
+	<!-- OpenLayers CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
+	<!-- OpenLayers (must be loaded before ol-cesium) -->
+	<script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
+	
+	<!-- Cesium configuration -->
+    <style>
+        /* Cesium widget styles */
+        .cesium-widget-credits {
+            display: none !important;
+        }
+    </style>
+    <script>
+        // Configure Cesium before loading it
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/';
+        // Disable source maps to prevent console warnings
+        window.CESIUM_sourceMap = false;
+        // Configure Cesium to use CDN for assets
+        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL.replace('Source/', '');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Cesium.js"></script>
+    <!-- ol-cesium with explicit CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcs.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.js"></script>
+    
+    <!-- osmtogeojson for data conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
 
 	<!-- Vector Tile Style -->
 	<script src="src/assets/styles/vector-tile-style.js"></script>
@@ -92,6 +124,11 @@
 	<!-- Opening Hours Library (local copy) -->
 	<script src="src/vendor/opening_hours.min.js"></script>
 
+	<!-- Vector tile styles -->
+	<script src="src/assets/vector-tile-styles.js"></script>
+	<!-- Maptiler Basic style -->
+	<script src="src/assets/maptiler-basic-style-new.js"></script>
+	
 	<!-- Configuration -->
 	<script src="src/config.js"></script>
 

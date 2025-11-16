@@ -77,30 +77,18 @@ $(function () {
     window.overlays = [];
     function updateWindowOverlays() {
         // Only flatten overlays for the overlay searcher
-        if (!window.allOverlays || typeof window.allOverlays !== 'object') {
-            console.warn('window.allOverlays is not a valid object');
-            window.overlays = [];
-            return;
-        }
-        
-        try {
-            window.overlays = Object.entries(window.allOverlays).reduce((acc, [groupName, overlayGroup]) => {
-                if (Array.isArray(overlayGroup)) {
-                    const mappedOverlays = overlayGroup.map(overlay => ({
-                        // Use already translated values
-                        title: overlay && typeof overlay.title !== 'undefined' ? overlay.title : '',
-                        group: overlay && overlay.group ? overlay.group : groupName,
-                        id: overlay && overlay.id ? overlay.id : '',
-                        ...(overlay || {})
-                    }));
-                    return acc.concat(mappedOverlays);
-                }
-                return acc;
-            }, []);
-        } catch (error) {
-            console.error('Error in updateWindowOverlays:', error);
-            window.overlays = [];
-        }
+        window.overlays = Object.entries(window.allOverlays).reduce((acc, [groupName, overlays]) => {
+            if (Array.isArray(overlays)) {
+                return acc.concat(overlays.map(overlay => ({
+                    // Use already translated values
+                    title: overlay.title || '',
+                    group: overlay.group || '',
+                    id: overlay.id || '',
+                    ...overlay
+                })));
+            }
+            return acc;
+        }, []);
     }
 
     // Update overlays when they change
@@ -371,12 +359,13 @@ $(function () {
       })
     } else {
 			var vectorSource = new ol.source.Vector({ 
-			format: new ol.format.OSMXML(),
+			format: new ol.format.OSMXML2(),
 			loader: function (extent, resolution, projection) {
 				loading.show();
 				var me = this;
 				var epsg4326Extent = ol.proj.transformExtent(extent, projection, 'EPSG:4326');
-				var query = '[out:xml][timeout:25];' + overlay['query']; // Added timeout parameter
+				var query = '[maxsize:536870912];' + overlay['query']; // Memory limit 512 MiB
+				//var query = layerQuery;
 				query = query.replace(/{{bbox}}/g, epsg4326Extent[1] + ',' + epsg4326Extent[0] + ',' + epsg4326Extent[3] + ',' + epsg4326Extent[2]);
 
 				var client = new XMLHttpRequest();
@@ -385,24 +374,16 @@ $(function () {
 					loading.hide();
 				};
 				client.onerror = function () {
-					console.error('[' + (client.status || 'unknown') + '] Error loading data.');
+					console.error('[' + client.status + '] Error loading data.');
 					me.removeLoadedExtent(extent);
-					if (vector) vector.setVisible(false);
+					vector.setVisible(false);
 				};
 				client.onload = function () {
 					if (client.status === 200) {
-						try {
-							var parser = new DOMParser();
-							var xmlDoc = parser.parseFromString(client.responseText, 'text/xml');
-							var remark = xmlDoc.getElementsByTagName('remark');
-							var nodes = xmlDoc.getElementsByTagName('node');
-							var nodosLength = nodes ? nodes.length : 0;
-						} catch (e) {
-							console.error('Error parsing OSM XML response:', e);
-							me.removeLoadedExtent(extent);
-							if (vector) vector.setVisible(false);
-							return;
-						}
+						var xmlDoc = $.parseXML(client.responseText),
+								xml = $(xmlDoc),
+								remark = xml.find('remark'),
+								nodosLength = xml.find('node').length;
 
 						if (remark.length !== 0) {
 							console.error('Error:', remark.text());
@@ -425,9 +406,9 @@ $(function () {
 									}
 								});
 							}
-							var features = new ol.format.OSMXML().readFeatures(xmlDoc, {
-					featureProjection: map.getView().getProjection()
-				});
+							var features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
+								featureProjection: map.getView().getProjection()
+							});
 							me.addFeatures(features);
 						}
 					} else {
@@ -687,21 +668,25 @@ $(function () {
 				var layerSrc = layer.get('iconSrc'),
 					title = (layerSrc ? '<img src="' + layerSrc + '" height="16"/> ' : '') + layer.get('title'),
 					layerButton = $('<div>').html(title).on('click', function () {
-						// Hide all base layers first
-						config.layers.forEach(function(l) {
-							if (l.get('type') === 'base') {
-								l.setVisible(false);
-							}
-						});
+						var visible = layer.getVisible();
 
-						// Show the clicked layer
-						layer.setVisible(true);
-						
-						// Update the visible layer reference
-						visibleLayer = layer;
-						baseLayerIndex = layer.get('layerIndex');
-						
-						// Update the permalink
+						if (visible) { //Show the previous layer
+							if (previousLayer) {
+								baseLayerIndex = previousLayer.get('layerIndex');
+								layer.setVisible(!visible);
+								previousLayer.setVisible(visible);
+								visibleLayer = previousLayer;
+								previousLayer = layer;
+							}
+						} else { //Active the selected layer and hide the current layer
+							baseLayerIndex = layer.get('layerIndex');
+							layer.setVisible(!visible);
+							if (visibleLayer) {
+								visibleLayer.setVisible(visible);
+							}
+							previousLayer = visibleLayer;
+							visibleLayer = layer;
+						}
 						updatePermalink();
 					});
 
@@ -894,223 +879,37 @@ $(function () {
 	}));
 
 
+	// Rotate left button
+	var rotateleftControlBuild = function () {
+		var container = $('<div>').addClass('ol-control ol-unselectable osmcat-rotateleft').html($('<button type="button"><i class="fa fa-undo"></i></button>').on('click', function () {
+			var currentRotation = view.getRotation();
+			if (currentRotation > -6.1) { //360º = 2 Pi r =aprox 6.2
+				view.setRotation(round(currentRotation - 0.1, 2));
+			} else {
+				view.setRotation(0);
+			}
+		}));
+		return container[0];
+	};
+	map.addControl(new ol.control.Control({
+		element: rotateleftControlBuild()
+	}));
+
 	// Rotate right button
-var rotaterightControlBuild = function () {
-    var container = $('<div>').addClass('ol-control ol-unselectable ol-rotate-right').html($('<button type="button" title="Rotate right"><i class="fa fa-undo fa-flip-horizontal"></i></button>').on('click', function () {
-        var currentRotation = view.getRotation();
-        if (currentRotation < 6.1) { //360º = 2 Pi r =aprox 6.2
-            view.setRotation(round(currentRotation + 0.1, 2));
-        } else {
-            view.setRotation(0);
-        }
-    }));
-    return container[0];
-};
-
-// Rotate left button
-var rotateleftControlBuild = function () {
-    var container = $('<div>').addClass('ol-control ol-unselectable ol-rotate-left').html($('<button type="button" title="Rotate left"><i class="fa fa-undo"></i></button>').on('click', function () {
-        var currentRotation = view.getRotation();
-        if (currentRotation > -6.1) { //360º = 2 Pi r =aprox 6.2
-            view.setRotation(round(currentRotation - 0.1, 2));
-        } else {
-            view.setRotation(0);
-        }
-    }));
-    return container[0];
-};
-
-// 3D Toggle button
-function toggle3DControlBuild() {
-    const button = document.createElement('button');
-    button.innerHTML = '<i class="fa fa-cube"></i>';
-    button.title = 'Toggle 3D View';
-    
-    const element = document.createElement('div');
-    element.className = 'ol-unselectable ol-control ol-3d-toggle';
-    element.appendChild(button);
-
-    let ol3d = null;
-    let is3d = false;
-    let cesiumInitialized = false;
-
-    button.addEventListener('click', function() {
-        try {
-            if (!is3d) {
-                // Initialize Cesium if not already done
-                if (!cesiumInitialized) {
-                    try {
-                        // Initialize OLCesium with minimal configuration
-                        ol3d = new olcs.OLCesium({
-                            map: map,
-                            target: 'map',
-                            createSvg: false, // Disable SVG creation which can cause issues
-                            useDefaultRenderLoop: true,
-                            time: function() { return Cesium.JulianDate.now(); }
-                        });
-                        
-                        const scene = ol3d.getCesiumScene();
-                        
-                        // Configure scene
-                        scene.globe.enableLighting = true;
-                        scene.globe.depthTestAgainstTerrain = false; // Disable terrain depth test for better performance
-                        
-                        // Set up terrain provider
-                        scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
-                            tilingScheme: new Cesium.GeographicTilingScheme()
-                        });
-                        
-                        // Clear any existing imagery layers
-                        scene.imageryLayers.removeAll();
-                        
-                        // Add a simple basemap that doesn't require authentication
-                        scene.imageryLayers.addImageryProvider(
-                            new Cesium.UrlTemplateImageryProvider({
-                                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                subdomains: ['a', 'b', 'c'],
-                                tileWidth: 256,
-                                tileHeight: 256,
-                                minimumLevel: 0,
-                                maximumLevel: 19
-                            })
-                        );
-                        
-                        // Disable Cesium ion features that require authentication
-                        Cesium.Ion.defaultAccessToken = null;
-                        
-                        // Set a default view with a reasonable height
-                        const view = map.getView();
-                        const center = ol.proj.toLonLat(view.getCenter());
-                        const zoom = view.getZoom();
-                        
-                        // Convert OpenLayers zoom to Cesium height
-                        const height = 10000000 / Math.pow(1.5, zoom);
-                        
-                        // Set initial camera position
-                        scene.camera.flyTo({
-                            destination: Cesium.Cartesian3.fromDegrees(
-                                center[0],
-                                center[1],
-                                Math.max(height, 1000) // Ensure minimum height
-                            ),
-                            orientation: {
-                                heading: 0.0,
-                                pitch: -Cesium.Math.PI_OVER_TWO,
-                                roll: 0.0
-                            }
-                        });
-                        
-                        cesiumInitialized = true;
-                    } catch (error) {
-                        console.error('Error initializing 3D view:', error);
-                        alert('Error initializing 3D view. Please check console for details.');
-                        return;
-                    }
-                }
-                
-                // Enable Cesium
-                ol3d.setEnabled(true);
-                
-                // Sync camera position
-                const view = map.getView();
-                const center = ol.proj.toLonLat(view.getCenter());
-                const camera = ol3d.getCesiumScene().camera;
-                camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(center[0], center[1], 2000),
-                    orientation: {
-                        heading: 0.0,
-                        pitch: -Cesium.Math.PI_OVER_TWO,
-                        roll: 0.0
-                    }
-                });
-                
-                button.innerHTML = '<i class="fa fa-map"></i>';
-                button.title = 'Switch to 2D';
-            } else {
-                // Switch back to 2D
-                if (ol3d) {
-                    ol3d.setEnabled(false);
-                }
-                button.innerHTML = '<i class="fa fa-cube"></i>';
-                button.title = 'Switch to 3D';
-            }
-            is3d = !is3d;
-        } catch (error) {
-            console.error('Error toggling 3D view:', error);
-            alert('Failed to initialize 3D view. Please check the console for details.');
-            
-            // Disable button if there was an error
-            button.disabled = true;
-            button.style.opacity = '0.5';
-            button.style.cursor = 'not-allowed';
-        }
-    });
-
-    return element;
-}
-
-// Add controls to the map with proper positioning
-const rotateRightControl = new ol.control.Control({
-    element: rotaterightControlBuild()
-});
-rotateRightControl.set('className', 'ol-rotate-right ol-unselectable ol-control');
-map.addControl(rotateRightControl);
-
-const rotateLeftControl = new ol.control.Control({
-    element: rotateleftControlBuild()
-});
-rotateLeftControl.set('className', 'ol-rotate-left ol-unselectable ol-control');
-map.addControl(rotateLeftControl);
-
-// Add 3D toggle button with higher z-index to ensure it's on top
-const toggle3DControl = new ol.control.Control({
-    element: toggle3DControlBuild()
-});
-toggle3DControl.set('className', 'ol-3d-toggle ol-unselectable ol-control');
-map.addControl(toggle3DControl);
-
-// Add some CSS to position the controls properly
-const style = document.createElement('style');
-style.textContent = `
-    .ol-3d-toggle {
-        right: 8.5em !important;  /* Moved further left */
-        top: 0.5em !important;
-    }
-    .ol-zoom-in,
-    .ol-zoom-out,
-    .ol-zoom-extent {
-        right: 0.5em !important;
-    }
-    .ol-zoom-in {
-        top: 0.5em !important;
-    }
-    .ol-zoom-out {
-        top: 3em !important;
-    }
-    .ol-rotate {
-        right: 6em !important;  /* Moved left to make space for 3D button */
-        top: 0.5em !important;
-    }
-    .ol-rotate-right {
-        right: 3.5em !important;  /* Adjusted to make space for 3D button */
-        top: 0.5em !important;
-    }
-    .ol-rotate-left {
-        right: 1em !important;  /* Rightmost position */
-        top: 0.5em !important;
-    }
-    .ol-3d-toggle button {
-        background-color: rgba(255,255,255,0.4);
-        border: 2px solid rgba(0,60,136,0.5);
-    }
-    .ol-3d-toggle button:hover {
-        background-color: white;
-    }
-    .ol-3d-toggle button:focus {
-        outline: none;
-    }
-`;
-document.head.appendChild(style);
+	var rotaterightControlBuild = function () {
+		var container = $('<div>').addClass('ol-control ol-unselectable osmcat-rotateright').html($('<button type="button"><i class="fa fa-repeat"></i></button>').on('click', function () {
+			var currentRotation = view.getRotation();
+			if (currentRotation < 6.1) { //360º = 2 Pi r =aprox 6.2
+				view.setRotation(round(currentRotation + 0.1, 2));
+			} else {
+				view.setRotation(0);
+			}
+		}));
+		return container[0];
+	};
+	map.addControl(new ol.control.Control({
+		element: rotaterightControlBuild()
+	}));
 
 	// Add mobile menu toggle button (only on mobile) - moved to after map is ready
 	$(document).ready(function() {
