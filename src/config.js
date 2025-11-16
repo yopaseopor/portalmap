@@ -75,375 +75,259 @@ var config = {
 	},
 	//@@ Mapas de fondo
 	layers: [
-		// Maptiler Vector Tiles - v3 with text labels
+				
+		// Maptiler Vector Tiles - MapTiler Basic with style.json
 		(function() {
-			// Style function for features
-			const styleFunction = function(feature, resolution) {
-				try {
-					if (!feature || !feature.getGeometry) {
-						return [];
-					}
-
-					const layer = feature.get('layer') || '';
-					const type = feature.getGeometry().getType();
-					const styles = [];
-
-					// Handle text/label features
-					if ((layer.includes('label') || feature.get('class') === 'label' || feature.get('type') === 'label') && 
-						resolution < 100) { // Only show labels at certain zoom levels
-						const text = feature.get('name') || feature.get('ref') || '';
-						if (text) {
-							const fontSize = feature.get('rank') === 1 ? 14 : 12;
-							const textStyle = new ol.style.Text({
-								text: text,
-								font: `${fontSize}px 'Noto Sans', Arial, sans-serif`,
-								fill: new ol.style.Fill({
-									color: '#333333'
-								}),
-								stroke: new ol.style.Stroke({
-									color: 'rgba(255, 255, 255, 0.7)',
-									width: 2
-								}),
-								offsetY: -10,
-								textAlign: 'center',
-								textBaseline: 'bottom',
-								placement: 'point',
-								maxAngle: 0.4,
-								overflow: true
-							});
-
-							// Add halo effect for better readability
-							if (feature.get('class') === 'place' || feature.get('place')) {
-								textStyle.setFill(new ol.style.Fill({
-									color: '#000000'
-								}));
-								textStyle.setStroke(new ol.style.Stroke({
-									color: 'rgba(255, 255, 255, 0.7)',
-									width: 3
-								}));
-								textStyle.setFont('bold ' + fontSize + 'px \'Noto Sans\', Arial, sans-serif');
-							}
-
-							styles.push(new ol.style.Style({
-								text: textStyle
-							}));
-						}
-						return styles;
-					}
-
-					// Style for water features (both areas and lines)
-					if (layer === 'water' || feature.get('water')) {
-						const isLine = type === 'LineString' || type === 'MultiLineString';
-						styles.push(new ol.style.Style({
-							stroke: isLine ? new ol.style.Stroke({
-								color: 'rgba(100, 160, 200, 0.8)',
-								width: 1.5
-							}) : undefined,
-							fill: !isLine ? new ol.style.Fill({
-								color: 'rgba(170, 211, 223, 0.7)'
-							}) : undefined
-						}));
-
-						// Add road labels
-						if (feature.get('name') && resolution < 20) {
-							styles.push(new ol.style.Style({
-								text: new ol.style.Text({
-									text: feature.get('name'),
-									font: '12px \'Noto Sans\', Arial, sans-serif',
-									fill: new ol.style.Fill({
-										color: '#333333'
-									}),
-									stroke: new ol.style.Stroke({
-										color: 'rgba(255, 255, 255, 0.7)',
-										width: 2
-									}),
-									offsetY: -10,
-									placement: 'line'
-								})
-							}));
-						}
-					} 
-					// Style for transportation features (roads, paths, etc.)
-					else if (layer === 'transportation' || feature.get('highway') || feature.get('railway')) {
-						const roadClass = feature.get('class') || feature.get('highway') || feature.get('railway') || '';
-						let width = 1;
-						let color = '#ffffff';
-						let dash = null;
-
-						switch(roadClass.toLowerCase()) {
-							case 'motorway':
-							case 'trunk':
-								width = 3;
-								color = '#f28cb1';
-								break;
-							case 'primary':
-								width = 2.5;
-								color = '#f7b8b8';
-								break;
-							case 'secondary':
-							case 'tertiary':
-								width = 2;
-								color = '#f7d9d9';
-								break;
-							case 'path':
-							case 'footway':
-							case 'pedestrian':
-								width = 1;
-								color = '#e0e0e0';
-								dash = [4, 4];
-								break;
-							case 'rail':
-							case 'railway':
-								width = 1.5;
-								color = '#999999';
-								dash = [2, 2];
-								break;
-						}
-
-						styles.push(new ol.style.Style({
-							stroke: new ol.style.Stroke({
-								color: color,
-								width: width,
-								lineDash: dash,
-								lineJoin: 'round',
-								lineCap: 'round'
-							})
-						}));
-
-						// Add labels for roads
-						if (feature.get('name') && resolution < 20) {
-							styles.push(new ol.style.Style({
-								text: new ol.style.Text({
-									text: feature.get('name'),
-									font: '12px \'Noto Sans\', Arial, sans-serif',
-									fill: new ol.style.Fill({
-										color: '#333333'
-									}),
-									stroke: new ol.style.Stroke({
-										color: 'rgba(255, 255, 255, 0.7)',
-										width: 2
-									}),
-									offsetY: -10,
-									placement: 'line'
-								})
-							}));
-						}
-					}
-
-					// Style for boundaries and other linear features
-					else if (layer === 'boundary' || feature.get('boundary')) {
-						styles.push(new ol.style.Style({
-							stroke: new ol.style.Stroke({
-								color: 'rgba(150, 150, 150, 0.5)',
-								width: 1,
-								lineDash: [4, 4]
-							})
-						}));
-					}
-					// Style for landuse and natural features
-					else if (layer === 'landuse' || layer === 'natural' || feature.get('landuse') || feature.get('natural')) {
-						const landuseType = feature.get('subclass') || feature.get('class') || feature.get('landuse') || feature.get('natural') || '';
-						let fillColor = 'rgba(200, 250, 200, 0.3)'; // Default green for parks
-						
-						switch(landuseType) {
-							case 'residential':
-								fillColor = 'rgba(220, 220, 220, 0.2)';
-								break;
-							case 'commercial':
-							case 'retail':
-								fillColor = 'rgba(250, 220, 220, 0.3)';
-								break;
-							case 'industrial':
-								fillColor = 'rgba(220, 220, 250, 0.3)';
-								break;
-							case 'grass':
-							case 'grassland':
-								fillColor = 'rgba(200, 250, 200, 0.3)';
-								break;
-							case 'wood':
-							case 'forest':
-								fillColor = 'rgba(180, 230, 180, 0.4)';
-								break;
-						}
-
-						styles.push(new ol.style.Style({
-							fill: new ol.style.Fill({
-								color: fillColor
-							}),
-							stroke: type !== 'Point' ? new ol.style.Stroke({
-								color: 'rgba(180, 180, 180, 0.2)',
-								width: 0.5
-							}) : undefined
-						}));
-
-						// Add labels for parks and other named areas
-						if ((feature.get('name') || feature.get('ref')) && resolution < 50) {
-							styles.push(new ol.style.Style({
-								text: new ol.style.Text({
-									text: feature.get('name') || feature.get('ref'),
-									font: 'italic 12px \'Noto Sans\', Arial, sans-serif',
-									fill: new ol.style.Fill({
-										color: 'rgba(0, 0, 0, 0.7)'
-									}),
-									stroke: new ol.style.Stroke({
-										color: 'rgba(255, 255, 255, 0.7)',
-										width: 2
-									})
-								})
-							}));
-						}
-					}
-					// Style for buildings and other structures
-					else if (layer === 'building' || feature.get('building')) {
-						styles.push(new ol.style.Style({
-							fill: new ol.style.Fill({
-								color: 'rgba(210, 209, 207, 0.7)'
-							}),
-							stroke: new ol.style.Stroke({
-								color: 'rgba(180, 179, 177, 0.7)',
-								width: 0.5
-							})
-						}));
-
-						// Add building labels (e.g., for important buildings)
-						if (feature.get('name') && resolution < 10) {
-							styles.push(new ol.style.Style({
-								text: new ol.style.Text({
-									text: feature.get('name'),
-									font: '10px \'Noto Sans\', Arial, sans-serif',
-									fill: new ol.style.Fill({
-										color: '#333333'
-									}),
-									offsetY: 10
-								})
-							}));
-						}
-					}
-
-					return styles;
-				} catch (e) {
-					console.error('Error applying style:', e);
-					return [];
-				}
-			};
-
-			// Create the vector tile source
-			const source = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=Faz9gJu55zrWejNF55oZ',
-				attributions: [
-					'<a href="https://www.maptiler.com/copyright/" target="_blank"> MapTiler</a>',
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank"> OpenStreetMap contributors</a>'
-				]
-			});
-
-			// Create the vector tile layer
-			const layer = new ol.layer.VectorTile({
-				title: 'MapTiler Basic',
-				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
-				type: 'base', // Required for the layer control to recognize this as a base layer
-				visible: true, // Set to true to make it visible by default
-				opacity: 1.0,
-				source: source,
-				style: styleFunction,
-				extent: ol.proj.get('EPSG:3857').getExtent(),
-				renderMode: 'vector',
-				declutter: true,
-				updateWhileAnimating: true,
-				updateWhileInteracting: true
-			});
-
-			// Add event listeners for layer changes
-			source.on('tileloadstart', function() {
-				console.log('Loading Maptiler tiles...');
-			});
-
-			source.on('tileloadend', function(event) {
-				console.log('Tile loaded:', event.tile.getState());
-			});
-
-			source.on('tileloaderror', function(error) {
-				console.error('Error loading tile:', error);
-			});
-
-			console.log('MapTiler Basic layer with labels initialized');
-			console.log('Layer source URL:', source.getUrls()[0]);
-			console.log('Layer visibility:', layer.getVisible());
+			const apiKey = 'Faz9gJu55zrWejNF55oZ';
 			
-			// Log when the layer is added to the map
-			layer.on('change:visible', function() {
-				console.log('Maptiler Basic layer visibility changed:', this.getVisible());
-			});
-
-			return layer;
-		})(),
-		
-		// Versatiles with simplified style
-		(function() {
-			const source = new ol.source.VectorTile({
+			// Create a manual source
+			const manualSource = new ol.source.VectorTile({
 				tilePixelRatio: 1,
 				tileGrid: ol.tilegrid.createXYZ({
 					minZoom: 0,
 					maxZoom: 14
 				}),
 				format: new ol.format.MVT(),
-				url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
+				url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=' + apiKey,
 				attributions: [
+					'<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
 					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
 				]
 			});
 
+			// Create a basic fallback style in case olms.applyStyle fails
+			const fallbackStyle = function(feature, resolution) {
+				if (!feature) return [];
+				const geometry = feature.getGeometry();
+				if (!geometry) return [];
+				
+				const type = geometry.getType();
+				const style = new ol.style.Style({
+					fill: new ol.style.Fill({
+						color: 'rgba(200, 200, 200, 0.5)'
+					}),
+					stroke: new ol.style.Stroke({
+						color: '#666',
+						width: 1
+					})
+				});
+
+				if (type === 'Point' || type === 'MultiPoint') {
+					style.setImage(new ol.style.Circle({
+						radius: 5,
+						fill: new ol.style.Fill({
+							color: 'rgba(255, 0, 0, 0.7)'
+						})
+					}));
+				}
+
+				return [style];
+			};
+
+			// Create the vector tile layer with source and fallback style
 			const layer = new ol.layer.VectorTile({
-				title: 'Versatiles Basic',
+				title: 'MapTiler Basic',
+				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
+				visible: false,
+				opacity: 1.0,
+				declutter: true,
+				source: manualSource,
+				style: fallbackStyle
+			});
+
+			const styleUrl = 'src/assets/style.json';
+			fetch(styleUrl)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					return response.text();
+				})
+				.then(text => {
+					let style = JSON.parse(text.replace(/{key}/g, apiKey));
+					// Fix sprite URL if needed
+					if (style.sprite && typeof style.sprite === 'string') {
+						style.sprite = style.sprite.replace(/[:\s]*$/, '');
+					}
+					
+					// Deep clone style to ensure clean processing
+					style = JSON.parse(JSON.stringify(style));
+					
+					// Remove all symbol layers to prevent getScaleArray errors
+					// We'll handle text separately using OpenLayers native styling
+					if (style.layers && Array.isArray(style.layers)) {
+						const symbolLayerCount = style.layers.filter(l => l.type === 'symbol').length;
+						style.layers = style.layers.filter(l => l.type !== 'symbol');
+						if (symbolLayerCount > 0) {
+							//console.log(`Removed ${symbolLayerCount} symbol layers to prevent getScaleArray errors`);
+						}
+					}
+					
+					if (olms && typeof olms.applyStyle === 'function') {
+						// Try to apply the style - it may replace the source
+						return olms.applyStyle(layer, style, 'openmaptiles')
+							.then(() => {
+								//console.log('MapTiler style applied successfully for MapTiler Basic.');
+								// Ensure layer still has a source after style application
+								if (!layer.getSource()) {
+									console.warn('Layer has no source after olms.applyStyle, restoring manual source');
+									layer.setSource(manualSource);
+								}
+							})
+							.catch(err => {
+								console.error('Error applying MapTiler style for MapTiler Basic:', err);
+								
+								// If error is related to text-size/getScaleArray, try again without symbol layers
+								if (err && err.message && (err.message.includes('getScaleArray') || err.message.includes('text-size'))) {
+									console.warn('Text-size error detected, retrying without symbol layers');
+									// Remove all symbol layers and retry
+									const styleWithoutText = JSON.parse(JSON.stringify(style));
+									styleWithoutText.layers = styleWithoutText.layers.filter(l => l.type !== 'symbol');
+									
+									return olms.applyStyle(layer, styleWithoutText, 'openmaptiles')
+										.then(() => {
+											//console.log('MapTiler style applied successfully without text layers.');
+											if (!layer.getSource()) {
+												layer.setSource(manualSource);
+											}
+										})
+										.catch(err2 => {
+											console.error('Error applying style even without text layers:', err2);
+											console.warn('Using manual source and fallback style');
+										});
+								} else {
+									console.warn('Keeping manual source and fallback style');
+								}
+							});
+					} else {
+						console.warn('olms.applyStyle is not available, using manual source and fallback style');
+						// Source and style are already set
+					}
+				}).catch(err => {
+					console.error('Failed to load or apply style.json for MapTiler Basic:', err);
+					console.warn('Using manual source and fallback style');
+					// Source and style are already set
+				});
+			return layer;
+		})(),
+		
+		//Versatiles colorful
+		(function() {
+			// Create the vector tile layer without source (olms.applyStyle will create it)
+			const colorfulLayer = new ol.layer.VectorTile({
+				title: 'Versatiles colorful',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
 				visible: false,
 				opacity: 1.0,
-				source: source,
-				style: function(feature, resolution) {
-					return vectorTileStyles['versatiles-shortbread'](feature, resolution);
-				},
 				declutter: true
 			});
 
-			return layer;
+			const styleUrl = 'src/assets/colorful.json';
+			fetch(styleUrl)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					return response.json();
+				})
+				.then(style => {
+					// Fix sprite URL if needed
+					if (style.sprite && typeof style.sprite === 'string') {
+						// Ensure sprite URL doesn't have trailing colon or incorrect format
+						style.sprite = style.sprite.replace(/[:\s]*$/, '');
+						//console.log('Fixed sprite URL:', style.sprite);
+					}
+
+					// Also handle array format for sprites (like in versatilescolorful.json)
+					if (style.sprite && Array.isArray(style.sprite)) {
+						style.sprite.forEach(sprite => {
+							if (sprite.url) {
+								sprite.url = sprite.url.replace(/[:\s]*$/, '');
+								//console.log('Fixed sprite array URL:', sprite.url);
+							}
+						});
+					}
+					
+					// Fix text-size expressions to avoid getScaleArray errors
+					// Convert stops format to simple numbers for compatibility
+					if (style.layers && Array.isArray(style.layers)) {
+						style.layers.forEach(layer => {
+							if (layer.type === 'symbol' && layer.layout && layer.layout['text-size']) {
+								const textSize = layer.layout['text-size'];
+								// If it's an object with stops, convert to a simple number (use middle value)
+								if (typeof textSize === 'object' && textSize.stops && Array.isArray(textSize.stops)) {
+									// Use the middle stop value, or first if only one
+									const stops = textSize.stops;
+									if (stops.length > 0) {
+										const middleIndex = Math.floor(stops.length / 2);
+										layer.layout['text-size'] = stops[middleIndex][1];
+										//console.log(`Fixed text-size for Versatiles layer ${layer.id}: converted stops to ${stops[middleIndex][1]}`);
+									}
+								}
+							}
+						});
+						//console.log('Fixed text-size expressions in Versatiles symbol layers');
+					}
+					
+					return olms.applyStyle(colorfulLayer, style, 'versatiles-shortbread')
+						.then(() => console.log('Colorful style applied successfully for OSM Shortbread.'))
+						.catch(err => console.error('Error applying Colorful style for OSM Shortbread:', err));
+				}).catch(err => {
+					console.error('Failed to load or apply colorful.json for OSM Shortbread:', err);
+					console.log('This might be due to sprite loading issues. The map will still function without sprites.');
+				});
+			return colorfulLayer;
 		})(),
 		
 	
 
-		// OSM Vector Tiles with Customyopaseopor style
 		(function() {
-			const source = new ol.source.VectorTile({
-				tilePixelRatio: 1,
-				tileGrid: ol.tilegrid.createXYZ({
-					minZoom: 0,
-					maxZoom: 14
-				}),
-				format: new ol.format.MVT(),
-				url: 'https://tiles.versatiles.org/tiles/osm/{z}/{x}/{y}',
-				attributions: [
-					'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
-				]
-			});
-
-			// Create the layer with our custom style function
 			const customLayer = new ol.layer.VectorTile({
-				title: 'OSM Vector Tiles',
+				title: 'OSM Customyopaseopor',
 				iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
-				visible: true,  // Enable by default
-				opacity: 0.9,
-				source: source,
-				style: function(feature, resolution) {
-					return window.vectorTileStyles['Customyopaseopor'](feature, resolution);
-				},
+				visible: true,
+				opacity: 1.0,
+				source: new ol.source.VectorTile({
+					tilePixelRatio: 1,
+					tileGrid: ol.tilegrid.createXYZ({
+						minZoom: 0,
+						maxZoom: 14
+					}),
+					format: new ol.format.MVT(),
+					url: 'https://vector.openstreetmap.org/shortbread_v1/{z}/{x}/{y}.mvt',
+					attributions: [
+						'<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+					]
+				}),
 				declutter: true
 			});
 
-			console.log('Customyopaseopor vector tile style applied successfully');
+			const styleUrl = 'src/assets/customyopaseopor.json';
+			fetch(styleUrl)
+				.then(response => response.json())
+				.then(style => {
+					// Fix sprite URL if needed
+					if (style.sprite && typeof style.sprite === 'string') {
+						// Ensure sprite URL doesn't have trailing colon or incorrect format
+						style.sprite = style.sprite.replace(/[:\s]*$/, '');
+						//console.log('Fixed sprite URL for customyopaseopor:', style.sprite);
+					}
+
+					// Also handle array format for sprites
+					if (style.sprite && Array.isArray(style.sprite)) {
+						style.sprite.forEach(sprite => {
+							if (sprite.url) {
+								sprite.url = sprite.url.replace(/[:\s]*$/, '');
+								//console.log('Fixed sprite array URL for customyopaseopor:', sprite.url);
+							}
+						});
+					}
+					return olms.applyStyle(customLayer, style, 'customyopaseopor')
+						.then(() => console.log('Customyopaseopor style applied successfully for OSM Shortbread.'))
+						.catch(err => console.error('Error applying Customyopaseopor style for OSM Shortbread:', err));
+				}).catch(err => {
+					console.error('Failed to load or apply customyopaseopor.json for OSM Shortbread:', err);
+				});
 			return customLayer;
 		})(),
 		

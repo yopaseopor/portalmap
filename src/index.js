@@ -77,18 +77,30 @@ $(function () {
     window.overlays = [];
     function updateWindowOverlays() {
         // Only flatten overlays for the overlay searcher
-        window.overlays = Object.entries(window.allOverlays).reduce((acc, [groupName, overlays]) => {
-            if (Array.isArray(overlays)) {
-                return acc.concat(overlays.map(overlay => ({
-                    // Use already translated values
-                    title: overlay.title || '',
-                    group: overlay.group || '',
-                    id: overlay.id || '',
-                    ...overlay
-                })));
-            }
-            return acc;
-        }, []);
+        if (!window.allOverlays || typeof window.allOverlays !== 'object') {
+            console.warn('window.allOverlays is not a valid object');
+            window.overlays = [];
+            return;
+        }
+        
+        try {
+            window.overlays = Object.entries(window.allOverlays).reduce((acc, [groupName, overlayGroup]) => {
+                if (Array.isArray(overlayGroup)) {
+                    const mappedOverlays = overlayGroup.map(overlay => ({
+                        // Use already translated values
+                        title: overlay && typeof overlay.title !== 'undefined' ? overlay.title : '',
+                        group: overlay && overlay.group ? overlay.group : groupName,
+                        id: overlay && overlay.id ? overlay.id : '',
+                        ...(overlay || {})
+                    }));
+                    return acc.concat(mappedOverlays);
+                }
+                return acc;
+            }, []);
+        } catch (error) {
+            console.error('Error in updateWindowOverlays:', error);
+            window.overlays = [];
+        }
     }
 
     // Update overlays when they change
