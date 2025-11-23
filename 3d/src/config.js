@@ -132,82 +132,29 @@ var config = {
 				opacity: 1.0,
 				declutter: true,
 				source: manualSource,
-				style: fallbackStyle
-			});
-
-			const styleUrl = 'src/assets/style.json';
-			fetch(styleUrl)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-					return response.text();
-				})
-				.then(text => {
-					let style = JSON.parse(text.replace(/{key}/g, apiKey));
-					// Fix sprite URL if needed
-					if (style.sprite && typeof style.sprite === 'string') {
-						style.sprite = style.sprite.replace(/[:\s]*$/, '');
-					}
-					
-					// Deep clone style to ensure clean processing
-					style = JSON.parse(JSON.stringify(style));
-					
-					// Remove all symbol layers to prevent getScaleArray errors
-					// We'll handle text separately using OpenLayers native styling
-					if (style.layers && Array.isArray(style.layers)) {
-						const symbolLayerCount = style.layers.filter(l => l.type === 'symbol').length;
-						style.layers = style.layers.filter(l => l.type !== 'symbol');
-						if (symbolLayerCount > 0) {
-							//console.log(`Removed ${symbolLayerCount} symbol layers to prevent getScaleArray errors`);
+				style: function(feature, resolution) {
+					// Use the custom style function from maptiler-basic-style-new.js
+					if (window.vectorTileStyles && window.vectorTileStyles['maptiler-basic']) {
+						try {
+							const styles = window.vectorTileStyles['maptiler-basic'](feature, resolution);
+							if (styles && styles.length > 0) {
+								return styles;
+							}
+						} catch (e) {
+							console.error('Error applying maptiler-basic style:', e);
 						}
 					}
-					
-					if (olms && typeof olms.applyStyle === 'function') {
-						// Try to apply the style - it may replace the source
-						return olms.applyStyle(layer, style, 'openmaptiles')
-							.then(() => {
-								//console.log('MapTiler style applied successfully for MapTiler Basic.');
-								// Ensure layer still has a source after style application
-								if (!layer.getSource()) {
-									console.warn('Layer has no source after olms.applyStyle, restoring manual source');
-									layer.setSource(manualSource);
-								}
-							})
-							.catch(err => {
-								console.error('Error applying MapTiler style for MapTiler Basic:', err);
-								
-								// If error is related to text-size/getScaleArray, try again without symbol layers
-								if (err && err.message && (err.message.includes('getScaleArray') || err.message.includes('text-size'))) {
-									console.warn('Text-size error detected, retrying without symbol layers');
-									// Remove all symbol layers and retry
-									const styleWithoutText = JSON.parse(JSON.stringify(style));
-									styleWithoutText.layers = styleWithoutText.layers.filter(l => l.type !== 'symbol');
-									
-									return olms.applyStyle(layer, styleWithoutText, 'openmaptiles')
-										.then(() => {
-											//console.log('MapTiler style applied successfully without text layers.');
-											if (!layer.getSource()) {
-												layer.setSource(manualSource);
-											}
-										})
-										.catch(err2 => {
-											console.error('Error applying style even without text layers:', err2);
-											console.warn('Using manual source and fallback style');
-										});
-								} else {
-									console.warn('Keeping manual source and fallback style');
-								}
-							});
-					} else {
-						console.warn('olms.applyStyle is not available, using manual source and fallback style');
-						// Source and style are already set
-					}
-				}).catch(err => {
-					console.error('Failed to load or apply style.json for MapTiler Basic:', err);
-					console.warn('Using manual source and fallback style');
-					// Source and style are already set
-				});
+					// Fallback to the original fallback style
+					return fallbackStyle(feature, resolution);
+				}
+			});
+
+			// Ensure the manual source is set
+			layer.setSource(manualSource);
+			
+			// The layer will be added to the map by the main application
+			// No need to call map.addLayer here as it's handled by the config.layers array
+			
 			return layer;
 		})(),
 		

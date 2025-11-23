@@ -22,385 +22,1308 @@
         return Math.log2(156543.03390625 / resolution);
     }
 
-    // Helper function to interpolate between stops
-    function interpolate(zoom, stops, base = 1) {
-        if (!stops || stops.length === 0) return 0;
-        if (zoom <= stops[0][0]) return stops[0][1];
-        if (zoom >= stops[stops.length - 1][0]) return stops[stops.length - 1][1];
-        
-        for (let i = 0; i < stops.length - 1; i++) {
-            if (zoom >= stops[i][0] && zoom < stops[i + 1][0]) {
-                const [z0, v0] = stops[i];
-                const [z1, v1] = stops[i + 1];
-                const t = (zoom - z0) / (z1 - z0);
-                return v0 * Math.pow(v1 / v0, base * t);
+    // Sprite metadata cache - load synchronously for immediate availability
+    let spriteData = null;
+
+    // Load sprite data synchronously
+    if (!spriteData) {
+        try {
+            // Use XMLHttpRequest for synchronous loading
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'src/assets/sprites/basics/sprites.json', false); // synchronous
+            xhr.send();
+
+            if (xhr.status === 200) {
+                spriteData = JSON.parse(xhr.responseText);
+                console.log('Loaded sprite data:', Object.keys(spriteData).length, 'icons');
+            } else {
+                console.error('Failed to load sprite data:', xhr.status);
             }
+        } catch (err) {
+            console.error('Error loading sprite data:', err);
+            spriteData = {};
         }
-        return stops[stops.length - 1][1];
     }
 
-    // Helper function to get road width based on zoom and class
-    function getRoadWidth(roadClass, zoom) {
-        const base = {
-            'motorway': 1.4,
-            'trunk': 1.4,
-            'primary': 1.2,
-            'secondary': 1.1,
-            'tertiary': 1.0,
-            'minor_road': 0.8,
-            'path': 0.6
-        }[roadClass] || 0.8;
-        
-        // Interpolate width based on zoom level
-        return interpolate(zoom, [
-            [4, base * 0.25],
-            [20, base * 30]
-        ]);
-    }
-
-    // Helper function to get road properties based on class and zoom
-    function getRoadProperties(roadClass, zoom) {
-        return interpolate(zoom, [
-            [6, 0.5 * base],
-            [20, 30 * base]
-        ]);
-    }
-
-    // Helper function to evaluate filter conditions
-    function evaluateFilter(feature, filter) {
-        if (!filter) return true;
-        if (typeof filter === 'function') return filter(feature);
-        if (Array.isArray(filter)) {
-            const [operator, ...args] = filter;
-            switch (operator) {
-                case 'all':
-                    return args.every(f => evaluateFilter(feature, f));
-                case 'any':
-                    return args.some(f => evaluateFilter(feature, f));
-                case 'none':
-                    return !args.some(f => evaluateFilter(feature, f));
-                case '==':
-                    return feature.get(args[0]) === args[1];
-                case '!=':
-                    return feature.get(args[0]) !== args[1];
-                case '>':
-                    return Number(feature.get(args[0])) > args[1];
-                case '>=':
-                    return Number(feature.get(args[0])) >= args[1];
-                case '<':
-                    return Number(feature.get(args[0])) < args[1];
-                case '<=':
-                    return Number(feature.get(args[0])) <= args[1];
-                case 'in':
-                    return args.slice(1).includes(feature.get(args[0]));
-                case '!in':
-                    return !args.slice(1).includes(feature.get(args[0]));
-                case 'has':
-                    return feature.get(args[0]) !== undefined;
-                case '!has':
-                    return feature.get(args[0]) === undefined;
-                default:
-                    return true;
-            }
+    // Helper function to get icon offset from sprite sheet
+    function getIconOffset(iconName) {
+        if (!spriteData || !spriteData[iconName]) {
+            console.warn('Icon not found in sprite data:', iconName);
+            return [0, 0]; // Default to first icon
         }
-        return true;
+        const icon = spriteData[iconName];
+        return [icon.x, icon.y];
     }
 
     // Style definitions for different layers
     const layerStyles = {
         // Background
         'background': {
-            filter: (feature) => feature.get('layer') === 'background',
+            sourceLayer: 'background',
             style: (feature, zoom) => [
                 new ol.style.Style({
                     fill: new ol.style.Fill({
-                        color: 'hsl(47, 26%, 88%)' // Light beige background
+                        color: 'hsl(60, 10%, 95%)' // Very light gray for contrast with white roads
                     })
                 })
             ]
         },
 
-        // Landuse - Residential
-        'landuse-residential': {
+        // Water bodies (main water)
+        'water': {
+            sourceLayer: 'water',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return geomType === 'Polygon' &&
+                       feature.get('intermittent') !== 1 &&
+                       feature.get('brunnel') !== 'tunnel';
+            },
+            style: (feature, zoom) => [
+                new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'hsl(205, 56%, 73%)' // Water blue
+                    }),
+                    zIndex: 1
+                })
+            ]
+        },
+
+        // Water bodies (intermittent)
+        'water_intermittent': {
+            sourceLayer: 'water',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return geomType === 'Polygon' && feature.get('intermittent') === 1;
+            },
+            style: (feature, zoom) => [
+                new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'hsl(205, 56%, 73%)', // Water blue
+                        opacity: 0.7
+                    }),
+                    zIndex: 1
+                })
+            ]
+        },
+
+        // Waterways (rivers, streams, canals) - BLUE LINE FEATURES
+        'waterways': {
+            sourceLayer: 'waterway',
+            filter: (feature) => {
+                return feature.getGeometry().getType() === 'LineString';
+            },
+            style: (feature, zoom) => {
+                const waterwayClass = feature.get('class') || feature.get('waterway') || '';
+                let width, color = 'hsl(205, 56%, 73%)', zIndex = 2; // SAME BLUE as water bodies
+
+                // Waterway width scaling with zoom
+                const calculateWidth = (minWidth, maxWidth) => {
+                    if (zoom <= 8) return minWidth;
+                    if (zoom >= 16) return maxWidth;
+                    return minWidth + (maxWidth - minWidth) * ((zoom - 8) / 8);
+                };
+
+                switch (waterwayClass) {
+                    case 'river':
+                        width = calculateWidth(1, 6); // Thicker for major rivers
+                        zIndex = 4;
+                        break;
+                    case 'canal':
+                        width = calculateWidth(0.8, 5); // Slightly thinner canals
+                        zIndex = 3;
+                        break;
+                    case 'stream':
+                    case 'brook':
+                    default:
+                        width = calculateWidth(0.5, 3); // Thin streams
+                        zIndex = 2;
+                }
+
+                return [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: color,
+                            width: width,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        }),
+                        zIndex: zIndex
+                    })
+                ];
+            }
+        },
+
+        // Landuse areas
+        'landuse': {
             sourceLayer: 'landuse',
             filter: (feature) => {
-                const cls = feature.get('class');
-                return ['residential', 'suburb', 'neighbourhood'].includes(cls);
+                const geomType = feature.getGeometry().getType();
+                return geomType === 'Polygon' || geomType === 'MultiPolygon';
             },
-            minZoom: 0,
+            style: (feature, zoom) => {
+                const landClass = feature.get('class') || '';
+                let fillColor = 'hsl(35, 35%, 85%)'; // LIGHT BROWN for untagged/no class land
+                let opacity = 0.5;
+
+                switch (landClass) {
+                    case 'residential':
+                    case 'suburb':
+                    case 'neighbourhood':
+                        fillColor = 'hsl(0, 0%, 90%)'; // WHITE for residential areas
+                        opacity = 0.6;
+                        break;
+                    case 'grass':
+                    case 'grassland':
+                    case 'meadow':
+                    case 'greenspace':
+                        fillColor = 'hsl(120, 50%, 70%)'; // GREEN grass areas
+                        opacity = 0.5;
+                        break;
+                    case 'park':
+                    case 'recreation_ground':
+                    case 'garden':
+                    case 'cemetery':
+                        fillColor = 'hsl(115, 60%, 75%)'; // BRIGHT GREEN for parks/gardens
+                        opacity = 0.6;
+                        break;
+                    case 'protected_area':
+                        fillColor = 'hsl(120, 30%, 80%)'; // LIGHT GREEN for protected areas
+                        opacity = 0.5;
+                        break;
+                    case 'forest':
+                    case 'wood':
+                    case 'natural':
+                        fillColor = 'hsl(100, 45%, 65%)'; // DARK GREEN for forests
+                        opacity = 0.6;
+                        break;
+                    case 'industrial':
+                    case 'commercial':
+                        fillColor = 'hsl(35, 25%, 80%)'; // Light brown
+                        opacity = 0.5;
+                        break;
+                    case 'farmland':
+                    case 'farm':
+                    case 'agriculture':
+                        fillColor = 'hsl(45, 30%, 75%)'; // Brownish yellow for farmland
+                        opacity = 0.4;
+                        break;
+                    case 'water': // Just in case
+                        fillColor = 'hsl(205, 56%, 73%)';
+                        opacity = 0.7;
+                        break;
+                    case 'pitch': // Sports fields
+                        fillColor = 'hsl(110, 50%, 80%)'; // GREEN for sports pitches
+                        opacity = 0.4;
+                        break;
+                    case 'beach':
+                        fillColor = 'hsl(45, 35%, 78%)'; // YELLOWISH BROWN for beaches
+                        opacity = 0.5;
+                        break;
+                }
+
+                return [
+                    new ol.style.Style({
+                        fill: new ol.style.Fill({
+                            color: `hsla(${fillColor.split('hsl(')[1].replace(')', `, ${opacity})`)}`
+                        }),
+                        zIndex: 0
+                    })
+                ];
+            }
+        },
+
+        // Landcover ice shelf (ice sheets)
+        'landcover-ice-shelf': {
+            sourceLayer: 'landcover',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       feature.get('subclass') === 'ice_shelf';
+            },
             style: (feature, zoom) => [
                 new ol.style.Style({
                     fill: new ol.style.Fill({
-                        color: 'hsl(47, 13%, 86%)',
-                        opacity: 0.7
-                    })
+                        color: 'hsl(47, 26%, 88%)',
+                        opacity: 0.8
+                    }),
+                    zIndex: 0
                 })
             ]
         },
 
-        // Landcover - Grass
-        'landcover-grass': {
+        // Landcover glacier
+        'landcover-glacier': {
             sourceLayer: 'landcover',
-            filter: (feature) => feature.get('class') === 'grass',
-            minZoom: 0,
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       feature.get('subclass') === 'glacier';
+            },
+            style: (feature, zoom) => {
+                // Opacity fades from 1.0 at zoom 0 to 0.5 at zoom 8
+                const opacity = zoom <= 0 ? 1.0 : Math.max(0.5, 1.0 - (zoom - 0) * (0.5 / 8));
+                return [
+                    new ol.style.Style({
+                        fill: new ol.style.Fill({
+                            color: `hsla(47, 22%, 94%, ${opacity})`
+                        }),
+                        zIndex: 0
+                    })
+                ];
+            }
+        },
+
+        // Landcover sand (beaches from landcover layer)
+        'landcover_sand': {
+            sourceLayer: 'landcover',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       feature.get('class') === 'sand';
+            },
+            style: (feature, zoom) => [
+                new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(232, 214, 38, 0.3)' // Yellowish sand color
+                    }),
+                    zIndex: 0
+                })
+            ]
+        },
+
+        // Landcover grass
+        'landcover_grass': {
+            sourceLayer: 'landcover',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       feature.get('class') === 'grass';
+            },
             style: (feature, zoom) => [
                 new ol.style.Style({
                     fill: new ol.style.Fill({
                         color: 'hsl(82, 46%, 72%)',
                         opacity: 0.45
-                    })
+                    }),
+                    zIndex: 0
                 })
             ]
         },
 
-        // Water
-        'water': {
-            sourceLayer: 'water',
+        // Landcover wood (forests from landcover layer)
+        'landcover_wood': {
+            sourceLayer: 'landcover',
             filter: (feature) => {
-                return feature.getGeometry().getType() === 'Polygon' && 
-                       feature.get('intermittent') !== 1 && 
-                       feature.get('brunnel') !== 'tunnel';
+                const geomType = feature.getGeometry().getType();
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       feature.get('class') === 'wood';
             },
-            minZoom: 0,
-            style: (feature, zoom) => [
-                new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'hsl(205, 56%, 73%)'
-                    })
-                })
-            ]
-        },
+            style: (feature, zoom) => {
+                // Opacity increases with zoom: 0.6 at zoom 8, increases to 1.0 at zoom 22
+                const minZoom = 8, maxZoom = 22;
+                const opacity = zoom <= minZoom ? 0.6 :
+                               zoom >= maxZoom ? 1.0 :
+                               0.6 + (zoom - minZoom) * (0.4 / (maxZoom - minZoom));
 
-        // Intermittent Water
-        'water-intermittent': {
-            sourceLayer: 'water',
-            filter: (feature) => {
-                return feature.getGeometry().getType() === 'Polygon' && 
-                       feature.get('intermittent') === 1;
-            },
-            minZoom: 0,
-            style: (feature, zoom) => [
-                new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'hsl(205, 56%, 73%)',
-                        opacity: 0.7
-                    })
-                })
-            ]
-        },
-
-        // Bridge - Major roads (primary, secondary, tertiary, trunk)
-        'bridge-major': {
-            sourceLayer: 'transportation',
-            filter: (feature) => {
-                const cls = feature.get('class');
-                return feature.get('brunnel') === 'bridge' && 
-                       ['primary', 'secondary', 'tertiary', 'trunk'].includes(cls);
-            },
-            minZoom: 6,
-            style: (feature, zoom) => {
-                const roadClass = feature.get('class');
-                const width = getRoadWidth(roadClass, zoom);
-                const isMajor = ['motorway', 'trunk', 'primary'].includes(roadClass);
-                
-                const styles = [];
-                
-                // Bridge casing (wider line underneath)
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: '#dedede',
-                        width: width * 1.5,
-                        lineCap: 'butt',
-                        lineJoin: 'miter'
-                    }),
-                    zIndex: 10 + (isMajor ? 2 : 1)
-                }));
-                
-                // Main bridge line
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: isMajor ? '#ffffff' : '#f8f8f8',
-                        width: width,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: 11 + (isMajor ? 2 : 1)
-                }));
-                
-                // Add center line for major roads at higher zoom levels
-                if (isMajor && zoom >= 14) {
-                    styles.push(new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: '#ffffff',
-                            width: Math.max(0.8, width * 0.15),
-                            lineDash: zoom < 16 ? [2, 2] : null,
-                            lineCap: 'round',
-                            lineJoin: 'round'
-                        }),
-                        zIndex: 12 + (isMajor ? 2 : 1)
-                    }));
-                }
-                
-                return styles;
-            }
-        },
-        
-        // Bridge - Minor roads
-        'bridge-minor': {
-            sourceLayer: 'transportation',
-            filter: (feature) => {
-                const cls = feature.get('class');
-                return feature.get('brunnel') === 'bridge' && 
-                       ['minor_road', 'service', 'track'].includes(cls);
-            },
-            minZoom: 12,
-            style: (feature, zoom) => {
-                const roadClass = feature.get('class');
-                const width = getRoadWidth(roadClass, zoom);
-                
-                const styles = [];
-                
-                // Bridge casing (wider line underneath)
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: '#e8e8e8',
-                        width: width * 1.4,
-                        lineCap: 'butt',
-                        lineJoin: 'miter'
-                    }),
-                    zIndex: 9
-                }));
-                
-                // Main bridge line
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: '#f8f8f8',
-                        width: width * 0.8,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: 10
-                }));
-                
-                return styles;
-            }
-        },
-        
-        // Bridge - Paths and pedestrian ways
-        'bridge-path': {
-            sourceLayer: 'transportation',
-            filter: (feature) => {
-                const cls = feature.get('class');
-                return feature.get('brunnel') === 'bridge' && 
-                       ['path', 'footway', 'cycleway', 'pedestrian', 'steps'].includes(cls);
-            },
-            minZoom: 14,
-            style: (feature, zoom) => {
-                const width = getRoadWidth('path', zoom);
-                
-                return [new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(200, 200, 200, 0.8)',
-                        width: width * 0.6,
-                        lineCap: 'square',
-                        lineJoin: 'miter',
-                        lineDash: [1, 1]
-                    }),
-                    zIndex: 8
-                })];
-            }
-        },
-        
-        // Bridge - Waterway (for water features that go under bridges)
-        'bridge-waterway': {
-            sourceLayer: 'waterway',
-            filter: (feature) => feature.get('brunnel') === 'bridge',
-            minZoom: 12,
-            style: (feature, zoom) => {
-                const width = interpolate(zoom, [
-                    [8, 1],
-                    [20, 10]
-                ]);
-                
-                return [new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(170, 211, 223, 0.8)',
-                        width: width,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: 7
-                })];
-            }
-        },
-        
-        // Transportation - Roads
-        'road-motorway': {
-            sourceLayer: 'transportation',
-            filter: (feature) => feature.get('class') === 'motorway',
-            minZoom: 6,
-            style: (feature, zoom) => {
-                const isTunnel = feature.get('brunnel') === 'tunnel';
-                const isBridge = feature.get('brunnel') === 'bridge';
-                const width = getLineWidth(1.4, zoom);
-                
-                const styles = [];
-                
-                // Bridge casing
-                if (isBridge) {
-                    styles.push(new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: '#e8e8e8',
-                            width: width + 2,
-                            lineCap: 'round',
-                            lineJoin: 'round'
-                        }),
-                        zIndex: 5
-                    }));
-                }
-                
-                // Main road
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: isTunnel ? 'rgba(255, 255, 255, 0.7)' : '#ffffff',
-                        width: width,
-                        lineCap: isTunnel ? 'butt' : 'round',
-                        lineJoin: isTunnel ? 'miter' : 'round',
-                        lineDash: isTunnel ? [0.28, 0.14] : null
-                    }),
-                    zIndex: 6
-                }));
-                
-                return styles;
-            }
-        },
-        
-        // Add more road types and other features here...
-        
-        // Buildings
-        'building': {
-            sourceLayer: 'building',
-            minZoom: 13,
-            style: (feature, zoom) => {
-                const height = Number(feature.get('height') || feature.get('building:levels') * 3 || 3);
-                const opacity = interpolate(zoom, [[13, 0.3], [15, 0.5], [17, 0.7]]);
-                
                 return [
                     new ol.style.Style({
                         fill: new ol.style.Fill({
-                            color: `rgba(222, 211, 190, ${opacity})`
+                            color: `hsla(82, 46%, 72%, ${opacity})`
+                        }),
+                        zIndex: 0
+                    })
+                ];
+            }
+        },
+
+        // Landcover (remaining default landcover features)
+        'landcover_default': {
+            sourceLayer: 'landcover',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                const landClass = feature.get('class') || '';
+                const subClass = feature.get('subclass') || '';
+
+                return (geomType === 'Polygon' || geomType === 'MultiPolygon') &&
+                       landClass !== 'wood' &&
+                       landClass !== 'grass' &&
+                       landClass !== 'sand' &&
+                       subClass !== 'ice_shelf' &&
+                       subClass !== 'glacier';
+            },
+            style: (feature, zoom) => [
+                new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'hsl(35, 35%, 85%, 0.4)' // LIGHT BROWN default
+                    }),
+                    zIndex: 0
+                })
+            ]
+        },
+
+        // Buildings
+        'buildings': {
+            sourceLayer: 'building',
+            minZoom: 13,
+            filter: (feature) => feature.getGeometry().getType() === 'Polygon',
+            style: (feature, zoom) => {
+                const height = Number(feature.get('height') || feature.get('building:levels') * 3 || 3);
+                const opacity = 0.6;
+
+                return [
+                    new ol.style.Style({
+                        fill: new ol.style.Fill({
+                            color: `hsl(0, 0%, 70%, ${opacity})`  // GREY buildings
                         }),
                         stroke: zoom >= 16 ? new ol.style.Stroke({
-                            color: 'rgba(212, 177, 146, 0.5)',
+                            color: 'rgba(0, 0, 0, 0.2)',
                             width: 0.5
-                        }) : null,
+                        }) : undefined,
                         zIndex: 10 + Math.min(Math.floor(height / 2), 20)
                     })
                 ];
             }
         },
-        
-        // Labels
+
+        // Roads
+        'roads': {
+            sourceLayer: 'transportation',
+            filter: (feature) => feature.getGeometry().getType() === 'LineString',
+            style: (feature, zoom) => {
+                const roadClass = feature.get('class') || feature.get('highway') || '';
+                let width, color = '#ffffff', zIndex = 10;
+                let casingColor = '#e8e8e8';
+                let casingWidth = 0;
+
+                // Helper function to calculate road width with better scaling
+                const calculateWidth = (minWidth, maxWidth) => {
+                    // Simple linear scaling based on zoom level
+                    // At zoom 8 or below: use minWidth
+                    // At zoom 16 and above: use maxWidth
+                    // Linear interpolation in between
+                    if (zoom <= 8) return minWidth;
+                    if (zoom >= 16) return maxWidth;
+                    return minWidth + (maxWidth - minWidth) * ((zoom - 8) / 8);
+                };
+
+                // Road classification hierarchy - from most important to least
+                switch (roadClass) {
+                    case 'motorway':
+                        width = calculateWidth(3, 12); // Wider for road names: 3px to 12px
+                        color = 'hsl(0, 0%, 70%)'; // GREY motorways
+                        casingColor = '#d0d0d0';
+                        casingWidth = width * 1.4; // Proportional casing
+                        zIndex = 20;
+                        break;
+
+                    case 'motorway_link': // Ramp roads connecting to motorways
+                        width = calculateWidth(2.5, 8); // Narrower than motorway but wider for names
+                        color = 'hsl(0, 0%, 75%)'; // GREY link roads
+                        casingColor = '#d0d0d0';
+                        casingWidth = width * 1.4;
+                        zIndex = 19.5; // Just below motorway
+                        break;
+
+                    case 'trunk':
+                        width = calculateWidth(2.8, 10);
+                        color = 'hsl(0, 0%, 75%)'; // GREY trunk roads
+                        casingColor = '#d8d8d8';
+                        casingWidth = width * 1.35;
+                        zIndex = 19;
+                        break;
+
+                    case 'trunk_link':
+                        width = calculateWidth(2.2, 7); // Narrower than trunk but wider for names
+                        color = 'hsl(0, 0%, 75%)'; // GREY link roads
+                        casingColor = '#d8d8d8';
+                        casingWidth = width * 1.35;
+                        zIndex = 18.5;
+                        break;
+
+                    case 'primary':
+                        width = calculateWidth(2.5, 9);
+                        color = 'hsl(0, 0%, 80%)'; // GREY primary roads
+                        casingColor = '#e0e0e0';
+                        casingWidth = width * 1.3;
+                        zIndex = 18;
+                        break;
+
+                    case 'primary_link':
+                        width = calculateWidth(2, 6); // Narrower than primary but wider for names
+                        color = 'hsl(0, 0%, 80%)'; // GREY link roads
+                        casingColor = '#e0e0e0';
+                        casingWidth = width * 1.3;
+                        zIndex = 17.5;
+                        break;
+
+                    case 'secondary':
+                        width = calculateWidth(2.2, 8);
+                        color = 'hsl(0, 0%, 80%)'; // GREY secondary roads
+                        casingColor = '#e8e8e8';
+                        casingWidth = width * 1.25;
+                        zIndex = 17;
+                        break;
+
+                    case 'secondary_link':
+                        width = calculateWidth(1.8, 6); // Narrower than secondary but wider for names
+                        color = 'hsl(0, 0%, 80%)'; // GREY link roads
+                        casingColor = '#e8e8e8';
+                        casingWidth = width * 1.25;
+                        zIndex = 16.5;
+                        break;
+
+                    case 'tertiary':
+                        width = calculateWidth(2, 7);
+                        color = 'hsl(0, 0%, 85%)'; // GREY tertiary roads
+                        casingColor = '#e8e8e8';
+                        casingWidth = zoom > 12 ? width * 1.2 : 0;
+                        zIndex = 16;
+                        break;
+
+                    case 'tertiary_link':
+                        width = calculateWidth(1.6, 5); // Narrower than tertiary
+                        color = 'hsl(0, 0%, 85%)'; // GREY link roads
+                        casingColor = '#e8e8e8';
+                        casingWidth = zoom > 12 ? width * 1.2 : 0;
+                        zIndex = 15.5;
+                        break;
+
+                    case 'living_street':
+                        width = calculateWidth(1.8, 6);
+                        color = '#f8f8f8';
+                        casingWidth = 0;
+                        zIndex = 15;
+                        break;
+
+                    case 'residential':
+                        width = calculateWidth(1.5, 5);
+                        color = 'hsl(0, 0%, 92%)';
+                        casingWidth = 0;
+                        zIndex = 14;
+                        break;
+
+                    case 'unclassified':
+                        width = calculateWidth(1.2, 4);
+                        color = 'hsl(0, 0%, 88%)';
+                        casingWidth = 0;
+                        zIndex = 13;
+                        break;
+
+                    case 'service':
+                        width = calculateWidth(1, 3);
+                        color = 'hsl(0, 0%, 84%)';
+                        casingWidth = 0;
+                        zIndex = 12;
+                        break;
+
+                    case 'track':
+                        width = calculateWidth(0.8, 2.5);
+                        color = 'hsl(30, 25%, 60%)'; // BROWN for tracks
+                        casingWidth = 0;
+                        zIndex = 11;
+                        break;
+
+                    case 'path':
+                    case 'footway':
+                    case 'cycleway':
+                    case 'pedestrian':
+                        width = calculateWidth(0.6, 2);
+                        color = 'hsl(30, 20%, 70%)';
+                        casingWidth = 0;
+                        zIndex = 10;
+                        break;
+
+                    case 'steps':
+                        width = calculateWidth(0.8, 2.5);
+                        color = 'hsl(20, 10%, 65%)';
+                        casingWidth = 0;
+                        zIndex = 9;
+                        break;
+
+                    default:
+                        width = calculateWidth(1, 3.5);
+                        color = 'hsl(0, 0%, 82%)';
+                        casingWidth = 0;
+                        zIndex = 8;
+                }
+
+                const styles = [];
+
+                // Add casing for major roads with better visibility
+                if (casingWidth > 0 && zoom >= 8) {
+                    // Only show casing at higher zoom levels for better performance
+                    const minZoomForCasing = {
+                        'motorway': 6,
+                        'trunk': 7,
+                        'primary': 8,
+                        'secondary': 9,
+                        'tertiary': 10
+                    };
+
+                    if (zoom >= (minZoomForCasing[roadClass] || 12)) {
+                        styles.push(new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: casingColor,
+                                width: casingWidth,
+                                lineCap: 'round',
+                                lineJoin: 'round'
+                            }),
+                            zIndex: zIndex - 1
+                        }));
+                    }
+                }
+
+                // Main road line
+                const mainStroke = {
+                    color: color,
+                    width: width,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                };
+
+                // Make tracks dashed
+                if (['track', 'path', 'footway', 'cycleway', 'pedestrian'].includes(roadClass) && zoom >= 12) {
+                    mainStroke.lineDash = [zoom * 0.5, zoom * 0.5]; // Dashed pattern scales with zoom
+                }
+
+                styles.push(new ol.style.Style({
+                    stroke: new ol.style.Stroke(mainStroke),
+                    zIndex: zIndex
+                }));
+
+                return styles;
+            }
+        },
+
+        // Road name labels - show street names on roads
+        'road-label': {
+            sourceLayer: 'transportation_name',
+            minZoom: 12,
+            filter: (feature) => {
+                // Only show road names that have a name property
+                return feature.get('name') && feature.getGeometry().getType() === 'LineString';
+            },
+            style: (feature, zoom) => {
+                const name = feature.get('name');
+                const roadClass = feature.get('class') || feature.get('highway') || '';
+
+                // Adjust text size based on road importance
+                let textSize = 12;
+                let textColor = 'hsl(0, 0%, 30%)';
+                const zIndex = 102;
+
+                // Larger roads get more prominent labels
+                if (['motorway', 'trunk'].includes(roadClass)) {
+                    textSize = Math.min(14, 11 + (zoom - 12) * 0.3);
+                    textColor = 'hsl(0, 0%, 20%)';
+                } else if (['primary'].includes(roadClass)) {
+                    textSize = Math.min(13, 10 + (zoom - 12) * 0.3);
+                    textColor = 'hsl(0, 0%, 25%)';
+                } else if (zoom >= 15) {
+                    textSize = Math.min(12, 9 + (zoom - 15) * 0.2);
+                    textColor = 'hsl(0, 0%, 35%)';
+                } else {
+                    return []; // Don't show labels for small roads at low zoom
+                }
+
+                // Road name labels follow the road geometry
+                return [
+                    new ol.style.Style({
+                        text: new ol.style.Text({
+                            text: name,
+                            font: `500 ${textSize}px "Noto Sans", Arial, sans-serif`,
+                            fill: new ol.style.Fill({ color: textColor }),
+                            stroke: new ol.style.Stroke({
+                                color: 'hsl(0, 0%, 100%)',
+                                width: 1.5
+                            }),
+                            textBaseline: 'bottom',
+                            textAlign: 'center',
+                            placement: 'line',
+                            overflow: true
+                        }),
+                        zIndex: zIndex
+                    })
+                ];
+            }
+        },
+
+        // POI (Point of Interest) labels with sprite icons
+        'poi-label': {
+            sourceLayer: 'poi',
+            minZoom: 13, // Show major POIs earlier, shops at high zoom only
+            style: (feature, zoom) => {
+                const name = feature.get('name') || '';
+                const poiClass = feature.get('class') || 'other';
+                const subClass = feature.get('subclass') || '';
+                const access = feature.get('access') || '';
+
+                // Check if this is a shop-related POI that should only appear at high zoom
+                const isShopPoi = [
+                    'shop', 'department_store', 'mall', 'kiosk', 'marketplace',
+                    'clothes', 'fashion', 'shoes', 'leather', 'jewelry', 'watches',
+                    'cosmetics', 'perfumery', 'chemist', 'hairdresser', 'beauty',
+                    'nails', 'tattoo', 'massage', 'medical_supply', 'hearing_aids',
+                    'optician', 'camera', 'doityourself', 'hardware', 'garden_centre',
+                    'garden', 'electrical', 'electronics', 'computer', 'mobile_phone',
+                    'hifi', 'video', 'sports', 'outdoor', 'hunting', 'fishing',
+                    'houseware', 'interior_decoration', 'kitchen', 'bed', 'furniture',
+                    'lighting', 'books', 'newsagent', 'stationery', 'gift', 'ticket',
+                    'music', 'video_games', 'toys', 'baby_goods', 'alcohol', 'wine',
+                    'beverages', 'butcher', 'bakery', 'deli', 'dairy', 'seafood',
+                    'cheese', 'health_food', 'tea', 'coffee', 'organic', 'dry_cleaning',
+                    'tailor', 'sewing', 'charity', 'antiques', 'art', 'craft', 'collector',
+                    'musical_instrument', 'pet', 'car', 'car_repair', 'car_parts',
+                    'motorcycle', 'bicycle', 'boat', 'truck', 'motorcycle_repair',
+                    'bicycle_repair', 'insurance', 'travel_agency', 'estate_agent',
+                    'factory', 'locksmith', 'funeral_directors', 'religion', 'lottery',
+                    'supermarket', 'convenience', 'watches'
+                ].includes(poiClass) || [
+                    'biycle_parking', 'motorcycle_parking', 'post_box' // Fixed typo - removed incorrect bicycle_parking
+                ].includes(subClass);
+
+                // Shops and retail only appear at zoom 17+
+                if (isShopPoi && zoom < 17) {
+                    return []; // Hide shops at lower zoom levels
+                }
+
+                // Skip private POI facilities - don't show icons for private toilets/pools/etc (except swimming pools which remain blue water)
+                if (access === 'private' || access === 'customers' || access === 'permissive') {
+                    // EXCEPTION: Keep private swimming pools visible as blue water without POI markers
+                    if (!(poiClass === 'swimming_pool' || subClass === 'swimming_pool' || feature.get('leisure') === 'swimming_pool')) {
+                        return []; // Hide other private POIs but keep private pools as visual water
+                    }
+                }
+
+                // HIDE ALL SWIMMING POOL POI ICONS - public AND private - they appear only as blue water
+                if (poiClass === 'swimming_pool' ||
+                    subClass === 'swimming_pool' ||
+                    feature.get('leisure') === 'swimming_pool' ||
+                    (poiClass === 'water' && subClass === 'swimming_pool')) {
+                    return []; // Hide ALL swimming pool POI markers - just blue water coloring
+                }
+
+                // Special handling for parking: show facilities with small icons/text
+                if (poiClass === 'parking' || subClass === 'parking') {
+                    const rank = feature.get('rank') || 100;
+                    const hasSpecificName = name && name.toLowerCase() !== 'parking' && !name.toLowerCase().includes('street');
+
+                    // For legitimate parking facilities (with names) - just show text labels
+                    if (hasSpecificName) {
+                        if (zoom >= 15 && name) {
+                            return [
+                                new ol.style.Style({
+                                    text: new ol.style.Text({
+                                        text: name,
+                                        font: `400 11px "Noto Sans", Arial, sans-serif`,
+                                        fill: new ol.style.Fill({ color: '#2c3e50' }),
+                                        stroke: new ol.style.Stroke({
+                                            color: '#ffffff',
+                                            width: 2
+                                        }),
+                                        textBaseline: 'middle',
+                                        textAlign: 'center'
+                                    }),
+                                    zIndex: 151
+                                })
+                            ];
+                        }
+                        return []; // Hide unnamed or low-zoom parking
+                    }
+
+                    // For generic street parking - show minimal text-only at very high zoom
+                    if (zoom >= 17) {
+                        return [
+                            new ol.style.Style({
+                                text: new ol.style.Text({
+                                    text: name || 'P',
+                                    font: `400 8px "Noto Sans", Arial, sans-serif`,
+                                    fill: new ol.style.Fill({ color: '#888' }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'rgba(255, 255, 255, 0.8)',
+                                        width: 1
+                                    }),
+                                    textBaseline: 'middle',
+                                    textAlign: 'center'
+                                }),
+                                zIndex: 151
+                            })
+                        ];
+                    }
+
+                    return []; // Hide most generic parking at lower zoom
+                }
+                const iconMapping = {
+                    // Transportation
+                    'airport': 'icon-airport',
+                    'railway': 'icon-rail',
+                    'railway_station': 'icon-rail',
+                    'station': 'icon-rail', // railway station subclass
+                    'bus_station': 'icon-bus',
+                    'fuel': 'icon-fuel',
+                    'parking': 'icon-parking',
+
+                    // Financial
+                    'bank': 'icon-bank',
+                    'atm': 'icon-atm',
+
+                    // Food & Drink - FIXED
+                    'restaurant': 'icon-restaurant',
+                    'cafe': 'icon-cafe',
+                    'bar': 'icon-bar',
+                    'fast_food': 'icon-fast_food',
+                    'supermarket': 'icon-shop',
+                    'convenience': 'icon-shop',
+
+                    // Medical
+                    'hospital': 'icon-hospital',
+                    'pharmacy': 'icon-pharmacy',
+                    'clinic': 'icon-hospital',
+                    'dentist': 'icon-hospital',
+
+                    // Education
+                    'school': 'icon-school',
+                    'library': 'icon-library',
+                    'university': 'icon-school',
+                    'college': 'icon-school',
+
+                    // Lodging & Tourism
+                    'hotel': 'icon-shelter',
+                    'motel': 'icon-shelter',
+                    'hostel': 'icon-shelter',
+                    'guesthouse': 'icon-shelter',
+
+                    // Retail & Shopping
+                    'shop': 'icon-shop',
+                    'department_store': 'icon-department_store',
+                    'mall': 'icon-mall',
+                    'kiosk': 'icon-kiosk',
+                    'marketplace': 'icon-marketplace',
+                    'clothes': 'icon-clothes',
+                    'fashion': 'icon-clothes',
+                    'shoes': 'icon-shoes',
+                    'leather': 'icon-leather',
+                    'jewelry': 'icon-jewelry',
+                    'watches': 'icon-watches',
+                    'cosmetics': 'icon-cosmetics',
+                    'perfumery': 'icon-perfumery',
+                    'chemist': 'icon-chemist', // cosmetics shop
+                    'hairdresser': 'icon-hairdresser',
+                    'beauty': 'icon-beauty', // beauty salon
+                    'nails': 'icon-nails',  // nail salon
+                    'tattoo': 'icon-tattoo', // tattoo studio
+                    'massage': 'icon-massage', // massage parlor
+                    'medical_supply': 'icon-pharmacy',
+                    'hearing_aids': 'icon-hearing_aids',
+                    'optician': 'icon-optician', // optometrist/optics
+                    'camera': 'icon-camera', // photo/camera shop
+                    'doityourself': 'icon-doityourself',
+                    'hardware': 'icon-hardware',
+                    'garden_centre': 'icon-garden_centre',
+                    'garden': 'icon-garden',
+                    'electrical': 'icon-electrical',
+                    'electronics': 'icon-electronics',
+                    'computer': 'icon-computer',
+                    'mobile_phone': 'icon-mobile_phone',
+                    'hifi': 'icon-hifi',
+                    'video': 'icon-video',
+                    'sports': 'icon-sports', // sporting goods
+                    'outdoor': 'icon-outdoor',
+                    'hunting': 'icon-hunting',
+                    'fishing': 'icon-fishing',
+                    'houseware': 'icon-houseware',
+                    'interior_decoration': 'icon-interior_decoration',
+                    'kitchen': 'icon-kitchen',
+                    'bed': 'icon-shelter', // furniture
+                    'furniture': 'icon-furniture',
+                    'lighting': 'icon-lighting',
+                    'books': 'icon-library',
+                    'newsagent': 'icon-newsagent',
+                    'stationery': 'icon-stationery',
+                    'gift': 'icon-gift',
+                    'ticket': 'icon-ticket',
+                    'music': 'icon-music',
+                    'video_games': 'icon-video_games',
+                    'toys': 'icon-toys',
+                    'baby_goods': 'icon-baby_goods',
+                    'alcohol': 'icon-alcohol',
+                    'wine': 'icon-wine',
+                    'beverages': 'icon-beverages',
+                    'butcher': 'icon-butcher',
+                    'bakery': 'icon-bakery',
+                    'deli': 'icon-deli',
+                    'dairy': 'icon-dairy',
+                    'seafood': 'icon-seafood',
+                    'cheese': 'icon-cheese',
+                    'health_food': 'icon-health_food',
+                    'tea': 'icon-tea',
+                    'coffee': 'icon-coffee',
+                    'organic': 'icon-organic',
+                    'dry_cleaning': 'icon-dry_cleaning',
+                    'tailor': 'icon-tailor',
+                    'sewing': 'icon-sewing',
+                    'charity': 'icon-charity',
+                    'antiques': 'icon-antiques',
+                    'art': 'icon-art',
+                    'craft': 'icon-craft',
+                    'collector': 'icon-collector',
+                    'musical_instrument': 'icon-musical_instrument',
+                    'pet': 'icon-pet',
+                    'car': 'icon-car',
+                    'car_repair': 'icon-car_repair',
+                    'car_parts': 'icon-car_parts',
+                    'motorcycle': 'icon-motorcycle',
+                    'bicycle': 'icon-bicycle',
+                    'boat': 'icon-boat',
+                    'truck': 'icon-truck',
+                    'motorcycle_repair': 'icon-motorbike',
+                    'bicycle_repair': 'icon-bicycle_repair',
+                    'insurance': 'icon-insurance',
+                    'travel_agency': 'icon-travel_agency',
+                    'estate_agent': 'icon-estate_agent',
+                    'factory': 'icon-factory',
+                    'locksmith': 'icon-locksmith',
+                    'funeral_directors': 'icon-funeral_directors',
+                    'religion': 'icon-religion', // religious supplies
+                    'lottery': 'icon-lottery',
+
+                    // Entertainment & Sports
+                    'cinema': 'icon-cinema',
+                    'theatre': 'icon-cinema',
+                    'stadium': 'icon-stadium',
+                    'sports_centre': 'icon-sports',
+                    'pitch': 'icon-pitch',
+                    'playground': 'icon-playground',
+                    'swimming_pool': 'icon-swimming',
+                    'dance': 'icon-sports',
+                    'fitness_centre': 'icon-sports',
+                    'golf_course': 'icon-sports',
+                    'horse_riding': 'icon-sports',
+                    'skateboard': 'icon-sports',
+                    'tennis': 'icon-sports',
+                    'basketball': 'icon-sports',
+                    'football': 'icon-sports',
+                    'soccer': 'icon-sports',
+
+                    // Culture & Places
+                    'museum': 'icon-historic',
+                    'artwork': 'icon-historic',
+                    'attraction': 'icon-historic',
+                    'castle': 'icon-historic',
+                    'ruins': 'icon-historic',
+                    'monument': 'icon-historic',
+                    'memorial': 'icon-historic',
+                    'statue': 'icon-historic',
+                    'fort': 'icon-historic',
+                    'lighthouse': 'icon-historic',
+                    'windmill': 'icon-historic',
+                    'watermill': 'icon-historic',
+                    'tower': 'icon-historic',
+                    'bridge': 'icon-historic',
+
+                    // Government & Services
+                    'post_office': 'icon-post',
+                    'post_box': 'icon-post', // postal/mail boxes
+                    'police': 'icon-police',
+                    'fire_station': 'icon-fire_station',
+                    'town_hall': 'icon-town_hall',
+                    'court_house': 'icon-town_hall',
+                    'embassy': 'icon-town_hall',
+                    'government': 'icon-town_hall',
+
+                    // Transportation Services
+                    'taxi_stand': 'icon-taxi_stand',
+                    'car_rental': 'icon-car_rental',
+                    'bicycle_rental': 'icon-bicycle_rental',
+                    'motorcycle_rental': 'icon-motorbike',
+
+                    // Motorcycle/Bicycle Parking
+                    'motorcycle_parking': 'icon-motorbike',
+                    'bicycle_parking': 'icon-bicycle',
+
+                    // Public Facilities
+                    'toilets': 'icon-toilet',
+                    'telephone': 'icon-shop', // public phone
+                    'water_point': 'icon-shop' // drinking water
+                };
+
+                // Get icon name from mapping - NO FALLBACK ICONS
+                let iconName = iconMapping[poiClass] || iconMapping[subClass];
+
+                // If no exact match, try partial matching
+                if (!iconName) {
+                    for (const [key, value] of Object.entries(iconMapping)) {
+                        if (poiClass && poiClass.includes(key)) {
+                            iconName = value;
+                            break;
+                        }
+                        if (subClass && subClass.includes(key)) {
+                            iconName = value;
+                            break;
+                        }
+                    }
+                }
+
+                // No default fallback - unmapped POIs show no icon
+
+                // Emoji mapping for shop subclasses
+                const emojiMapping = {
+                    'clothes': '👕',
+                    'fashion': '👗',
+                    'shoes': '👟',
+                    'leather': '👜',
+                    'jewelry': '💍',
+                    'watches': '⌚',
+                    'cosmetics': '💄',
+                    'perfumery': '🌸',
+                    'chemist': '🧴',
+                    'hairdresser': '✂️',
+                    'beauty': '💅',
+                    'nails': '💅',
+                    'tattoo': '🎨',
+                    'massage': '🧴',
+                    'optician': '👓',
+                    'camera': '📷',
+                    'doityourself': '🔧',
+                    'hardware': '🔨',
+                    'electrical': '⚡',
+                    'electronics': '📱',
+                    'computer': '💻',
+                    'mobile_phone': '📱',
+                    'hifi': '🎵',
+                    'video': '🎥',
+                    'sports': '⚽',
+                    'outdoor': '🏔️',
+                    'hunting': '🎯',
+                    'fishing': '🎣',
+                    'books': '📚',
+                    'newsagent': '📰',
+                    'stationery': '📝',
+                    'gift': '🎁',
+                    'music': '🎵',
+                    'video_games': '🎮',
+                    'toys': '🧸',
+                    'baby_goods': '👶',
+                    'pharmacy': '💊',
+                    'medical_supply': '🏥',
+                    'hearing_aids': '👂',
+                    'garden_centre': '🌱',
+                    'garden': '🌻',
+                    'interior_decoration': '🛋️',
+                    'houseware': '🏠',
+                    'kitchen': '🍽️',
+                    'furniture': '🪑',
+                    'lighting': '💡',
+                    'bed': '🛏️',
+                    'alcohol': '🍾',
+                    'wine': '🍷',
+                    'beverages': '🥤',
+                    'butcher': '🥩',
+                    'bakery': '🍞',
+                    'deli': '🧀',
+                    'dairy': '🥛',
+                    'seafood': '🐟',
+                    'cheese': '🧀',
+                    'health_food': '🥦',
+                    'tea': '☕',
+                    'coffee': '☕',
+                    'organic': '🌱',
+                    'dry_cleaning': '🧹',
+                    'tailor': '🧵',
+                    'sewing': '🪡',
+                    'charity': '🤝',
+                    'antiques': '🏺',
+                    'art': '🎨',
+                    'craft': '🎨',
+                    'collector': '🪙',
+                    'musical_instrument': '🎹',
+                    'pet': '🐕',
+                    'car': '🚗',
+                    'car_repair': '🔧',
+                    'car_parts': '🔩',
+                    'motorcycle': '🏍️',
+                    'bicycle': '🚲',
+                    'boat': '⛵',
+                    'truck': '🚛',
+                    'motorcycle_repair': '🛵',
+                    'bicycle_repair': '🔧',
+                    'insurance': '📋',
+                    'travel_agency': '✈️',
+                    'estate_agent': '🏠',
+                    'factory': '🏭',
+                    'locksmith': '🔐',
+                    'funeral_directors': '⚰️',
+                    'religion': '🕊️',
+                    'lottery': '🎰'
+                };
+
+                const styles = [];
+                const finalIconSize = Math.min(0.6, 0.3 + (zoom - 14) * 0.05);
+                // All shops have normal text size (clothes and interior_decoration were previously reduced, now same as all others)
+                const textSize = Math.min(14, 10 + (zoom - 14) * 0.5); // normal size for all shops and POIs
+
+                // Use sprites for ALL POIs - no emoji fallbacks
+                if (spriteData && spriteData[iconName]) {
+                    styles.push(new ol.style.Style({
+                        image: new ol.style.Icon({
+                            src: 'src/assets/sprites/basics/sprites.png',
+                            size: [32, 32],
+                            offset: getIconOffset(iconName),
+                            scale: finalIconSize
+                            // Removed color property to eliminate blue halo
+                        }),
+                        zIndex: 150 // Higher priority than emoji
+                    }));
+                }
+
+                // Add label with emoji prefix for shops, amenities, and offices if name exists and zoomed in enough
+                if (name && zoom >= 15) {
+                    // Add emoji prefix for shops, amenities, and offices based on subclass
+                    const emoji = (poiClass === 'shop' || poiClass === 'amenity' || poiClass === 'office') && emojiMapping[subClass] ? emojiMapping[subClass] + ' ' : '';
+
+                    if (emoji) {
+                        // Single text element with emoji + name for contiguous display
+                        const displayText = emoji + name; // emoji directly followed by shop name
+
+                        // At zoom 19, use zoom 20's text size (same as zoom 20)
+                        let finalTextSize = textSize * 0.75; // 25% smaller for compact display
+                        if (zoom >= 19) {
+                            // Calculate what textSize would be at zoom 20 and use that
+                            const zoom20TextSize = Math.min(14, 10 + (20 - 14) * 0.5); // Same formula but for zoom 20
+                            finalTextSize = zoom20TextSize; // Use zoom 20's full size at zoom 19
+                        }
+
+                        styles.push(new ol.style.Style({
+                            text: new ol.style.Text({
+                                text: displayText, // contiguous emoji + text flow
+                                font: `500 ${finalTextSize}px "Noto Sans", Arial, sans-serif`,
+                                fill: new ol.style.Fill({ color: '#333' }),
+                                stroke: new ol.style.Stroke({
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    width: 2
+                                }),
+                                offsetY: 20,
+                                textBaseline: 'top',
+                                textAlign: 'center',
+                                overflow: true
+                            }),
+                            zIndex: 151
+                        }));
+                    } else {
+                        // Normal non-shop POI - restaurants get same text size as shops
+                        const finalTextSize = poiClass === 'restaurant' ? textSize * 0.75 : textSize;
+                        styles.push(new ol.style.Style({
+                            text: new ol.style.Text({
+                                text: name,
+                                font: `500 ${finalTextSize}px "Noto Sans", Arial, sans-serif`,
+                                fill: new ol.style.Fill({ color: '#333' }),
+                                stroke: new ol.style.Stroke({
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    width: 2
+                                }),
+                                offsetY: 20,
+                                textBaseline: 'top',
+                                textAlign: 'center',
+                                overflow: true
+                            }),
+                            zIndex: 151
+                        }));
+                    }
+                }
+
+                return styles;
+            }
+        },
+
+        // Housenumber labels - NUMBERS ONLY (not full addresses)
+        'housenumber-label': {
+            sourceLayer: 'housenumber',
+            minZoom: 17,
+            filter: (feature) => {
+                // Only show housenumbers that have house number property
+                return feature.get('housenumber') || feature.get('addr:housenumber');
+            },
+            style: (feature, zoom) => {
+                const housenumber = feature.get('housenumber') || feature.get('addr:housenumber');
+                const textColor = 'hsl(0, 0%, 45%)'; // Medium gray for housenumbers
+
+                // Simple number display, no street name
+                return [
+                    new ol.style.Style({
+                        text: new ol.style.Text({
+                            text: housenumber,
+                            font: '400 10px "Noto Sans", Arial, sans-serif',
+                            fill: new ol.style.Fill({ color: textColor }),
+                            stroke: new ol.style.Stroke({
+                                color: 'hsl(0, 0%, 100%)',
+                                width: 1.5
+                            }),
+                            textBaseline: 'bottom',
+                            textAlign: 'center',
+                            overflow: true
+                        }),
+                        zIndex: 101 // Above place labels
+                    })
+                ];
+            }
+        },
+
+        // Administrative boundaries - PURPLE DASHED LINES
+        'admin_sub': {
+            sourceLayer: 'boundary',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                const adminLevel = feature.get('admin_level');
+                return geomType === 'LineString' &&
+                       ['4', '6', '8', 4, 6, 8].includes(adminLevel);
+            },
+            style: (feature, zoom) => {
+                const adminLevel = Number(feature.get('admin_level')) || 0;
+                let width;
+
+                // Width varies by admin_level: higher levels are thinner
+                switch (adminLevel) {
+                    case 4:
+                        width = Math.max(1, 2 - (zoom - 10) * 0.1); // ~2px at close zoom
+                        break;
+                    case 6:
+                        width = Math.max(0.8, 1.5 - (zoom - 10) * 0.08); // ~1.5px
+                        break;
+                    case 8:
+                        width = Math.max(0.6, 1 - (zoom - 12) * 0.05); // ~1px
+                        break;
+                    default:
+                        width = 1;
+                }
+
+                return [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: 'hsl(280, 60%, 60%)', // PURPLE color
+                            width: width,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                            lineDash: [width * 4, width * 2] // DISCONTINUOUS DASHED
+                        }),
+                        zIndex: 5
+                    })
+                ];
+            }
+        },
+
+        // Country boundaries (ALL - purple thinner and discontinuous)
+        'admin_country': {
+            sourceLayer: 'boundary',
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                const adminLevel = feature.get('admin_level');
+                return geomType === 'LineString' &&
+                       ['2', 2].includes(adminLevel);
+            },
+            style: (feature, zoom) => {
+                // THINNER than regional boundaries
+                const width = Math.max(0.8, 1.5 - (zoom - 8) * 0.1); // Thin and consistent
+                return [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: 'hsl(280, 60%, 60%)', // SAME PURPLE as regional borders
+                            width: width,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                            lineDash: [width * 6, width * 3] // LONGER GAPS for country borders
+                        }),
+                        zIndex: 6
+                    })
+                ];
+            }
+        },
+
+        // Administrative boundary labels - names along boundaries (ALL LEVELS)
+        'admin-boundary-label': {
+            sourceLayer: 'boundary',
+            minZoom: 8, // Start showing earlier for better visibility
+            filter: (feature) => {
+                const geomType = feature.getGeometry().getType();
+                const adminLevelStr = String(feature.get('admin_level'));
+                const name = feature.get('name') || feature.get('name_en') || feature.get('name:latin');
+                return geomType === 'LineString' &&
+                       ['2', '4', '6', '8'].includes(adminLevelStr) &&
+                       name; // Only show labels if name exists
+            },
+            style: (feature, zoom) => {
+                const name = feature.get('name') || feature.get('name_en') || feature.get('name:latin');
+                const adminLevel = Number(feature.get('admin_level')) || 0;
+
+                // Label styling based on admin level - HIGHLY VISIBLE LIKE ROAD LABELS
+                let textSize = 14; // Larger default
+                let textColor = 'hsl(270, 50%, 30%)'; // Darker for visibility
+                let fontWeight = 700;
+                let whiteOutline = 3; // Thicker outline
+                const zIndex = 125; // Higher than regular features but below road labels
+                let repeatDistance = 400; // Spacing like roads
+
+                // Progressive styling by admin level importance
+                switch (adminLevel) {
+                    case 2: // Country LEVEL - MOST PROMINENT
+                        textSize = Math.max(16, 14 + (zoom - 8) * 0.5);
+                        textColor = 'hsl(270, 60%, 20%)'; // Very dark for countries
+                        fontWeight = 900; // Extra bold
+                        whiteOutline = 4;
+                        repeatDistance = 600; // Countries need more spacing
+                        break;
+
+                    case 4: // Regional/State LEVEL
+                        textSize = Math.max(14, 12 + (zoom - 8) * 0.4);
+                        textColor = 'hsl(270, 55%, 25%)'; // Dark for states/regions
+                        fontWeight = 800;
+                        whiteOutline = 3;
+                        repeatDistance = 500;
+                        break;
+
+                    case 6: // District/County LEVEL
+                        textSize = Math.max(13, 11 + (zoom - 10) * 0.3);
+                        textColor = 'hsl(270, 50%, 30%)'; // Medium darker
+                        fontWeight = 700;
+                        whiteOutline = 2.5;
+                        repeatDistance = 400;
+                        break;
+
+                    case 8: // Municipal/Local LEVEL
+                        textSize = Math.max(12, 10 + (zoom - 12) * 0.2);
+                        textColor = 'hsl(270, 45%, 35%)'; // Lighter local
+                        fontWeight = 600;
+                        whiteOutline = 2;
+                        repeatDistance = 350;
+                        break;
+                }
+
+                // Final safety check for name
+                if (!name) return [];
+
+                return [
+                    new ol.style.Style({
+                        text: new ol.style.Text({
+                            text: name, // BACK TO NORMAL CASE - easier to read than uppercase
+                            font: `${fontWeight} ${textSize}px "Noto Sans", Arial, sans-serif`,
+                            fill: new ol.style.Fill({ color: textColor }),
+                            stroke: new ol.style.Stroke({
+                                color: 'rgba(255, 255, 255, 0.95)', // MORE OPAQUE white outline
+                                width: whiteOutline
+                            }),
+                            textBaseline: 'middle',
+                            textAlign: 'center',
+                            placement: 'line', // SAME as road labels
+                            overflow: true, // SAME as road labels
+                            offsetY: 0, // CENTERED - more visible than above
+                            repeat: repeatDistance // FIXED spacing like roads
+                        }),
+                        zIndex: zIndex
+                    })
+                ];
+            }
+        },
+
+        // Place labels
         'place-label': {
             sourceLayer: 'place',
             filter: (feature) => feature.get('name'),
@@ -409,11 +1332,11 @@
                 const placeType = feature.get('class');
                 const name = feature.get('name');
                 let textSize, textColor, textHalo, textFont;
-                
+
                 switch (placeType) {
                     case 'city':
                         if (zoom < 3) return [];
-                        textSize = getTextSize(zoom, [[3, 12], [8, 16]]);
+                        textSize = 14;
                         textColor = 'hsl(0, 0%, 0%)';
                         textHalo = new ol.style.Stroke({
                             color: 'hsla(0, 0%, 100%, 0.75)',
@@ -423,7 +1346,7 @@
                         break;
                     case 'town':
                         if (zoom < 8) return [];
-                        textSize = getTextSize(zoom, [[8, 10], [16, 16]]);
+                        textSize = 12;
                         textColor = 'hsl(0, 0%, 25%)';
                         textHalo = new ol.style.Stroke({
                             color: 'hsl(0, 0%, 100%)',
@@ -433,7 +1356,7 @@
                         break;
                     default:
                         if (zoom < 12) return [];
-                        textSize = getTextSize(zoom, [[12, 10], [16, 14]]);
+                        textSize = 11;
                         textColor = 'hsl(0, 0%, 45%)';
                         textHalo = new ol.style.Stroke({
                             color: 'hsl(0, 0%, 100%)',
@@ -441,7 +1364,7 @@
                         });
                         textFont = 'normal ' + textSize + 'px "Noto Sans", Arial, sans-serif';
                 }
-                
+
                 return [
                     new ol.style.Style({
                         text: new ol.style.Text({
@@ -458,73 +1381,6 @@
         }
     };
 
-    // Main style function
-    function getRoadProperties(roadClass, zoom) {
-        const props = {
-            width: 1.0,
-            color: '#ffffff',
-            casingWidth: 0,
-            casingColor: '#cccccc',
-            dash: null,
-            minZoom: 0,
-            zIndex: 10
-        };
-
-        // Define road types and their properties
-        const roadTypes = {
-            'motorway': {
-                width: 1.6, minZoom: 5, zIndex: 15,
-                color: '#ffffff', casingWidth: 2.0, casingColor: '#e8e8e8'
-            },
-            'trunk': {
-                width: 1.5, minZoom: 5, zIndex: 14,
-                color: '#ffffff', casingWidth: 1.8, casingColor: '#e8e8e8'
-            },
-            'primary': {
-                width: 1.4, minZoom: 7, zIndex: 13,
-                color: '#ffffff', casingWidth: 1.6, casingColor: '#e8e8e8'
-            },
-            'secondary': {
-                width: 1.2, minZoom: 9, zIndex: 12,
-                color: '#f8f8f8', casingWidth: 1.4, casingColor: '#e0e0e0'
-            },
-            'tertiary': {
-                width: 1.0, minZoom: 10, zIndex: 11,
-                color: '#f0f0f0', casingWidth: 1.2, casingColor: '#d8d8d8'
-            },
-            'residential': {
-                width: 0.8, minZoom: 12, zIndex: 10,
-                color: '#f8f8f8', casingWidth: 1.0, casingColor: '#e8e8e8'
-            },
-            'service': {
-                width: 0.6, minZoom: 14, zIndex: 9,
-                color: '#f8f8f8', casingWidth: 0.8, casingColor: '#f0f0f0'
-            },
-            'path': {
-                width: 0.5, minZoom: 13, zIndex: 5,
-                color: '#e8e8e8', dash: [1, 0.5]
-            },
-            'rail': {
-                width: 0.8, minZoom: 10, zIndex: 8,
-                color: '#c8c8c8', dash: [2, 2]
-            }
-        };
-
-        // Find matching road type or use default
-        const roadType = roadTypes[roadClass] || roadTypes['service'];
-        
-        // Adjust width based on zoom level
-        const width = getLineWidth(roadType.width, zoom);
-        const casingWidth = roadType.casingWidth ? getLineWidth(roadType.casingWidth, zoom) : 0;
-        
-        return {
-            ...roadType,
-            width,
-            casingWidth,
-            visible: zoom >= roadType.minZoom
-        };
-    }
-
     // Main style function for Maptiler Basic
     function maptilerBasicStyle(feature, resolution) {
         if (!feature || !feature.getGeometry || typeof resolution !== 'number') {
@@ -532,575 +1388,36 @@
         }
 
         const layer = feature.get('layer') || '';
-        const type = feature.getGeometry().getType();
         const styles = [];
         const currentZoom = getZoom(resolution);
         const zoom = Math.floor(currentZoom);
-        const isTunnel = feature.get('brunnel') === 'tunnel';
-        const isBridge = feature.get('brunnel') === 'bridge';
-        const featureClass = feature.get('class') || '';
-        const sourceLayer = feature.get('layer');
-        
+
         // Process each layer style
         for (const [id, styleDef] of Object.entries(layerStyles)) {
             // Skip if source layer doesn't match
-            if (styleDef.sourceLayer && styleDef.sourceLayer !== sourceLayer) {
+            if (styleDef.sourceLayer && styleDef.sourceLayer !== layer) {
                 continue;
             }
-            
+
             // Skip if below min zoom
             if (styleDef.minZoom !== undefined && zoom < styleDef.minZoom) {
                 continue;
             }
-            
+
             // Skip if above max zoom
             if (styleDef.maxZoom !== undefined && zoom > styleDef.maxZoom) {
                 continue;
             }
-            
-            // Skip if filter doesn't match
-            if (styleDef.filter && !evaluateFilter(feature, styleDef.filter)) {
-                continue;
-            }
-            
+
+
             // Get styles for this feature
             const layerStyles = styleDef.style(feature, zoom);
             if (layerStyles && layerStyles.length > 0) {
                 styles.push(...layerStyles);
             }
         }
-        const isLine = type === 'LineString' || type === 'MultiLineString';
-        const isPolygon = type === 'Polygon' || type === 'MultiPolygon';
-        const isPoint = type === 'Point' || type === 'MultiPoint';
 
-        // Background (applied first, at the bottom)
-        if (layer === 'background') {
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'hsl(47, 26%, 88%)' // Light beige background
-                })
-            }));
-            return styles;
-        }
-
-        // Transportation (roads, paths, etc.)
-        if ((layer === 'transportation' || feature.get('highway') || feature.get('railway')) && isLine) {
-            const roadClass = feature.get('class') || feature.get('highway') || feature.get('railway') || '';
-            const roadProps = getRoadProperties(roadClass, zoom);
-            const isPath = ['path', 'footway', 'cycleway', 'steps', 'pedestrian', 'track'].includes(roadClass);
-            const isMajorRoad = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary'].includes(roadClass);
-            const isRailway = roadClass === 'rail' || roadClass === 'subway' || roadClass === 'tram';
-            
-            // Skip if below minimum zoom for this road type
-            if (!roadProps.visible) return [];
-
-            // Handle tunnels (rendered first, below other features)
-            if (isTunnel) {
-                const tunnelColor = roadClass === 'motorway' ? 'rgba(255, 204, 204, 0.7)' : 
-                                 roadClass === 'trunk' ? 'rgba(255, 221, 204, 0.7)' : 
-                                 'rgba(255, 255, 255, 0.5)';
-                
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: tunnelColor,
-                        width: roadProps.width * 0.8,
-                        lineDash: isMajorRoad ? [1, 0.5] : [0.5, 0.5],
-                        lineCap: 'butt',
-                        lineJoin: 'miter'
-                    }),
-                    zIndex: roadProps.zIndex - 5
-                }));
-                
-                // Skip further styling for tunnels
-                return styles;
-            }
-            
-            // Handle bridges (rendered on top of other features)
-            if (isBridge) {
-                // Bridge casing (wider line under the bridge)
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(0, 0, 0, 0.2)',
-                        width: roadProps.width * 1.5,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: roadProps.zIndex + 10
-                }));
-            }
-            
-            // Road casing (wider line under the road)
-            if (isMajorRoad) {
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: roadProps.casingColor || '#e8e8e8',
-                        width: roadProps.width * 1.5,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: roadProps.zIndex - 1
-                }));
-            }
-            
-            // Main road line
-            const lineStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: isBridge ? roadProps.color : 
-                          isPath ? 'rgba(170, 170, 170, 0.8)' : 
-                          roadProps.color,
-                    width: roadProps.width,
-                    lineCap: isPath ? 'square' : 'round',
-                    lineJoin: isPath ? 'miter' : 'round',
-                    lineDash: isPath ? [1, 1] : null
-                }),
-                zIndex: isBridge ? roadProps.zIndex + 11 : roadProps.zIndex
-            });
-            styles.push(lineStyle);
-            
-            // Add center line for major roads
-            if (isMajorRoad && zoom >= 15) {
-                const centerLineWidth = Math.max(0.5, roadProps.width * 0.2);
-                const centerLineColor = roadClass === 'motorway' ? '#ffffff' : 
-                                      roadClass === 'trunk' ? '#fff5f5' : '#ffffff';
-                
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: centerLineColor,
-                        width: centerLineWidth,
-                        lineDash: zoom < 16 ? [2, 1] : null,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: isBridge ? roadProps.zIndex + 12 : roadProps.zIndex + 1
-                }));
-            }
-            
-            // Add road labels for major roads
-            if (isMajorRoad && zoom >= 13 && feature.get('name')) {
-                const labelStyle = new ol.style.Style({
-                    text: new ol.style.Text({
-                        text: feature.get('name'),
-                        font: '12px "Noto Sans", Arial, sans-serif',
-                        fill: new ol.style.Fill({
-                            color: '#000000'
-                        }),
-                        stroke: new ol.style.Stroke({
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            width: 3
-                        }),
-                        offsetY: -10,
-                        overflow: true
-                    }),
-                    zIndex: 1000
-                });
-                styles.push(labelStyle);
-            }
-            
-            return styles;
-        } // End of transportation layer
-
-        // Water bodies
-        if (layer === 'water' && isPolygon) {
-            const isIntermittent = feature.get('intermittent') === 1 || feature.get('intermittent') === true;
-            
-            // Base water style
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: isIntermittent ? 'rgba(170, 211, 223, 0.7)' : 'rgba(170, 211, 223, 0.9)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(150, 191, 203, 0.8)',
-                    width: 1
-                }),
-                zIndex: 1
-            }));
-            
-            // Add wave pattern for large water bodies at higher zoom levels
-            if (zoom > 12 && !isIntermittent) {
-                const wavePattern = new ol.style.Circle({
-                    radius: 3,
-                    fill: new ol.style.Fill({
-                        color: 'rgba(255, 255, 255, 0.2)'
-                    })
-                });
-                
-                styles.push(new ol.style.Style({
-                    image: wavePattern,
-                    geometry: function(feature) {
-                        // Create a grid of points for the wave pattern
-                        const coordinates = [];
-                        const geom = feature.getGeometry();
-                        const extent = ol.extent.createEmpty();
-                        
-                        geom.getExtent(extent);
-                        const width = ol.extent.getWidth(extent);
-                        const height = ol.extent.getHeight(extent);
-                        
-                        if (width > 50 && height > 50) { // Only for larger water bodies
-                            const spacing = 20; // pixels between wave points
-                            const x0 = extent[0];
-                            const y0 = extent[1];
-                            
-                            for (let x = x0; x < extent[2]; x += spacing) {
-                                for (let y = y0; y < extent[3]; y += spacing) {
-                                    if (geom.intersectsCoordinate([x, y])) {
-                                        coordinates.push([x, y]);
-                                    }
-                                }
-                            }
-                        }
-                        
-                        return new ol.geom.MultiPoint(coordinates);
-                    },
-                    zIndex: 2
-                }));
-            }
-            
-            return styles;
-        }
-        
-        // Landuse areas
-        if ((layer === 'landuse' || layer === 'landcover') && isPolygon) {
-            const landClass = feature.get('class') || '';
-            let fillColor, opacity = 0.6;
-            
-            switch (landClass) {
-                case 'residential':
-                case 'suburb':
-                case 'neighbourhood':
-                    fillColor = 'hsl(40, 20%, 90%)';
-                    break;
-                case 'grass':
-                case 'grassland':
-                case 'meadow':
-                    fillColor = 'hsl(82, 46%, 72%)';
-                    opacity = 0.4;
-                    break;
-                case 'park':
-                case 'recreation_ground':
-                    fillColor = 'hsl(100, 50%, 80%)';
-                    opacity = 0.5;
-                    break;
-                case 'forest':
-                case 'wood':
-                    fillColor = 'hsl(100, 30%, 70%)';
-                    opacity = 0.4;
-                    break;
-                case 'industrial':
-                case 'commercial':
-                    fillColor = 'hsl(30, 30%, 85%)';
-                    break;
-                case 'farmland':
-                case 'farm':
-                    fillColor = 'hsl(60, 40%, 80%)';
-                    opacity = 0.5;
-                    break;
-                default:
-                    return []; // Skip unknown landuse types
-            }
-            
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: fillColor.replace(')', `, ${opacity})`).replace('hsl', 'hsla')
-                }),
-                zIndex: 0
-            }));
-            
-            return styles;
-        }
-        
-        // Buildings
-        if (layer === 'building' && (isPolygon || isPoint)) {
-            const height = Number(feature.get('height') || feature.get('building:levels') * 3 || 3);
-            const baseColor = feature.get('color') || '#ddc0a4';
-            const opacity = interpolate(zoom, [[13, 0.3], [15, 0.5], [17, 0.7]]);
-            
-            // Base building shape
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: `${baseColor}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`
-                }),
-                stroke: zoom >= 16 ? new ol.style.Stroke({
-                    color: 'rgba(0, 0, 0, 0.2)',
-                    width: 0.5
-                }) : null,
-                zIndex: 10 + Math.min(Math.floor(height / 2), 20)
-            }));
-            
-            // Add 3D effect for buildings at higher zoom levels
-            if (zoom >= 15) {
-                const roofColor = ol.color.asArray(baseColor).map(c => Math.min(255, c + 20));
-                roofColor[3] = opacity * 0.8; // Slightly more transparent for roof
-                
-                styles.push(new ol.style.Style({
-                    geometry: function(feature) {
-                        const geom = feature.getGeometry().clone();
-                        // Slightly offset the roof for 3D effect
-                        geom.translate(0, -0.00002 * height);
-                        return geom;
-                    },
-                    fill: new ol.style.Fill({
-                        color: ol.color.asString(roofColor)
-                    }),
-                    zIndex: 11 + Math.min(Math.floor(height / 2), 20)
-                }));
-            }
-            
-            return styles;
-        }
-
-        // Water features
-        if ((layer === 'water' || feature.get('water')) && isPolygon) {
-            const isIntermittent = feature.get('intermittent') === 1;
-            
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'hsl(205, 56%, 73%)',
-                    opacity: isIntermittent ? 0.7 : 1.0
-                })
-            }));
-            return styles;
-        }
-
-        // Landuse and natural features
-        if ((layer === 'landuse' || layer === 'natural' || feature.get('landuse') || feature.get('natural')) && isPolygon) {
-            const landuseType = feature.get('subclass') || feature.get('class') || feature.get('landuse') || feature.get('natural') || '';
-            let fillColor = 'rgba(200, 250, 200, 0.3)'; // Default green for parks
-            
-            // Set color based on landuse type
-            switch (landuseType) {
-                case 'residential':
-                    fillColor = 'hsl(47, 13%, 86%)';
-                    break;
-                case 'park':
-                case 'grass':
-                    fillColor = 'hsl(82, 46%, 72%)';
-                    break;
-                case 'forest':
-                case 'wood':
-                    fillColor = 'hsl(82, 34%, 79%)';
-                    break;
-                case 'industrial':
-                    fillColor = 'hsl(0, 0%, 89%)';
-                    break;
-                case 'commercial':
-                    fillColor = 'hsl(0, 0%, 86%)';
-                    break;
-            }
-
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: fillColor
-                })
-            }));
-            return styles;
-        }
-
-        // Transportation (roads, paths, etc.)
-        if ((layer === 'transportation' || feature.get('highway') || feature.get('railway')) && isLine) {
-            const roadClass = feature.get('class') || feature.get('highway') || feature.get('railway') || '';
-            let width, color, dash, zIndex = 10;
-            
-            // Set line style properties based on road class
-            if (roadClass === 'motorway' || roadClass === 'trunk' || roadClass === 'primary') {
-                width = getLineWidth(1.4, zoom);
-                color = isTunnel ? 'rgba(255, 255, 255, 0.7)' : (isBridge ? '#fff' : '#fff');
-                dash = isTunnel ? [0.28, 0.14] : null;
-                zIndex = 12;
-            } 
-            else if (roadClass === 'secondary' || roadClass === 'tertiary') {
-                width = getLineWidth(1.2, zoom);
-                color = isTunnel ? 'rgba(239, 239, 239, 0.7)' : (isBridge ? '#efefef' : '#efefef');
-                dash = isTunnel ? [0.36, 0.18] : null;
-                zIndex = 11;
-            }
-            else if (roadClass === 'minor' || roadClass === 'service' || roadClass === 'residential') {
-                if (zoom < 13) return [];
-                width = getLineWidth(1.0, zoom);
-                color = isTunnel ? 'rgba(240, 240, 240, 0.7)' : (isBridge ? '#f0f0f0' : '#f0f0f0');
-                dash = isTunnel ? [0.4, 0.2] : null;
-                zIndex = 10;
-            }
-            
-            // Add bridge casing
-            if (isBridge) {
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: '#dedede',
-                        width: width + 2,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }),
-                    zIndex: zIndex - 1
-                }));
-            }
-
-            // Add the main road line
-            if (width && color) {
-                styles.push(new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: color,
-                        width: width,
-                        lineCap: isTunnel ? 'butt' : 'round',
-                        lineJoin: isTunnel ? 'miter' : 'round',
-                        lineDash: dash
-                    }),
-                    zIndex: zIndex
-                }));
-            }
-            return styles;
-        }
-
-        // Buildings
-        if ((layer === 'building' || feature.get('building')) && isPolygon) {
-            // Only show buildings at higher zoom levels for better performance
-            if (zoom < 13) return [];
-            
-            // Get building properties with defaults
-            const height = Number(feature.get('height') || feature.get('building:levels') * 3 || 3);
-            const roofShape = feature.get('roof:shape') || 'flat';
-            const roofColor = feature.get('roof:color') || 
-                            (roofShape === 'flat' ? 'rgba(180, 160, 140, 0.8)' : 'rgba(200, 180, 160, 0.9)');
-            
-            // Calculate colors based on height
-            const baseHue = 30; // Base hue for buildings (orange/brown)
-            const heightFactor = Math.min(height / 50, 1); // Normalize height factor (0-1)
-            const lightness = 70 - (heightFactor * 15); // Taller buildings are darker
-            const saturation = 20 + (heightFactor * 20); // Taller buildings are more saturated
-            
-            // Base building color
-            const baseColor = `hsla(${baseHue}, ${saturation}%, ${lightness}%, `;
-            
-            // Calculate opacity based on zoom and height
-            const opacity = interpolate(zoom, [
-                [13, 0.3],
-                [15, 0.5],
-                [17, 0.7]
-            ]) * (0.8 + (heightFactor * 0.4)); // Taller buildings are more opaque
-            
-            // Shadow effect for 3D appearance (simplified for vector tiles)
-            if (zoom >= 15) {
-                // Use a simpler shadow effect that doesn't require geometry manipulation
-                styles.push(new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(0, 0, 0, ' + (0.05 * opacity) + ')'
-                    }),
-                    // Use the original geometry without modification
-                    // The offset is handled by the style's offset property
-                    image: new ol.style.Circle({
-                        radius: 0, // No visible circle, just using for the effect
-                        offset: [2, 2] // Small offset for shadow effect
-                    }),
-                    zIndex: 5 + Math.floor(height)
-                }));
-            }
-            
-            // Main building fill
-            styles.push(new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: baseColor + opacity + ')'
-                }),
-                stroke: zoom >= 16 ? new ol.style.Stroke({
-                    color: 'rgba(180, 160, 140, ' + (0.3 + (opacity * 0.5)) + ')',
-                    width: 0.5 + (zoom / 50) // Slightly thicker lines when zoomed in
-                }) : null,
-                zIndex: 10 + Math.floor(height)
-            }));
-            
-            // Roof styling for pitched roofs
-            if (roofShape !== 'flat' && zoom >= 16) {
-                styles.push(new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: roofColor
-                    }),
-                    zIndex: 11 + Math.floor(height)
-                }));
-            }
-            
-            // Building height label (for very tall buildings)
-            if (height > 30 && zoom >= 16) {
-                const heightText = Math.round(height) + 'm';
-                const textSize = interpolate(zoom, [[16, 10], [20, 14]]);
-                
-                styles.push(new ol.style.Style({
-                    text: new ol.style.Text({
-                        text: heightText,
-                        font: `bold ${textSize}px "Noto Sans", Arial, sans-serif`,
-                        fill: new ol.style.Fill({
-                            color: 'rgba(0, 0, 0, 0.8)'
-                        }),
-                        stroke: new ol.style.Stroke({
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            width: 2
-                        }),
-                        offsetY: -height / 2,
-                        overflow: true
-                    }),
-                    zIndex: 20 + Math.floor(height)
-                }));
-            }
-            
-            return styles;
-        }
-
-        // Labels
-        if (layer === 'place' && isPoint) {
-            const placeType = feature.get('class');
-            const name = feature.get('name');
-            if (!name) return [];
-
-            let textSize, textColor, textHalo, textFont, textOffsetY = 0;
-            
-            // Style based on place type
-            switch (placeType) {
-                case 'city':
-                    if (zoom < 3) return [];
-                    textSize = interpolate(zoom, [[3, 12], [8, 22]]);
-                    textColor = 'hsl(0, 0%, 0%)';
-                    textHalo = new ol.style.Stroke({
-                        color: 'hsla(0, 0%, 100%, 0.75)',
-                        width: 2
-                    });
-                    textFont = 'bold ' + textSize + 'px "Noto Sans", Arial, sans-serif';
-                    break;
-                    
-                case 'town':
-                    if (zoom < 8) return [];
-                    textSize = interpolate(zoom, [[8, 10], [16, 16]]);
-                    textColor = 'hsl(0, 0%, 25%)';
-                    textHalo = new ol.style.Stroke({
-                        color: 'hsl(0, 0%, 100%)',
-                        width: 2
-                    });
-                    textFont = 'normal ' + textSize + 'px "Noto Sans", Arial, sans-serif';
-                    break;
-                    
-                default:
-                    if (zoom < 12) return [];
-                    textSize = interpolate(zoom, [[12, 10], [16, 14]]);
-                    textColor = 'hsl(0, 0%, 45%)';
-                    textHalo = new ol.style.Stroke({
-                        color: 'hsl(0, 0%, 100%)',
-                        width: 1.5
-                    });
-                    textFont = 'normal ' + textSize + 'px "Noto Sans", Arial, sans-serif';
-            }
-            
-            styles.push(new ol.style.Style({
-                text: new ol.style.Text({
-                    text: name,
-                    font: textFont,
-                    fill: new ol.style.Fill({ color: textColor }),
-                    stroke: textHalo,
-                    offsetY: textOffsetY,
-                    overflow: true
-                }),
-                zIndex: 100
-            }));
-            return styles;
-        }
-
-        return [];
+        return styles;
     }
 
     // Register the style function
