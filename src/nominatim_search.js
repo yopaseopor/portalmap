@@ -28,10 +28,17 @@ function initNominatimSearch(map) {
                     // Show loading state
                     container.addClass('loading');
                     
-                    // Make the Nominatim API call using GET request to avoid preflight CORS
+                    // Make the Nominatim API call using JSONP to avoid CORS issues
                     $.ajax({
-                        url: 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(query) + '&format=json&limit=10&addressdetails=1',
-                        method: 'GET',
+                        url: 'https://nominatim.openstreetmap.org/search',
+                        data: {
+                            q: query,
+                            format: 'json',
+                            limit: 10,
+                            addressdetails: 1,
+                            json_callback: '?'
+                        },
+                        dataType: 'jsonp',
                         success: function(data) {
                             resultsList.empty();
                             if (data && data.length > 0) {
