@@ -35,7 +35,8 @@ function initNominatimSearch(map) {
                             q: query,
                             format: 'json',
                             limit: 10,
-                            addressdetails: 1
+                            addressdetails: 1,
+                            'user-agent': 'PortalMap/1.0 (https://github.com/yopaseopor/portalmap)'
                         },
                         success: function(data) {
                             resultsList.empty();
@@ -121,4 +122,4 @@ function initNominatimSearch(map) {
     map.addControl(new ol.control.Control({
         element: searchControlBuild()
     }));
-} 
+}
