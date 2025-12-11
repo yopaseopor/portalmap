@@ -934,7 +934,7 @@ function toggle3DControlBuild() {
     let is3d = false;
     let cesiumInitialized = false;
 
-    button.addEventListener('click', function() {
+    button.addEventListener('click', async function() {
         try {
             if (!is3d) {
                 // Initialize Cesium if not already done
@@ -1011,53 +1011,30 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
-                // Re-initialize Cesium scene and providers for proper tile loading
-                setTimeout(() => {
-                    const scene = ol3d.getCesiumScene();
-                    
-                    // Re-configure terrain provider to ensure proper loading
-                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
-                        tilingScheme: new Cesium.GeographicTilingScheme()
-                    });
-                    
-                    // Clear and re-add imagery layers to ensure fresh tile loading
-                    scene.imageryLayers.removeAll();
-                    scene.imageryLayers.addImageryProvider(
-                        new Cesium.UrlTemplateImageryProvider({
-                            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            subdomains: ['a', 'b', 'c'],
-                            tileWidth: 256,
-                            tileHeight: 256,
-                            minimumLevel: 0,
-                            maximumLevel: 19
-                        })
-                    );
-                    
-                    // Force scene to reinitialize and load tiles
-                    scene.initializeFrame();
-                    scene.render();
-                    
-                    // Ensure all vector layers are properly synchronized
-                    map.getLayers().forEach(function(layer) {
-                        if (layer instanceof ol.layer.Vector) {
-                            layer.changed();
-                        }
-                    });
-                    
-                    // Force camera update to trigger tile loading
-                    const camera = scene.camera;
-                    camera.changed();
-                }, 200);
+                // Wait for Cesium to initialize
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // Show persistent return to 2D button
+                const scene = ol3d.getCesiumScene();
+                
+                // Force a frame to be rendered
+                scene.initializeFrame();
+                scene.render();
+                
+                // Show return to 2D button
                 showReturnTo2DButton();
                 
-                // Sync camera position
+                // Sync camera
                 const view = map.getView();
                 const center = ol.proj.toLonLat(view.getCenter());
-                const camera = ol3d.getCesiumScene().camera;
-                camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(center[0], center[1], 2000),
+                const zoom = view.getZoom();
+                const height = 10000000 / Math.pow(1.5, zoom);
+                
+                scene.camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(
+                        center[0],
+                        center[1],
+                        Math.max(height, 1000)
+                    ),
                     orientation: {
                         heading: 0.0,
                         pitch: -Cesium.Math.PI_OVER_TWO,
@@ -1068,36 +1045,38 @@ function toggle3DControlBuild() {
                 button.innerHTML = '<i class="fa fa-map"></i>';
                 button.title = 'Switch to 2D';
             } else {
-                // Switch back to 2D
-                if (ol3d) {
-                    ol3d.setEnabled(false);
-                    
-                    // Force map refresh and layer synchronization
-                    setTimeout(() => {
-                        // Refresh all layers
-                        map.getLayers().forEach(function(layer) {
-                            if (layer.getSource && layer.getSource()) {
-                                layer.getSource().refresh();
-                            }
-                        });
-                        
-                        // Force map re-render
-                        map.render();
-                        map.renderSync();
-                        
-                        // Update view to ensure proper projection
-                        const view = map.getView();
-                        view.changed();
-                    }, 100);
-                }
+                // Store current view before disabling 3D
+                const scene = ol3d.getCesiumScene();
+                const camera = scene.camera;
+                const position = Cesium.Cartographic.fromCartesian(camera.position);
+                
+                // Disable Cesium
+                ol3d.setEnabled(false);
+                
+                // Restore original layer visibility
+                map.getLayers().getArray().forEach(layer => {
+                    if (layer instanceof ol.layer.Vector && layer.get('originalVisible') !== undefined) {
+                        layer.setVisible(layer.get('originalVisible'));
+                    }
+                });
                 
                 // Hide return to 2D button
                 hideReturnTo2DButton();
                 
+                // Update 2D map view to match 3D camera
+                const view = map.getView();
+                view.setCenter(ol.proj.fromLonLat([
+                    Cesium.Math.toDegrees(position.longitude),
+                    Cesium.Math.toDegrees(position.latitude)
+                ]));
+                view.setZoom(Math.log2(10000000 / position.height) / Math.log2(1.5));
+                
                 button.innerHTML = '<i class="fa fa-cube"></i>';
                 button.title = 'Switch to 3D';
+                
+                // Force a re-render
+                map.renderSync();
             }
-            is3d = !is3d;
         } catch (error) {
             console.error('Error toggling 3D view:', error);
             alert('Failed to initialize 3D view. Please check the console for details.');
