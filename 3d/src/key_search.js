@@ -308,6 +308,13 @@ function initKeySearch() {
         executeGenericKeyQuery(currentKey);
     });
 
+    // Hide results when clicking or touching outside
+    $(document).on('click touchstart', function(e) {
+        if (!$(e.target).closest('#key-search-container').length) {
+            resultsContainer.empty().hide();
+        }
+    });
+
     // Handle clear button click
     $('#clear-key-search-btn').on('click', function() {
         console.log('🧹 Key search clear button clicked');
@@ -878,12 +885,5 @@ $(document).ready(function() {
     initKeySearch();
 });
 
-// Hide results when clicking or touching outside
-    $(document).on('click touchstart', function(e) {
-        if (!$(e.target).closest('#key-search-container').length) {
-            resultsContainer.empty().hide();
-        }
-    });
-
-    // Export for use in other modules
-    window.initKeySearch = initKeySearch;
+// Export for use in other modules
+window.initKeySearch = initKeySearch;
