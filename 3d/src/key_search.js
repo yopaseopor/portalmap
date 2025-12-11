@@ -878,5 +878,12 @@ $(document).ready(function() {
     initKeySearch();
 });
 
-// Export for use in other modules
-window.initKeySearch = initKeySearch;
+// Hide results when clicking or touching outside
+    $(document).on('click touchstart', function(e) {
+        if (!$(e.target).closest('#key-search-container').length) {
+            resultsContainer.empty().hide();
+        }
+    });
+
+    // Export for use in other modules
+    window.initKeySearch = initKeySearch;

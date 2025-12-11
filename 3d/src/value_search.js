@@ -445,8 +445,8 @@ function initValueSearch() {
         resultsContainer.empty().hide();
     });
 
-    // Hide results when clicking outside
-    $(document).on('click', function(e) {
+    // Hide results when clicking or touching outside
+    $(document).on('click touchstart', function(e) {
         if (!$(e.target).closest('#value-search-container').length) {
             resultsContainer.empty().hide();
         }
@@ -2109,8 +2109,8 @@ function generateQueryColor(overlayId, isFixed = false) {
         resultsContainer.empty().hide();
     });
 
-    // Hide results when clicking outside
-    $(document).on('click', function(e) {
+    // Hide results when clicking or touching outside
+    $(document).on('click touchstart', function(e) {
         if (!$(e.target).closest('#value-search-container').length) {
             resultsContainer.empty().hide();
         }
