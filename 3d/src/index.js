@@ -1011,6 +1011,19 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
+                // Ensure all controls remain visible in 3D mode
+                setTimeout(() => {
+                    const controls = document.querySelectorAll('.ol-control, .osmcat-geobutton, .osmcat-infobutton, .osmcat-sharebutton, .osmcat-clearoverlaybutton, .osmcat-panoramax, .osmcat-mapillary, .osmcat-router, .menu-toggle');
+                    controls.forEach(control => {
+                        if (control) {
+                            control.style.display = '';
+                            control.style.visibility = 'visible';
+                            control.style.opacity = '1';
+                            control.style.zIndex = '1001';
+                        }
+                    });
+                }, 100);
+                
                 // Sync camera position
                 const view = map.getView();
                 const center = ol.proj.toLonLat(view.getCenter());
