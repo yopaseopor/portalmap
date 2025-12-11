@@ -1071,6 +1071,26 @@ function toggle3DControlBuild() {
                 hideReturnTo2DButton();
                 hideImageryProviderSelector();
                 
+                // Restore all OpenLayers controls visibility
+                const controls = document.querySelectorAll('.ol-control');
+                controls.forEach(control => {
+                    control.style.display = '';
+                    control.style.visibility = '';
+                });
+                
+                // Specifically ensure 3D toggle button is visible
+                const toggle3DControl = document.querySelector('.ol-3d-toggle');
+                if (toggle3DControl) {
+                    toggle3DControl.style.display = '';
+                    toggle3DControl.style.visibility = '';
+                }
+                
+                // Force map re-render to ensure all controls are visible
+                setTimeout(() => {
+                    map.render();
+                    map.renderSync();
+                }, 50);
+                
                 // Update 2D map view to match 3D camera
                 const view = map.getView();
                 view.setCenter(ol.proj.fromLonLat([
