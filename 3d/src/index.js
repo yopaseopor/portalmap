@@ -1011,6 +1011,20 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
+                // Synchronize layers and ensure proper loading
+                setTimeout(() => {
+                    // Force Cesium scene to update
+                    const scene = ol3d.getCesiumScene();
+                    scene.initializeFrame();
+                    
+                    // Ensure all vector layers are properly synchronized
+                    map.getLayers().forEach(function(layer) {
+                        if (layer instanceof ol.layer.Vector) {
+                            layer.changed();
+                        }
+                    });
+                }, 200);
+                
                 // Show persistent return to 2D button
                 showReturnTo2DButton();
                 
@@ -1033,6 +1047,24 @@ function toggle3DControlBuild() {
                 // Switch back to 2D
                 if (ol3d) {
                     ol3d.setEnabled(false);
+                    
+                    // Force map refresh and layer synchronization
+                    setTimeout(() => {
+                        // Refresh all layers
+                        map.getLayers().forEach(function(layer) {
+                            if (layer.getSource && layer.getSource()) {
+                                layer.getSource().refresh();
+                            }
+                        });
+                        
+                        // Force map re-render
+                        map.render();
+                        map.renderSync();
+                        
+                        // Update view to ensure proper projection
+                        const view = map.getView();
+                        view.changed();
+                    }, 100);
                 }
                 
                 // Hide return to 2D button
