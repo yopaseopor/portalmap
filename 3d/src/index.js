@@ -1011,23 +1011,21 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
-                // Store ol3d instance globally for layer change synchronization
-                window.ol3dInstance = ol3d;
+                // Store ol3d globally for provider switching
+                window.currentOl3d = ol3d;
                 
                 // Wait for Cesium to initialize
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
                 const scene = ol3d.getCesiumScene();
                 
-                // Update 3D scene with current base layer
-                update3DBaseLayer(ol3d);
-                
                 // Force a frame to be rendered
                 scene.initializeFrame();
                 scene.render();
                 
-                // Show return to 2D button
+                // Show return to 2D button and imagery provider selector
                 showReturnTo2DButton();
+                showImageryProviderSelector();
                 
                 // Sync camera
                 const view = map.getView();
@@ -1059,6 +1057,9 @@ function toggle3DControlBuild() {
                 // Disable Cesium
                 ol3d.setEnabled(false);
                 
+                // Clear global ol3d reference
+                window.currentOl3d = null;
+                
                 // Restore original layer visibility
                 map.getLayers().getArray().forEach(layer => {
                     if (layer instanceof ol.layer.Vector && layer.get('originalVisible') !== undefined) {
@@ -1066,8 +1067,9 @@ function toggle3DControlBuild() {
                     }
                 });
                 
-                // Hide return to 2D button
+                // Hide return to 2D button and imagery provider selector
                 hideReturnTo2DButton();
+                hideImageryProviderSelector();
                 
                 // Update 2D map view to match 3D camera
                 const view = map.getView();
@@ -1151,91 +1153,118 @@ function hideReturnTo2DButton() {
     }
 }
 
-// Function to convert OpenLayers layer to Cesium imagery provider
-function layerToCesiumProvider(layer) {
-    const source = layer.getSource();
+// Imagery provider configurations for 3D mode
+const imageryProviders = {
+    'osm': {
+        name: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        subdomains: ['a', 'b', 'c'],
+        attribution: '© OpenStreetMap contributors',
+        maximumLevel: 19
+    },
+    'satellite': {
+        name: 'Satellite',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        subdomains: [],
+        attribution: '© Esri',
+        maximumLevel: 19
+    },
+    'terrain': {
+        name: 'Terrain',
+        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        subdomains: ['a', 'b', 'c'],
+        attribution: '© OpenTopoMap',
+        maximumLevel: 17
+    },
+    'dark': {
+        name: 'Dark',
+        url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png',
+        subdomains: [],
+        attribution: '© Stadia Maps',
+        maximumLevel: 20
+    }
+};
+
+// Function to show imagery provider selector in 3D mode
+function showImageryProviderSelector() {
+    // Remove existing selector if any
+    hideImageryProviderSelector();
     
-    if (source instanceof ol.source.OSM) {
-        return new Cesium.UrlTemplateImageryProvider({
-            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
+    const selectorContainer = document.createElement('div');
+    selectorContainer.id = 'imagery-provider-selector';
+    selectorContainer.style.cssText = `
+        position: fixed;
+        top: 60px;
+        right: 10px;
+        z-index: 9999;
+        background: rgba(255,255,255,0.95);
+        border: 2px solid #567CAC;
+        border-radius: 5px;
+        padding: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        font-size: 12px;
+    `;
+    
+    const select = document.createElement('select');
+    select.style.cssText = `
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: white;
+        cursor: pointer;
+    `;
+    
+    // Add options for each provider
+    for (const [key, provider] of Object.entries(imageryProviders)) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = provider.name;
+        select.appendChild(option);
+    }
+    
+    select.addEventListener('change', function() {
+        const selectedProvider = this.value;
+        switchImageryProvider(selectedProvider);
+    });
+    
+    selectorContainer.appendChild(select);
+    document.body.appendChild(selectorContainer);
+}
+
+function hideImageryProviderSelector() {
+    const selector = document.getElementById('imagery-provider-selector');
+    if (selector) {
+        selector.remove();
+    }
+}
+
+// Function to switch imagery provider in 3D mode
+function switchImageryProvider(providerKey) {
+    if (!window.currentOl3d) return;
+    
+    const scene = window.currentOl3d.getCesiumScene();
+    const provider = imageryProviders[providerKey];
+    
+    if (!provider) return;
+    
+    // Clear existing imagery layers
+    scene.imageryLayers.removeAll();
+    
+    // Add new imagery provider
+    scene.imageryLayers.addImageryProvider(
+        new Cesium.UrlTemplateImageryProvider({
+            url: provider.url,
+            subdomains: provider.subdomains,
             tileWidth: 256,
             tileHeight: 256,
             minimumLevel: 0,
-            maximumLevel: 19
-        });
-    }
+            maximumLevel: provider.maximumLevel
+        })
+    );
     
-    if (source instanceof ol.source.XYZ) {
-        const urls = source.getUrls();
-        if (urls && urls.length > 0) {
-            const url = urls[0];
-            // Extract subdomains from URL pattern
-            const subdomainMatch = url.match(/\{([a-z]+)\}/i);
-            const subdomains = subdomainMatch ? subdomainMatch[1].split('') : ['a', 'b', 'c'];
-            
-            return new Cesium.UrlTemplateImageryProvider({
-                url: url,
-                subdomains: subdomains,
-                tileWidth: source.getTileGrid().getTileSize(),
-                tileHeight: source.getTileGrid().getTileSize(),
-                minimumLevel: 0,
-                maximumLevel: 18
-            });
-        }
-    }
-    
-    if (source instanceof ol.source.TileWMS) {
-        const params = source.getParams();
-        const url = source.getUrl();
-        
-        return new Cesium.WebMapServiceImageryProvider({
-            url: url,
-            layers: params.LAYERS,
-            parameters: {
-                SERVICE: 'WMS',
-                FORMAT: params.FORMAT || 'image/png',
-                TRANSPARENT: params.TRANSPARENT !== 'false',
-                VERSION: params.VERSION || '1.1.1'
-            }
-        });
-    }
-    
-    // Fallback to OSM
-    return new Cesium.UrlTemplateImageryProvider({
-        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        subdomains: ['a', 'b', 'c'],
-        tileWidth: 256,
-        tileHeight: 256,
-        minimumLevel: 0,
-        maximumLevel: 19
-    });
-}
-
-// Function to update 3D scene with current base layer
-function update3DBaseLayer(ol3d) {
-    if (!ol3d) return;
-    
-    const scene = ol3d.getCesiumScene();
-    
-    // Find current visible base layer
-    let currentBaseLayer = null;
-    config.layers.forEach(layer => {
-        if (layer.get('type') === 'base' && layer.getVisible()) {
-            currentBaseLayer = layer;
-        }
-    });
-    
-    if (currentBaseLayer) {
-        // Clear existing imagery layers
-        scene.imageryLayers.removeAll();
-        
-        // Add new imagery provider based on current layer
-        const provider = layerToCesiumProvider(currentBaseLayer);
-        scene.imageryLayers.addImageryProvider(provider);
-        
-        console.log('Updated 3D base layer to:', currentBaseLayer.get('title'));
-    }
+    // Force scene to re-render
+    scene.initializeFrame();
+    scene.render();
 }
 
 // Add controls to the map with proper positioning
@@ -1250,21 +1279,6 @@ const rotateLeftControl = new ol.control.Control({
 });
 rotateLeftControl.set('className', 'ol-rotate-left ol-unselectable ol-control');
 map.addControl(rotateLeftControl);
-
-// Global variable to store the 3D instance
-window.ol3dInstance = null;
-
-// Add layer change listener to sync 3D scene with 2D layer changes
-config.layers.forEach(layer => {
-    if (layer.get('type') === 'base') {
-        layer.on('change:visible', function() {
-            if (layer.getVisible() && window.ol3dInstance && window.ol3dInstance.getCesiumScene()) {
-                // Update 3D scene when base layer changes
-                update3DBaseLayer(window.ol3dInstance);
-            }
-        });
-    }
-});
 
 // Add 3D toggle button with higher z-index to ensure it's on top
 const toggle3DControl = new ol.control.Control({
