@@ -1011,19 +1011,8 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
-                // Simple approach: force visibility of existing buttons in 3D mode
-                setTimeout(() => {
-                    const buttons = document.querySelectorAll('.osmcat-geobutton, .osmcat-infobutton, .osmcat-sharebutton, .osmcat-clearoverlaybutton, .osmcat-panoramax, .osmcat-mapillary, .osmcat-router, .menu-toggle, .ol-control');
-                    buttons.forEach(button => {
-                        if (button) {
-                            button.style.setProperty('display', 'flex', 'important');
-                            button.style.setProperty('visibility', 'visible', 'important');
-                            button.style.setProperty('opacity', '1', 'important');
-                            button.style.setProperty('z-index', '9999', 'important');
-                            button.style.setProperty('position', 'fixed', 'important');
-                        }
-                    });
-                }, 300);
+                // Show persistent return to 2D button
+                showReturnTo2DButton();
                 
                 // Sync camera position
                 const view = map.getView();
@@ -1045,6 +1034,10 @@ function toggle3DControlBuild() {
                 if (ol3d) {
                     ol3d.setEnabled(false);
                 }
+                
+                // Hide return to 2D button
+                hideReturnTo2DButton();
+                
                 button.innerHTML = '<i class="fa fa-cube"></i>';
                 button.title = 'Switch to 3D';
             }
@@ -1063,95 +1056,58 @@ function toggle3DControlBuild() {
     return element;
 }
 
-// Function to recreate and append buttons for 3D mode visibility
-function recreateButtonsFor3D() {
-    const cesiumContainer = document.querySelector('.cesium-viewer') || document.getElementById('map');
-    if (!cesiumContainer) return;
+// Functions to show/hide persistent return to 2D button in 3D mode
+function showReturnTo2DButton() {
+    // Remove existing button if any
+    hideReturnTo2DButton();
     
-    // Remove any existing 3D buttons to avoid duplicates
-    document.querySelectorAll('.cesium-3d-button').forEach(btn => btn.remove());
+    const returnButton = document.createElement('button');
+    returnButton.id = 'return-to-2d-btn';
+    returnButton.innerHTML = '<i class="fa fa-map"></i>';
+    returnButton.title = 'Return to 2D';
+    returnButton.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.9);
+        border: 2px solid #567CAC;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        color: #567CAC;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    `;
     
-    // Define buttons to recreate
-    const buttons = [
-        { class: 'osmcat-geobutton', icon: 'fa-location-arrow', title: 'Geolocate' },
-        { class: 'osmcat-infobutton', icon: 'fa-info', title: 'Info' },
-        { class: 'osmcat-sharebutton', icon: 'fa-share', title: 'Share' },
-        { class: 'osmcat-clearoverlaybutton', icon: 'fa-times', title: 'Clear Overlays' },
-        { class: 'osmcat-panoramax', icon: 'fa-camera', title: 'Panoramax' },
-        { class: 'osmcat-mapillary', icon: 'fa-camera', title: 'Mapillary' },
-        { class: 'osmcat-router', icon: 'fa-route', title: 'Router' }
-    ];
-    
-    // Get original button positions from mobile CSS
-    const positions = {
-        'osmcat-router': { top: '80px', right: '8px' },
-        'osmcat-clearoverlaybutton': { top: '120px', right: '8px' },
-        'osmcat-mapillary': { bottom: '260px', right: '8px' },
-        'osmcat-panoramax': { bottom: '210px', right: '8px' },
-        'osmcat-sharebutton': { bottom: '160px', right: '8px' },
-        'osmcat-geobutton': { bottom: '110px', right: '8px' },
-        'osmcat-infobutton': { bottom: '60px', right: '8px' }
-    };
-    
-    // Create and append each button
-    buttons.forEach(buttonDef => {
-        const originalBtn = document.querySelector('.' + buttonDef.class);
-        if (!originalBtn) return;
-        
-        const newBtn = document.createElement('button');
-        newBtn.className = buttonDef.class + ' cesium-3d-button';
-        newBtn.innerHTML = '<i class="fa ' + buttonDef.icon + '"></i>';
-        newBtn.title = buttonDef.title;
-        newBtn.style.cssText = `
-            position: fixed !important;
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            z-index: 1002 !important;
-            width: 32px !important;
-            height: 32px !important;
-            background-color: #567CAC !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 2px !important;
-            font-size: 14px !important;
-            cursor: pointer !important;
-            align-items: center !important;
-            justify-content: center !important;
-        `;
-        
-        // Apply position
-        const pos = positions[buttonDef.class];
-        if (pos) {
-            if (pos.top) newBtn.style.top = pos.top;
-            if (pos.bottom) newBtn.style.bottom = pos.bottom;
-            if (pos.right) newBtn.style.right = pos.right;
+    returnButton.addEventListener('click', function() {
+        // Find the 3D toggle button and click it to return to 2D
+        const toggle3DBtn = document.querySelector('.ol-3d-toggle button');
+        if (toggle3DBtn) {
+            toggle3DBtn.click();
         }
-        
-        // Copy event listeners
-        const originalEvents = getEventListeners ? getEventListeners(originalBtn) : {};
-        Object.keys(originalEvents).forEach(eventType => {
-            originalEvents[eventType].forEach(listener => {
-                newBtn.addEventListener(eventType, listener.listener);
-            });
-        });
-        
-        // Fallback: copy onclick if available
-        if (originalBtn.onclick) {
-            newBtn.onclick = originalBtn.onclick;
-        }
-        
-        cesiumContainer.appendChild(newBtn);
     });
     
-    // Also ensure OpenLayers controls are visible
-    const olControls = document.querySelectorAll('.ol-control');
-    olControls.forEach(control => {
-        control.style.display = '';
-        control.style.visibility = 'visible';
-        control.style.opacity = '1';
-        control.style.zIndex = '1001';
+    returnButton.addEventListener('mouseenter', function() {
+        this.style.background = '#567CAC';
+        this.style.color = 'white';
     });
+    
+    returnButton.addEventListener('mouseleave', function() {
+        this.style.background = 'rgba(255,255,255,0.9)';
+        this.style.color = '#567CAC';
+    });
+    
+    document.body.appendChild(returnButton);
+}
+
+function hideReturnTo2DButton() {
+    const returnButton = document.getElementById('return-to-2d-btn');
+    if (returnButton) {
+        returnButton.remove();
+    }
 }
 
 // Add controls to the map with proper positioning

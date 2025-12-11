@@ -246,48 +246,4 @@
         color: #000 !important;
         text-align: center !important;
     }
-
-    /* Ensure all controls remain visible in 3D mode on mobile */
-    .cesium-viewer .ol-control,
-    .cesium-viewer .ol-zoom,
-    .cesium-viewer .ol-rotate,
-    .cesium-viewer .ol-attribution,
-    .cesium-viewer .ol-scale-line,
-    .cesium-viewer .osmcat-geobutton,
-    .cesium-viewer .osmcat-infobutton,
-    .cesium-viewer .osmcat-sharebutton,
-    .cesium-viewer .osmcat-clearoverlaybutton,
-    .cesium-viewer .osmcat-panoramax,
-    .cesium-viewer .osmcat-mapillary,
-    .cesium-viewer .osmcat-router,
-    .cesium-viewer .menu-toggle {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 1002 !important;
-    }
-
-    /* 3D mode controls on mobile */
-    .cesium-viewer .ol-3d-toggle {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 1003 !important;
-        top: 10px !important;
-        right: 10px !important;
-    }
-
-    .cesium-viewer .ol-zoom {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 1001 !important;
-    }
-
-    .cesium-viewer .ol-rotate {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 1001 !important;
-    }
 }
