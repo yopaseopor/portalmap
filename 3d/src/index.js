@@ -1118,7 +1118,8 @@ document.head.appendChild(style);
 			var menuToggleButton = $('<button>')
 				.addClass('menu-toggle')
 				.html('<i class="fa fa-bars"></i>')
-				.on('click', function() {
+				.on('click touchstart', function(e) {
+					e.preventDefault(); // Prevent default touch behavior
 					var $menu = $('.menu');
 					var $flexRow = $('.flex-row');
 					if ($menu.hasClass('menu-visible')) {
