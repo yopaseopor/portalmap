@@ -1011,11 +1011,31 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
-                // Synchronize layers and ensure proper loading
+                // Re-initialize Cesium scene and providers for proper tile loading
                 setTimeout(() => {
-                    // Force Cesium scene to update
                     const scene = ol3d.getCesiumScene();
+                    
+                    // Re-configure terrain provider to ensure proper loading
+                    scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
+                        tilingScheme: new Cesium.GeographicTilingScheme()
+                    });
+                    
+                    // Clear and re-add imagery layers to ensure fresh tile loading
+                    scene.imageryLayers.removeAll();
+                    scene.imageryLayers.addImageryProvider(
+                        new Cesium.UrlTemplateImageryProvider({
+                            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            subdomains: ['a', 'b', 'c'],
+                            tileWidth: 256,
+                            tileHeight: 256,
+                            minimumLevel: 0,
+                            maximumLevel: 19
+                        })
+                    );
+                    
+                    // Force scene to reinitialize and load tiles
                     scene.initializeFrame();
+                    scene.render();
                     
                     // Ensure all vector layers are properly synchronized
                     map.getLayers().forEach(function(layer) {
@@ -1023,6 +1043,10 @@ function toggle3DControlBuild() {
                             layer.changed();
                         }
                     });
+                    
+                    // Force camera update to trigger tile loading
+                    const camera = scene.camera;
+                    camera.changed();
                 }, 200);
                 
                 // Show persistent return to 2D button
