@@ -164,7 +164,7 @@
     .osmcat-panoramax { bottom: 210px; }
     .osmcat-sharebutton { bottom: 160px; }
     .osmcat-geobutton { bottom: 110px; }
-    .osmcat-infobutton { bottom: 80px; }
+    .osmcat-infobutton { bottom: 60px; }
 
     /* Menu toggle button */
     .menu-toggle {
@@ -202,5 +202,27 @@
     /* Enhanced Mapillary button when active */
     .osmcat-mapillary.active {
         background-color: #05CB63 !important;
+    }
+
+    /* Ensure OpenLayers attribution is visible on mobile */
+    .ol-attribution {
+        position: fixed !important;
+        bottom: 5px !important;
+        left: 5px !important;
+        background: rgba(255,255,255,0.8) !important;
+        padding: 2px 5px !important;
+        font-size: 10px !important;
+        border-radius: 3px !important;
+        z-index: 1000 !important;
+        max-width: 200px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Ensure attribution doesn't conflict with other elements */
+    .ol-attribution a {
+        color: #333 !important;
+        font-size: 10px !important;
     }
 }
