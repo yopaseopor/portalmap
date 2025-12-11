@@ -306,21 +306,86 @@ CLEAR ACTIVE OVERLAY BUTTON
 	z-index: 9999;
 }
 
-/* Coordinate display - positioned below rotate buttons */
-.ol-mouse-position {
-    position: absolute !important;
-    top: 40px !important;  /* Below rotate buttons (0.5em + ~30px button height + margin) */
+/* Ensure all OpenLayers controls remain visible in 3D mode */
+.ol-3d-toggle + .ol-control,
+.ol-3d-toggle ~ .ol-control,
+.cesium-viewer .ol-control,
+.cesium-viewer .ol-zoom,
+.cesium-viewer .ol-rotate,
+.cesium-viewer .ol-attribution,
+.cesium-viewer .ol-scale-line {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1001 !important;
+}
+
+/* Ensure custom buttons remain visible in 3D mode */
+.cesium-viewer .osmcat-geobutton,
+.cesium-viewer .osmcat-infobutton,
+.cesium-viewer .osmcat-sharebutton,
+.cesium-viewer .osmcat-clearoverlaybutton,
+.cesium-viewer .osmcat-panoramax,
+.cesium-viewer .osmcat-mapillary,
+.cesium-viewer .osmcat-router {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1002 !important;
+}
+
+/* 3D mode specific control positioning */
+.ol-3d-toggle {
+    right: 8.5em !important;
+    top: 0.5em !important;
+    z-index: 1003 !important;
+}
+
+.ol-zoom-in,
+.ol-zoom-out,
+.ol-zoom-extent {
+    right: 0.5em !important;
+    z-index: 1001 !important;
+}
+
+.ol-zoom-in {
+    top: 0.5em !important;
+}
+
+.ol-zoom-out {
+    top: 3em !important;
+}
+
+.ol-rotate {
+    right: 6em !important;
+    top: 0.5em !important;
+    z-index: 1001 !important;
+}
+
+.ol-rotate-right {
+    right: 3.5em !important;
+    top: 0.5em !important;
+    z-index: 1001 !important;
+}
+
+.ol-rotate-left {
     right: 1em !important;
-    left: auto !important;
-    text-align: right !important;
-    background: rgba(255,255,255,0.7) !important;
-    padding: 4px 8px !important;
-    border-radius: 4px !important;
-    font-family: Arial, sans-serif !important;
-    font-size: 12px !important;
-    z-index: 1000 !important;
-    pointer-events: none !important;
-    margin: 0;
+    top: 0.5em !important;
+    z-index: 1001 !important;
+}
+
+.ol-3d-toggle button {
+    background-color: rgba(255,255,255,0.4) !important;
+    border: 2px solid rgba(0,60,136,0.5) !important;
+    color: #333 !important;
+}
+
+.ol-3d-toggle button:hover {
+    background-color: white !important;
+}
+
+.ol-3d-toggle button:focus {
+    outline: none !important;
 }
 
 .ol-rotate {
