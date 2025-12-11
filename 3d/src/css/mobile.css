@@ -169,7 +169,7 @@
     /* Menu toggle button */
     .menu-toggle {
         position: fixed;
-        bottom: 10px;
+        bottom: 290px; /* Above Mapillary button (260px) */
         right: 10px;
         z-index: 1002;
         width: 50px;
@@ -224,5 +224,26 @@
     .ol-attribution a {
         color: #333 !important;
         font-size: 10px !important;
+    }
+
+    /* Ensure OpenLayers scale line is visible on mobile */
+    .ol-scale-line {
+        position: fixed !important;
+        bottom: 25px !important;
+        left: 5px !important;
+        background: rgba(255,255,255,0.8) !important;
+        padding: 2px 5px !important;
+        font-size: 10px !important;
+        border-radius: 3px !important;
+        z-index: 1000 !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .ol-scale-line-inner {
+        border: none !important;
+        border-bottom: 2px solid #000 !important;
+        font-size: 10px !important;
+        color: #000 !important;
+        text-align: center !important;
     }
 }
