@@ -1126,10 +1126,16 @@ function showReturnTo2DButton() {
     `;
     
     returnButton.addEventListener('click', function() {
-        // Find the 3D toggle button and click it to return to 2D
+        // Find the 3D toggle button and trigger its click event directly
         const toggle3DBtn = document.querySelector('.ol-3d-toggle button');
         if (toggle3DBtn) {
-            toggle3DBtn.click();
+            // Create a proper click event
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            toggle3DBtn.dispatchEvent(clickEvent);
         }
     });
     
