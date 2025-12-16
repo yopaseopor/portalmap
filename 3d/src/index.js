@@ -1011,9 +1011,6 @@ function toggle3DControlBuild() {
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
-                // Store ol3d globally for provider switching
-                window.currentOl3d = ol3d;
-                
                 // Wait for Cesium to initialize
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
@@ -1023,9 +1020,8 @@ function toggle3DControlBuild() {
                 scene.initializeFrame();
                 scene.render();
                 
-                // Show return to 2D button and imagery provider selector
+                // Show return to 2D button
                 showReturnTo2DButton();
-                showImageryProviderSelector();
                 
                 // Sync camera
                 const view = map.getView();
@@ -1057,9 +1053,6 @@ function toggle3DControlBuild() {
                 // Disable Cesium
                 ol3d.setEnabled(false);
                 
-                // Clear global ol3d reference
-                window.currentOl3d = null;
-                
                 // Restore original layer visibility
                 map.getLayers().getArray().forEach(layer => {
                     if (layer instanceof ol.layer.Vector && layer.get('originalVisible') !== undefined) {
@@ -1067,29 +1060,8 @@ function toggle3DControlBuild() {
                     }
                 });
                 
-                // Hide return to 2D button and imagery provider selector
+                // Hide return to 2D button
                 hideReturnTo2DButton();
-                hideImageryProviderSelector();
-                
-                // Restore all OpenLayers controls visibility
-                const controls = document.querySelectorAll('.ol-control');
-                controls.forEach(control => {
-                    control.style.display = '';
-                    control.style.visibility = '';
-                });
-                
-                // Specifically ensure 3D toggle button is visible
-                const toggle3DControl = document.querySelector('.ol-3d-toggle');
-                if (toggle3DControl) {
-                    toggle3DControl.style.display = '';
-                    toggle3DControl.style.visibility = '';
-                }
-                
-                // Force map re-render to ensure all controls are visible
-                setTimeout(() => {
-                    map.render();
-                    map.renderSync();
-                }, 50);
                 
                 // Update 2D map view to match 3D camera
                 const view = map.getView();
@@ -1146,16 +1118,10 @@ function showReturnTo2DButton() {
     `;
     
     returnButton.addEventListener('click', function() {
-        // Find the 3D toggle button and trigger its click event directly
+        // Find the 3D toggle button and click it to return to 2D
         const toggle3DBtn = document.querySelector('.ol-3d-toggle button');
         if (toggle3DBtn) {
-            // Create a proper click event
-            const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-            });
-            toggle3DBtn.dispatchEvent(clickEvent);
+            toggle3DBtn.click();
         }
     });
     
@@ -1177,120 +1143,6 @@ function hideReturnTo2DButton() {
     if (returnButton) {
         returnButton.remove();
     }
-}
-
-// Imagery provider configurations for 3D mode
-const imageryProviders = {
-    'osm': {
-        name: 'OpenStreetMap',
-        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        subdomains: ['a', 'b', 'c'],
-        attribution: '© OpenStreetMap contributors',
-        maximumLevel: 19
-    },
-    'satellite': {
-        name: 'Satellite',
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        subdomains: [],
-        attribution: '© Esri',
-        maximumLevel: 19
-    },
-    'terrain': {
-        name: 'Terrain',
-        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        subdomains: ['a', 'b', 'c'],
-        attribution: '© OpenTopoMap',
-        maximumLevel: 17
-    },
-    'dark': {
-        name: 'Dark',
-        url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png',
-        subdomains: [],
-        attribution: '© Stadia Maps',
-        maximumLevel: 20
-    }
-};
-
-// Function to show imagery provider selector in 3D mode
-function showImageryProviderSelector() {
-    // Remove existing selector if any
-    hideImageryProviderSelector();
-    
-    const selectorContainer = document.createElement('div');
-    selectorContainer.id = 'imagery-provider-selector';
-    selectorContainer.style.cssText = `
-        position: fixed;
-        top: 60px;
-        right: 10px;
-        z-index: 9999;
-        background: rgba(255,255,255,0.95);
-        border: 2px solid #567CAC;
-        border-radius: 5px;
-        padding: 5px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        font-size: 12px;
-    `;
-    
-    const select = document.createElement('select');
-    select.style.cssText = `
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        background: white;
-        cursor: pointer;
-    `;
-    
-    // Add options for each provider
-    for (const [key, provider] of Object.entries(imageryProviders)) {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = provider.name;
-        select.appendChild(option);
-    }
-    
-    select.addEventListener('change', function() {
-        const selectedProvider = this.value;
-        switchImageryProvider(selectedProvider);
-    });
-    
-    selectorContainer.appendChild(select);
-    document.body.appendChild(selectorContainer);
-}
-
-function hideImageryProviderSelector() {
-    const selector = document.getElementById('imagery-provider-selector');
-    if (selector) {
-        selector.remove();
-    }
-}
-
-// Function to switch imagery provider in 3D mode
-function switchImageryProvider(providerKey) {
-    if (!window.currentOl3d) return;
-    
-    const scene = window.currentOl3d.getCesiumScene();
-    const provider = imageryProviders[providerKey];
-    
-    if (!provider) return;
-    
-    // Clear existing imagery layers
-    scene.imageryLayers.removeAll();
-    
-    // Add new imagery provider
-    scene.imageryLayers.addImageryProvider(
-        new Cesium.UrlTemplateImageryProvider({
-            url: provider.url,
-            subdomains: provider.subdomains,
-            tileWidth: 256,
-            tileHeight: 256,
-            minimumLevel: 0,
-            maximumLevel: provider.maximumLevel
-        })
-    );
-    
-    // Force scene to re-render
-    scene.initializeFrame();
-    scene.render();
 }
 
 // Add controls to the map with proper positioning

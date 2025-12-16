@@ -1,0 +1,585 @@
+/**
+ * Generate a unique color for a key-value pair using a simple hash function
+ */
+function generateUniqueColor(key, value) {
+    // Create a simple hash from the key-value combination
+    const combined = `${key}:${value}`;
+    let hash = 0;
+
+    for (let i = 0; i < combined.length; i++) {
+        const char = combined.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+
+    // Convert hash to RGB values
+    const r = Math.abs(hash) % 255;
+    const g = Math.abs(hash >> 8) % 255;
+    const b = Math.abs(hash >> 16) % 255;
+
+    // Ensure good contrast and visibility by adjusting values
+    const adjustedR = Math.max(50, Math.min(200, r));
+    const adjustedG = Math.max(50, Math.min(200, g));
+    const adjustedB = Math.max(50, Math.min(200, b));
+
+    return [adjustedR, adjustedG, adjustedB];
+}
+
+/**
+ * Legend data structure for active queries
+ */
+window.tagQueryLegend = {
+    queries: new Map(), // Maps overlayId -> {key, value, color, count, visible}
+
+    /**
+     * Add or update a query in the legend
+     */
+    addQuery(overlayId, key, value, color, count = 0, visible = true) {
+        console.log('📝 addQuery called with:', { overlayId, key, value, color, count, visible });
+        const queryObject = {
+            key,
+            value,
+            color,
+            count,
+            visible,
+            timestamp: Date.now()
+        };
+        console.log('📝 Query object to add:', queryObject);
+        this.queries.set(overlayId, queryObject);
+        console.log('📝 Query added to legend, total queries:', this.queries.size);
+        this.updateLegendDisplay();
+    },
+
+    /**
+     * Remove a query from the legend
+     */
+    removeQuery(overlayId) {
+        this.queries.delete(overlayId);
+        this.updateLegendDisplay();
+
+        // Trigger URL update event after query removal
+        window.dispatchEvent(new CustomEvent('tagQueryRemoved', {
+            detail: { overlayId }
+        }));
+    },
+
+    /**
+     * Update the count for a query
+     */
+    updateCount(overlayId, count) {
+        if (this.queries.has(overlayId)) {
+            this.queries.get(overlayId).count = count;
+            this.updateLegendDisplay();
+
+            // Trigger URL update event after count update
+            window.dispatchEvent(new CustomEvent('tagQueryCountUpdated', {
+                detail: { overlayId, count }
+            }));
+        }
+    },
+
+    /**
+     * Update visibility for a query
+     */
+    updateVisibility(overlayId, visible) {
+        if (this.queries.has(overlayId)) {
+            this.queries.get(overlayId).visible = visible;
+            this.updateLegendDisplay();
+
+            // Trigger URL update event after visibility change
+            window.dispatchEvent(new CustomEvent('tagQueryVisibilityChanged', {
+                detail: { overlayId, visible }
+            }));
+        }
+    },
+
+    /**
+     * Get all visible queries
+     */
+    getVisibleQueries() {
+        console.log('🔍 getVisibleQueries called');
+        console.log('🔍 Total queries in legend:', this.queries.size);
+        const allQueries = Array.from(this.queries.values());
+        console.log('🔍 All queries:', allQueries);
+        const visibleQueries = Array.from(this.queries.values()).filter(query => query.visible);
+        console.log('🔍 Visible queries:', visibleQueries);
+        console.log('🔍 Filtered count:', visibleQueries.length);
+        return visibleQueries;
+    },
+
+    /**
+     * Generate and display the legend - DISABLED
+     */
+    updateLegendDisplay() {
+        // Legend display is disabled - do nothing
+        console.log('📋 Legend display disabled');
+    },
+
+    /**
+     * Create the legend container if it doesn't exist - DISABLED
+     */
+    createLegendContainer() {
+        // Legend container creation is disabled - do nothing
+        console.log('📋 Legend container creation disabled');
+    },
+
+    /**
+     * Add CSS styles for the legend - DISABLED
+     */
+    addLegendStyles() {
+        // Legend styles are disabled - do nothing
+        console.log('📋 Legend styles disabled');
+    },
+};
+
+function executeTagQuery(key, value) {
+    console.log('🚀 executeTagQuery called with:', key, value);
+    console.log('🚀 Current legend queries before execution:', window.tagQueryLegend.queries.size);
+
+    // Prevent duplicate executions by checking if a query is already in progress
+    if (window._queryInProgress) {
+        console.log('🚀 Another query is already in progress, ignoring this request');
+        return;
+    }
+
+    const existingQuery = window.tagQueryLegend.queries.get(`tag_${key}_${value}`);
+
+    if (existingQuery) {
+        console.log('🚀 Query already exists, replacing existing overlay');
+        window.tagQueryLegend.removeQuery(`tag_${key}_${value}`);
+    }
+
+    if (!window.map || typeof window.map.getView !== 'function') {
+        console.log('🚀 Map not ready, skipping query');
+        $('#execute-query-btn').prop('disabled', false).text('Map not ready');
+        return;
+    }
+
+    window._queryInProgress = true;
+
+    console.log('🚀 Map is ready, getting bbox');
+
+    // Get current map bbox
+    const view = window.map.getView();
+    const extent = view.calculateExtent();
+    const bbox = ol.proj.transformExtent(extent, view.getProjection(), 'EPSG:4326');
+
+    // Validate bbox coordinates
+    if (bbox.some(coord => isNaN(coord) || Math.abs(coord) > 180)) {
+        console.error('🚀 Invalid bbox coordinates:', bbox);
+        $('#execute-query-btn').prop('disabled', false).text('Invalid Location');
+        window._queryInProgress = false;
+        return;
+    }
+
+    // Get element types from UI (default to all)
+    const elementTypes = getSelectedElementTypes();
+
+    // Generate Overpass query
+    const query = window.generateOverpassQuery(key, value, bbox, elementTypes);
+
+    if (!query) {
+        console.error('🚀 Failed to generate query');
+        $('#execute-query-btn').prop('disabled', false).text('Query Failed');
+        window._queryInProgress = false;
+        return;
+    }
+
+    // Update button state and create overlay
+    $('#execute-query-btn').prop('disabled', true).text('Executing...');
+    createTagOverlay(key, value, query);
+
+    // Execute single unified query
+    executeSingleQuery(query, 'unified')
+        .then(features => {
+            console.log(`✅ Query succeeded with ${features.length} features`);
+            processQueryResults(features, key, value);
+            window._queryInProgress = false;
+        })
+        .catch(error => {
+            console.error('❌ Query failed:', error.message);
+            $('#execute-query-btn').prop('disabled', false).text('Query Failed');
+            window._queryInProgress = false;
+        });
+}
+
+function createTagOverlay(key, value, query) {
+    console.log('🎯 createTagOverlay called with:', key, value);
+
+    const uniqueColor = generateQueryColor(key, value, false);
+    const overlayId = `tag_${key}_${value}`;
+    const overlayTitle = `${key}=${value}`;
+
+    window.tagQueryLegend.addQuery(overlayId, key, value, uniqueColor, 0, true);
+
+    // Create vector source without loader
+    const vectorSource = new ol.source.Vector({
+        format: new ol.format.OSMXML2()
+    });
+
+    // Create vector layer with updated styles for 65% opacity
+    const vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+        title: overlayTitle,
+        id: overlayId,
+        visible: true,
+        style: function(feature) {
+            const geometry = feature.getGeometry();
+            const geometryType = geometry.getType();
+
+            // Style for points (nodes)
+            if (geometryType === 'Point') {
+                const originalType = feature.get('originalType');
+                const color = generateQueryColor(vectorLayer.get('id'), originalType === 'LineString');
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: originalType === 'Polygon' ? 6 : (originalType === 'LineString' ? 5 : 4),
+                        fill: new ol.style.Fill({
+                            color: [...color.slice(0, 3), 0.65]
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: color,
+                            width: originalType === 'Polygon' ? 2 : 1
+                        })
+                    })
+                });
+            }
+
+            // Style for lines
+            if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
+                const isFixed = feature.get('fixedGeometry');
+                const color = generateQueryColor(overlayId, isFixed);
+                return new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: [...color.slice(0, 3), 0.65],
+                        width: isFixed ? 3 : 4
+                    })
+                });
+            }
+
+            // Style for polygons
+            if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+                try {
+                    const area = geometry.getArea();
+                    if (isNaN(area) || area <= 0) {
+                        const centroid = ol.extent.getCenter(geometry.getExtent());
+                        return new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 6,
+                                fill: new ol.style.Fill({
+                                    color: [...generateQueryColor(vectorLayer.get('id'), false).slice(0, 3), 0.65]
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: generateQueryColor(vectorLayer.get('id'), false),
+                                    width: 2
+                                })
+                            }),
+                            geometry: new ol.geom.Point(centroid)
+                        });
+                    }
+
+                    const color = generateQueryColor(vectorLayer.get('id'), false);
+                    return new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: color,
+                            width: 2
+                        }),
+                        fill: new ol.style.Fill({
+                            color: [...color.slice(0, 3), 0.65]
+                        })
+                    });
+                } catch (error) {
+                    console.warn('Error styling polygon, showing as point:', error);
+                    const centroid = ol.extent.getCenter(geometry.getExtent());
+                    const color = generateQueryColor(vectorLayer.get('id'), false);
+                    return new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: 6,
+                            fill: new ol.style.Fill({
+                                color: [...color.slice(0, 3), 0.65]
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: color,
+                                width: 2
+                            })
+                        }),
+                        geometry: new ol.geom.Point(centroid)
+                    });
+                }
+            }
+
+            // Fallback style
+            console.warn('Unknown geometry type, showing as point:', geometryType);
+            try {
+                const centroid = ol.extent.getCenter(geometry.getExtent());
+                const color = generateQueryColor(vectorLayer.get('id'), false);
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 6,
+                        fill: new ol.style.Fill({
+                            color: [...color.slice(0, 3), 0.65]
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: color,
+                            width: 2
+                        })
+                    }),
+                    geometry: new ol.geom.Point(centroid)
+                });
+            } catch (error) {
+                console.error('Error creating fallback point:', error);
+                const color = generateQueryColor(vectorLayer.get('id'), false);
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 4,
+                        fill: new ol.style.Fill({
+                            color: [...color.slice(0, 3), 0.65]
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: color,
+                            width: 1
+                        })
+                    })
+                });
+            }
+        }
+    });
+
+    // Set layer properties
+    vectorLayer.set('group', 'Tag Queries');
+    vectorLayer.set('type', 'overlay');
+    vectorLayer.set('title', overlayTitle);
+    vectorLayer.set('id', overlayId);
+    vectorLayer.set('iconSrc', 'src/img/icones_web/tag_icon.png');
+    vectorLayer.set('iconStyle', 'filter: hue-rotate(120deg);');
+
+    // Add to Tag Queries group
+    const tagQueriesGroup = findOrCreateTagOverlaysGroup();
+    if (tagQueriesGroup) {
+        // Remove existing overlay if any
+        const existingLayers = tagQueriesGroup.getLayers().getArray();
+        const existingOverlay = existingLayers.find(layer => layer.get('id') === overlayId);
+        if (existingOverlay) {
+            tagQueriesGroup.getLayers().remove(existingOverlay);
+            window.tagQueryLegend.removeQuery(overlayId);
+        }
+
+        // Add new layer
+        tagQueriesGroup.getLayers().push(vectorLayer);
+
+        // Ensure group is in map
+        if (window.map) {
+            const mapLayers = window.map.getLayers().getArray();
+            if (!mapLayers.some(l => l === tagQueriesGroup)) {
+                window.map.addLayer(tagQueriesGroup);
+            }
+        }
+    }
+}
+
+function executeSingleQuery(query, queryType) {
+    return new Promise((resolve, reject) => {
+        const clearQueryState = () => { window._queryInProgress = false; };
+
+        const client = new XMLHttpRequest();
+        client.open('POST', config.overpassApi());
+        client.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
+        client.timeout = 60000;
+
+        client.onload = function() {
+            if (client.status === 200) {
+                try {
+                    const xmlDoc = $.parseXML(client.responseText);
+                    const xml = $(xmlDoc);
+                    const remark = xml.find('remark');
+
+                    if (remark.length !== 0) {
+                        console.error('🚀 Overpass error:', remark.text());
+                        clearQueryState();
+                        reject(new Error(`Overpass error: ${remark.text()}`));
+                    } else {
+                        const features = new ol.format.OSMXML2().readFeatures(xmlDoc, {
+                            featureProjection: window.map.getView().getProjection()
+                        });
+                        clearQueryState();
+                        resolve(features);
+                    }
+                } catch (parseError) {
+                    console.error('🚀 Error parsing XML response:', parseError);
+                    clearQueryState();
+                    reject(parseError);
+                }
+            } else {
+                console.error('🚀 Request failed with status:', client.status);
+                clearQueryState();
+                reject(new Error(client.status === 504 ? 'Server timeout' : `HTTP ${client.status}`));
+            }
+        };
+
+        client.onerror = function() {
+            console.error('🚀 Network error');
+            clearQueryState();
+            reject(new Error('Network error'));
+        };
+
+        client.ontimeout = function() {
+            console.error('🚀 Request timed out');
+            clearQueryState();
+            reject(new Error('Request timeout'));
+        };
+
+        client.send(query);
+    });
+}
+
+function processQueryResults(allFeatures, key, value) {
+    console.log('🚀 Processing', allFeatures.length, 'features');
+
+    // Fix invalid geometries
+    const validFeatures = allFeatures.filter(feature => {
+        const geometry = feature.getGeometry();
+        return geometry && geometry.getType();
+    });
+
+    // Create overlay info
+    const overlayId = `tag_${key}_${value}`;
+    const overlayTitle = `${key}=${value}`;
+
+    // Add features to existing vector layer
+    const tagQueriesGroup = findOrCreateTagOverlaysGroup();
+    if (tagQueriesGroup) {
+        const existingLayers = tagQueriesGroup.getLayers().getArray();
+        const vectorLayer = existingLayers.find(layer => layer.get('id') === overlayId);
+
+        if (vectorLayer) {
+            const source = vectorLayer.getSource();
+            source.addFeatures(validFeatures);
+
+            // Update legend count
+            window.tagQueryLegend.updateCount(overlayId, validFeatures.length);
+
+            // Reset execute button
+            $('#execute-query-btn')
+                .prop('disabled', false)
+                .text('Query Executed - Click to Repeat');
+
+            // Show clear button
+            $('#clear-search-btn').show();
+
+            // Make features visible and handle view
+            if (validFeatures.length > 0) {
+                try {
+                    const featuresExtent = source.getExtent();
+                    const isValidExtent = featuresExtent &&
+                        !ol.extent.isEmpty(featuresExtent) &&
+                        featuresExtent.every(coord => Number.isFinite(coord));
+
+                    if (isValidExtent && window.map) {
+                        const mapView = window.map.getView();
+                        const mapSize = window.map.getSize();
+                        const viewExtent = mapView.calculateExtent(mapSize);
+
+                        // Only fit if features are outside current view
+                        if (!ol.extent.containsExtent(viewExtent, featuresExtent)) {
+                            mapView.fit(featuresExtent, {
+                                size: mapSize,
+                                maxZoom: 18,
+                                padding: [50, 50, 50, 50]
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error handling view:', err);
+                }
+            }
+        }
+    }
+
+    // Reset query in progress
+    window._queryInProgress = false;
+}
+
+function generateQueryColor(overlayId, isFixed = false) {
+    let hash = 0;
+    for (let i = 0; i < overlayId.length; i++) {
+        const char = overlayId.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+
+    const hue = Math.abs(hash) % 360;
+    const saturation = 70 + (Math.abs(hash * 7) % 20);
+    const lightness = isFixed ? 45 : 55;
+
+    const h = hue / 360;
+    const s = saturation / 100;
+    const l = lightness / 100;
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+
+    const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+    };
+
+    const r = Math.round(hue2rgb(p, q, h + 1/3) * 255);
+    const g = Math.round(hue2rgb(p, q, h) * 255);
+    const b = Math.round(hue2rgb(p, q, h - 1/3) * 255);
+
+    return [r, g, b, isFixed ? 0.9 : 0.65];
+}
+
+function findOrCreateTagOverlaysGroup() {
+    if (window.map) {
+        const existingLayers = window.map.getLayers().getArray();
+        const existing = existingLayers.find(layer =>
+            layer.get &&
+            layer.get('type') === 'tag-query' &&
+            layer.get('title') === 'Tag Queries'
+        );
+        if (existing) return existing;
+    }
+
+    const group = new ol.layer.Group({
+        title: 'Tag Queries',
+        type: 'tag-query',
+        layers: []
+    });
+
+    group.set('originalTitle', 'Tag Queries');
+    group.set('id', 'tag-queries-group');
+
+    if (window.map) {
+        window.map.addLayer(group);
+    }
+
+    return group;
+}
+
+// Initialize value search functionality when DOM is ready
+$(document).ready(function() {
+    if (window.map && typeof window.map.getView === 'function') {
+        initValueSearch();
+    } else {
+        const waitForMap = () => {
+            if (window.map && typeof window.map.getView === 'function') {
+                initValueSearch();
+            } else {
+                setTimeout(waitForMap, 100);
+            }
+        };
+        waitForMap();
+    }
+});
+
+// Export functions for use in other modules
+window.executeTagQuery = executeTagQuery;
+window.tagQueryLegend = window.tagQueryLegend || {};
+window.generateQueryColor = generateQueryColor;
+window.findOrCreateTagOverlaysGroup = findOrCreateTagOverlaysGroup;
+window.createTagOverlay = createTagOverlay;
