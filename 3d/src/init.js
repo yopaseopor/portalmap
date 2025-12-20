@@ -35,15 +35,9 @@ function loadSharedUrl() {
             // console.log('🔗 tagQueryLegend exists:', !!window.tagQueryLegend);
 
             if (window.map && window.executeTagQuery && window.tagQueryLegend) {
-                // console.log('🔗 Dependencies ready, executing tag queries');
-
-                // Execute each tag query
-                tagQueries.forEach((query, index) => {
-                    setTimeout(() => {
-                        // console.log('🔗 Executing tag query:', query.key, query.value);
-                        window.executeTagQuery(query.key, query.value);
-                    }, index * 1500); // 1.5 second delay between queries to avoid overwhelming the system
-                });
+                // DISABLED: Automatic execution of tag queries from URL
+                // Only execute queries when user clicks the button
+                console.log('🔗 Tag queries from URL found but NOT executed automatically:', tagQueries);
 
                 // Update URL after loading queries
                 setTimeout(() => {
@@ -100,4 +94,4 @@ window.dispatchEvent(new CustomEvent('overlaySearchUpdate', {
 // Initialize map when document is ready
 $(document).ready(function() {
     // Map initialization will be handled by index.js
-}); 
+});

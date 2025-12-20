@@ -346,17 +346,57 @@ $(function () {
 			}
 			this.spinner.show();
 			++this.count;
+			console.log('🔄 Loader shown, count:', this.count);
 		},
 		hide: function () {
 			--this.count;
 			if (this.count < 1) {
 				this.spinner.hide();
 				this.count = 0;
+				console.log('🔄 Loader hidden, count reset to 0');
+			} else {
+				console.log('🔄 Loader hide requested, but count is still:', this.count);
 			}
+		},
+		forceHide: function() {
+			console.log('🔄 Force hiding loader regardless of count');
+			this.spinner.hide();
+			this.count = 0;
+		},
+		getStatus: function() {
+			return {
+				visible: this.spinner.is(':visible'),
+				count: this.count
+			};
 		}
 	};
 	// Export loading to global scope for other modules
 	window.loading = loading;
+
+	// Add global loader management to prevent stuck loaders
+	setInterval(function() {
+		if (window.loading && window.loading.getStatus().visible) {
+			console.log('🔄 Loader status check - visible:', window.loading.getStatus());
+		}
+	}, 30000); // Check every 30 seconds
+
+	// Add global error handler to catch any uncaught errors that might prevent loader hiding
+	window.addEventListener('error', function(event) {
+		console.error('🚨 Global error caught:', event.error);
+		if (window.loading && window.loading.getStatus().visible) {
+			console.log('🔄 Hiding loader due to global error');
+			window.loading.forceHide();
+		}
+	});
+
+	// Add unhandled rejection handler
+	window.addEventListener('unhandledrejection', function(event) {
+		console.error('🚨 Unhandled rejection caught:', event.reason);
+		if (window.loading && window.loading.getStatus().visible) {
+			console.log('🔄 Hiding loader due to unhandled rejection');
+			window.loading.forceHide();
+		}
+	});
 
 	var overlaysTemp = {};
 	$.each(config.overlays, function (index, overlay) {
@@ -565,16 +605,12 @@ $(function () {
 				initKeySearch();
 				initValueSearch();
 
-				// Execute tag queries from URL if any
+				// DISABLED: Automatic execution of tag queries from URL
+				// Only execute queries when user clicks the button
 				if (window.initialTagQueries && window.initialTagQueries.length > 0) {
-					console.log('🔍 Executing tag queries from URL:', window.initialTagQueries);
-					window.initialTagQueries.forEach(tagQuery => {
-						if (window.executeTagQuery && typeof window.executeTagQuery === 'function') {
-							window.executeTagQuery(tagQuery.key, tagQuery.value);
-						}
-					});
-					// Clear the stored queries after execution
-					window.initialTagQueries = [];
+					console.log('🔍 Tag queries from URL stored but NOT executed automatically:', window.initialTagQueries);
+					// Keep the queries stored for manual execution if needed
+					// window.initialTagQueries = [];
 				}
 
 				// Set up event listeners for tag query URL updates
@@ -799,6 +835,8 @@ $(function () {
 	var clearOverlayControlBuild = function () {
 		var container = $('<div>').addClass('ol-control ol-unselectable osmcat-clearoverlaybutton').html(
 			$('<button type="button" class="clear-active-overlay-btn" title="Clear Active Overlay"><i class="fa fa-times"></i></button>').on('click', function () {
+				console.log('🧹 Clear overlay button clicked');
+
 				// Hide all overlays
 				$.each(config.layers, function(indexLayer, layerGroup) {
 					if (layerGroup.get && layerGroup.get('type') === 'overlay') {
@@ -810,12 +848,17 @@ $(function () {
 
 				// Also clear Tag Queries layers if the function exists
 				if (window.clearMapLayers) {
+					console.log('🧹 Calling clearMapLayers from clear overlay button');
 					window.clearMapLayers();
+				} else {
+					console.log('🧹 clearMapLayers function not found');
 				}
 
 				// Overlay list is disabled - no need to update it
 				$('#overlay-search').val('');
-                    if (window.updateOverlaySummary) window.updateOverlaySummary();
+				if (window.updateOverlaySummary) window.updateOverlaySummary();
+
+				alert('Clear completed - check console for details');
 			})
 		);
 		return container[0];
@@ -922,6 +965,21 @@ var rotateleftControlBuild = function () {
 
 // 3D Toggle button
 function toggle3DControlBuild() {
+    // Check if ol-cesium is available
+    if (typeof olcs === 'undefined') {
+        console.error('ol-cesium library not loaded. 3D view is not available.');
+        const button = document.createElement('button');
+        button.innerHTML = '<i class="fa fa-cube" style="color: #ccc;"></i>';
+        button.title = '3D view not available - ol-cesium library not loaded';
+        button.disabled = true;
+        button.style.cursor = 'not-allowed';
+        
+        const element = document.createElement('div');
+        element.className = 'ol-unselectable ol-control ol-3d-toggle';
+        element.appendChild(button);
+        return element;
+    }
+    
     const button = document.createElement('button');
     button.innerHTML = '<i class="fa fa-cube"></i>';
     button.title = 'Toggle 3D View';
@@ -934,49 +992,217 @@ function toggle3DControlBuild() {
     let is3d = false;
     let cesiumInitialized = false;
 
-    button.addEventListener('click', async function() {
+    // Store the click handler reference for the return-to-2D button
+    const clickHandler = async function() {
         try {
-            if (!is3d) {
-                // Initialize Cesium if not already done
-                if (!cesiumInitialized) {
-                    try {
+            // Check if Cesium is available
+            if (typeof Cesium === 'undefined') {
+                console.error('Cesium library not loaded. 3D view is not available.');
+                alert('Cesium library not loaded. Please refresh the page and try again.');
+                return;
+            }
+            
+console.log('3D toggle clicked, current is3d state:', is3d);
+if (!is3d) {
+    // Initialize Cesium if not already done
+    let routeLayers = []; // Move declaration to higher scope
+    if (!cesiumInitialized) {
+        try {
+            // Check for and handle active route layers that might cause conflicts
+            routeLayers = [];
+map.getLayers().forEach(layer => {
+    if (layer.get && layer.get('type') === 'route' || 
+        (layer instanceof ol.layer.Vector && layer.getSource && 
+         layer.getSource().getFeatures && 
+         layer.getSource().getFeatures().length > 0)) {
+        routeLayers.push(layer);
+    }
+});
+if (routeLayers.length > 0) {
+    console.log('Detected route layers, temporarily hiding for 3D initialization');
+    routeLayers.forEach(layer => layer.setVisible(false));
+}
+                        
                         // Initialize OLCesium with minimal configuration
+                        // Wait a bit to ensure map is fully initialized before creating ol3d
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        // Completely remove all overlays from map to prevent SynchronizedOverlay issues
+                        const overlaysToRestore = [];
+                        const currentOverlays = map.getOverlays().getArray();
+                        
+                        // Remove all overlays from map
+                        while (currentOverlays.length > 0) {
+                            const overlay = currentOverlays[0];
+                            if (overlay) {
+                                overlaysToRestore.push(overlay);
+                                map.removeOverlay(overlay);
+                            }
+                        }
+                        
+                        // Clear the overlay collection completely
+                        map.getOverlays().clear();
+                        
                         ol3d = new olcs.OLCesium({
                             map: map,
                             target: 'map',
                             createSvg: false, // Disable SVG creation which can cause issues
-                            useDefaultRenderLoop: true,
+                            useDefaultRenderLoop: false, // Disable default render loop to prevent overlay sync issues
                             time: function() { return Cesium.JulianDate.now(); }
                         });
+                        
+                        // Store overlays for restoration after full 3D initialization
+                        window.overlaysToRestore = overlaysToRestore;
+                        
+                        // Store the ol3d instance globally for fallback access
+                        window.ol3d = ol3d;
                         
                         const scene = ol3d.getCesiumScene();
                         
                         // Configure scene
                         scene.globe.enableLighting = true;
                         scene.globe.depthTestAgainstTerrain = false; // Disable terrain depth test for better performance
-                        
+                       
+                        // Restore any route layers that were hidden for initialization
+if (routeLayers.length > 0) {
+    console.log('Restoring route layers after 3D initialization');
+    routeLayers.forEach(layer => layer.setVisible(true));
+}
+
                         // Set up terrain provider
-                        scene.terrainProvider = new Cesium.EllipsoidTerrainProvider({
-                            tilingScheme: new Cesium.GeographicTilingScheme()
-                        });
+                        try {
+                            scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+                        } catch (error) {
+                            console.warn('Failed to set terrain provider, using default:', error);
+                            // Continue without custom terrain provider
+                        }
                         
                         // Clear any existing imagery layers
                         scene.imageryLayers.removeAll();
                         
-                        // Add a simple basemap that doesn't require authentication
-                        scene.imageryLayers.addImageryProvider(
-                            new Cesium.UrlTemplateImageryProvider({
+                        // Get the currently visible base layer from the 2D map
+                        let currentBaseLayer = null;
+                        let imageryProvider = null;
+                        
+                        // Find the currently visible base layer
+                        config.layers.forEach(layer => {
+                            if (layer.get && layer.get('type') !== 'overlay' && layer.getVisible && layer.getVisible()) {
+                                currentBaseLayer = layer;
+                            }
+                        });
+                        
+                        // Choose appropriate imagery provider based on the current base layer
+                        if (currentBaseLayer) {
+                            const layerTitle = currentBaseLayer.get('title') || '';
+                            console.log('Current base layer:', layerTitle);
+                            
+                            // Map different base layers to appropriate Cesium providers
+                            if (layerTitle.includes('MapTiler') || layerTitle.includes('Basic')) {
+                                // Use a reliable satellite provider instead of MapTiler to avoid API key issues
+                                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                                    tileWidth: 256,
+                                    tileHeight: 256,
+                                    minimumLevel: 0,
+                                    maximumLevel: 18
+                                });
+                            } else if (layerTitle.includes('OpenStreetMap') || layerTitle.includes('OSM')) {
+                                // Use OSM tiles
+                                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    subdomains: ['a', 'b', 'c'],
+                                    tileWidth: 256,
+                                    tileHeight: 256,
+                                    minimumLevel: 0,
+                                    maximumLevel: 19
+                                });
+                            } else if (layerTitle.includes('Satellite') || layerTitle.includes('Aerial')) {
+                                // Use a satellite provider
+                                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                                    tileWidth: 256,
+                                    tileHeight: 256,
+                                    minimumLevel: 0,
+                                    maximumLevel: 18
+                                });
+                            } else {
+                                // Default fallback to OSM
+                                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    subdomains: ['a', 'b', 'c'],
+                                    tileWidth: 256,
+                                    tileHeight: 256,
+                                    minimumLevel: 0,
+                                    maximumLevel: 19
+                                });
+                            }
+                        } else {
+                            // No base layer found, use default OSM
+                            console.log('No base layer found, using default OSM');
+                            imageryProvider = new Cesium.UrlTemplateImageryProvider({
                                 url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 subdomains: ['a', 'b', 'c'],
                                 tileWidth: 256,
                                 tileHeight: 256,
                                 minimumLevel: 0,
                                 maximumLevel: 19
-                            })
-                        );
+                            });
+                        }
+                        
+                        // Add the selected imagery provider
+                        try {
+                            scene.imageryLayers.addImageryProvider(imageryProvider);
+                            console.log('Successfully added imagery provider for 3D view');
+                            
+                            // Add error handling for tile loading errors (only if errorEvent exists)
+                            if (imageryProvider.errorEvent && imageryProvider.errorEvent.addEventListener) {
+                                imageryProvider.errorEvent.addEventListener(function(error) {
+                                    console.warn('Imagery provider tile loading error:', error);
+                                    // Silently handle tile errors to prevent console spam
+                                });
+                            }
+                            
+                        } catch (error) {
+                            console.error('Error adding imagery provider, using fallback:', error);
+                            // Fallback to simple OSM provider
+                            const fallbackProvider = new Cesium.UrlTemplateImageryProvider({
+                                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                subdomains: ['a', 'b', 'c'],
+                                tileWidth: 256,
+                                tileHeight: 256,
+                                minimumLevel: 0,
+                                maximumLevel: 19
+                            });
+                            
+                            // Add error handling to fallback provider as well (only if errorEvent exists)
+                            if (fallbackProvider.errorEvent && fallbackProvider.errorEvent.addEventListener) {
+                                fallbackProvider.errorEvent.addEventListener(function(error) {
+                                    console.warn('Fallback imagery provider tile loading error:', error);
+                                });
+                            }
+                            
+                            scene.imageryLayers.addImageryProvider(fallbackProvider);
+                        }
                         
                         // Disable Cesium ion features that require authentication
                         Cesium.Ion.defaultAccessToken = null;
+                        
+                        // Add global error handling for tile loading issues (only if events exist)
+                        if (scene.globe && scene.globe.tileLoadProgressEvent && scene.globe.tileLoadProgressEvent.addEventListener) {
+                            scene.globe.tileLoadProgressEvent.addEventListener(function(queued, processing, ready) {
+                                // Optionally log tile loading progress
+                                if (processing > 0) {
+                                    // Tiles are loading
+                                }
+                            });
+                        }
+                        
+                        // Suppress tile loading errors globally (only if events exist)
+                        if (scene.imageryLayers && scene.imageryLayers.collectionChanged && scene.imageryLayers.collectionChanged.addEventListener) {
+                            scene.imageryLayers.collectionChanged.addEventListener(function() {
+                                // Handle imagery layer changes
+                            });
+                        }
                         
                         // Set a default view with a reasonable height
                         const view = map.getView();
@@ -1008,6 +1234,25 @@ function toggle3DControlBuild() {
                     }
                 }
                 
+                // Wait before enabling Cesium to allow complete initialization
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Temporarily disable overlay synchronizer to prevent SynchronizedOverlay errors
+                const overlaySynchronizer = ol3d.overlaySynchronizer;
+                if (overlaySynchronizer && overlaySynchronizer.synchronizeOverlays) {
+                    const originalSync = overlaySynchronizer.synchronizeOverlays;
+                    overlaySynchronizer.synchronizeOverlays = function() {
+                        // Skip synchronization during initialization
+                        console.log('Skipping overlay synchronization during 3D initialization');
+                    };
+                    
+                    // Restore original synchronization after a delay
+                    setTimeout(() => {
+                        overlaySynchronizer.synchronizeOverlays = originalSync;
+                        console.log('Restored overlay synchronization');
+                    }, 3000);
+                }
+                
                 // Enable Cesium
                 ol3d.setEnabled(true);
                 
@@ -1020,8 +1265,50 @@ function toggle3DControlBuild() {
                 scene.initializeFrame();
                 scene.render();
                 
+                // Start manual render loop since default is disabled
+                const renderLoop = function() {
+                    if (ol3d && ol3d.getEnabled()) {
+                        scene.initializeFrame();
+                        scene.render();
+                        requestAnimationFrame(renderLoop);
+                    }
+                };
+                requestAnimationFrame(renderLoop);
+                
+                // IMPORTANT: Skip layer synchronization during 3D initialization to prevent SynchronizedOverlay errors
+                // Layer synchronization will happen naturally when ol-cesium is ready
+                console.log('Skipping manual layer synchronization to prevent overlay conflicts during 3D initialization');
+                
+                // Restore any route layers that were hidden for initialization
+                if (routeLayers.length > 0) {
+                    console.log('Restoring route layers after 3D initialization');
+                    routeLayers.forEach(layer => layer.setVisible(true));
+                }
+                
+                // Skip overlay restoration in 3D mode to prevent SynchronizedOverlay errors
+                // Overlays will be restored when switching back to 2D mode
+                if (window.overlaysToRestore && window.overlaysToRestore.length > 0) {
+                    console.log(`Skipping overlay restoration in 3D mode (${window.overlaysToRestore.length} overlays will be restored in 2D mode)`);
+                    // Store overlays for 2D restoration
+                    window.overlaysFor2D = window.overlaysToRestore;
+                    window.overlaysToRestore = null;
+                }
+                
+                // Add event listener to refresh 3D imagery when queries are added
+                window.addEventListener('tagQueryAdded', function() {
+                    if (window.ol3d && window.ol3d.getEnabled()) {
+                        console.log('Tag query added in 3D mode, refreshing imagery layers');
+                        refresh3DImagery();
+                    }
+                });
+                
+                console.log('3D mode enabled with synchronized layers');
+                
                 // Show return to 2D button
                 showReturnTo2DButton();
+                
+                // Show 3D background selector
+                show3DBackgroundSelector();
                 
                 // Sync camera
                 const view = map.getView();
@@ -1044,7 +1331,13 @@ function toggle3DControlBuild() {
                 
                 button.innerHTML = '<i class="fa fa-map"></i>';
                 button.title = 'Switch to 2D';
+                
+                // IMPORTANT: Update the is3d state to true
+                is3d = true;
+                console.log('Updated is3d state to true');
             } else {
+                console.log('Switching from 3D to 2D mode');
+                
                 // Store current view before disabling 3D
                 const scene = ol3d.getCesiumScene();
                 const camera = scene.camera;
@@ -1053,6 +1346,171 @@ function toggle3DControlBuild() {
                 // Disable Cesium
                 ol3d.setEnabled(false);
                 
+                // IMPORTANT: Update the is3d state to false
+                is3d = false;
+                console.log('Updated is3d state to false');
+                
+                // Comprehensive cleanup of ol-cesium to prevent SynchronizedOverlay errors
+                if (window.ol3d) {
+                    try {
+                        // Force complete cleanup of ol-cesium
+                        if (window.ol3d.overlaySynchronizer) {
+                            // Disable overlay synchronizer completely
+                            window.ol3d.overlaySynchronizer.dispose();
+                            console.log('Disposed overlay synchronizer');
+                        }
+                        
+                        // Clear any remaining references
+                        window.ol3d = null;
+                        console.log('Cleared ol3d reference');
+                    } catch (cleanupError) {
+                        console.warn('Error during ol-cesium cleanup:', cleanupError);
+                    }
+                }
+                
+                // Refined global patch to prevent SynchronizedOverlay creation without interfering with UI
+                // TODO: Add fundamental overlay synchronizer disable here
+                if (!window.synchronizedOverlayPatched) {
+                    window.synchronizedOverlayPatched = true;
+
+                    // Patch map.addOverlay to prevent SynchronizedOverlay interference
+                    const originalAddOverlay = map.addOverlay.bind(map);
+                    map.addOverlay = function(overlay) {
+                        try {
+                            // Only apply patch if we're in 2D mode and ol3d still exists
+                            if (!is3d && window.ol3d) {
+                                console.warn('ol3d still exists in 2D mode, applying minimal patch');
+                                try {
+                                    // Only disable overlay synchronizer, don't force full cleanup
+                                    if (window.ol3d.overlaySynchronizer) {
+                                        const originalSync = window.ol3d.overlaySynchronizer.synchronizeOverlays;
+                                        window.ol3d.overlaySynchronizer.synchronizeOverlays = function() {
+                                            // Skip synchronization in 2D mode
+                                        };
+
+                                        // Restore synchronization after a short delay
+                                        setTimeout(() => {
+                                            if (window.ol3d && window.ol3d.overlaySynchronizer && originalSync) {
+                                                window.ol3d.overlaySynchronizer.synchronizeOverlays = originalSync;
+                                            }
+                                        }, 100);
+                                    }
+                                } catch (patchError) {
+                                    console.warn('Error during overlay synchronizer patch:', patchError);
+                                }
+                            }
+
+                            // Add the overlay normally
+                            return originalAddOverlay(overlay);
+                        } catch (error) {
+                            console.warn('Error during overlay addition:', error);
+                            
+                            // If it's a SynchronizedOverlay error, use DOM bypass
+                            if (error.message && error.message.includes('getMap')) {
+                                console.log('SynchronizedOverlay error detected, using DOM bypass');
+                                
+                                // Add overlay directly to DOM as fallback
+                                try {
+                                    if (overlay.getElement && overlay.getPosition) {
+                                        const element = overlay.getElement();
+                                        const position = overlay.getPosition();
+                                        const pixel = map.getPixelFromCoordinate(position);
+                                        
+                                        if (element && pixel) {
+                                            element.style.position = 'absolute';
+                                            element.style.left = pixel[0] + 'px';
+                                            element.style.top = pixel[1] + 'px';
+                                            element.style.zIndex = '1000';
+                                            element.style.pointerEvents = 'auto';
+                                            
+                                            // Add to map container
+                                            const mapContainer = document.getElementById('map');
+                                            if (mapContainer) {
+                                                mapContainer.appendChild(element);
+                                                console.log('Overlay added via DOM bypass');
+                                                return overlay;
+                                            }
+                                        }
+                                    }
+                                } catch (domError) {
+                                    console.error('DOM bypass failed:', domError);
+                                }
+                            }
+                            
+                            // Last resort: try normal addition
+                            return originalAddOverlay(overlay);
+                        }
+                    };
+
+                    console.log('Applied refined global SynchronizedOverlay patch');
+                    
+                    // Add comprehensive overlay synchronizer override
+                    if (window.olcs && window.olcs.SynchronizedOverlay) {
+                        const OriginalSynchronizedOverlay = window.olcs.SynchronizedOverlay;
+                        window.olcs.SynchronizedOverlay = function() {
+                            console.warn('SynchronizedOverlay creation blocked in 2D mode');
+                            return null;
+                        };
+                        console.log('Applied SynchronizedOverlay constructor override');
+                    }
+                    
+                    // Override OverlaySynchronizer to prevent any overlay synchronization
+                    if (window.olcs && window.olcs.OverlaySynchronizer) {
+                        const OriginalOverlaySynchronizer = window.olcs.OverlaySynchronizer;
+                        window.olcs.OverlaySynchronizer = function() {
+                            console.warn('OverlaySynchronizer creation blocked in 2D mode');
+                            return null;
+                        };
+                        console.log('Applied OverlaySynchronizer constructor override');
+                    }
+                    
+                    // Override any existing overlay synchronizer methods
+                    if (window.ol3d && window.ol3d.overlaySynchronizer) {
+                        window.ol3d.overlaySynchronizer.addOverlay = function() {
+                            console.log('addOverlay blocked in 2D mode');
+                        };
+                        window.ol3d.overlaySynchronizer.synchronizeOverlays = function() {
+                            console.log('synchronizeOverlays blocked in 2D mode');
+                        };
+                        console.log('Applied overlay synchronizer method overrides');
+                    }
+                    
+                    // Note: OpenLayers overlay collection doesn't have off() method
+                    // SynchronizedOverlay prevention is handled by constructor overrides
+                }
+
+                // Fix for contextual menu not appearing after 3D/2D mode switch
+                // Restore contextual menu functionality
+                setTimeout(() => {
+                    console.log(' Restoring contextual menu functionality after 3D/2D switch');
+                    console.log('🔧 Restoring contextual menu functionality after 3D/2D switch');
+
+                    // Ensure all UI controls are visible and functional
+                    $('.osmcat-menu').show();
+                    $('.osmcat-layer').show();
+                    $('.osmcat-content').show();
+                    $('.ol-control').show();
+
+                    // Re-enable all layer controls
+                    const $layerControls = $('.osmcat-menu');
+                    if ($layerControls.length) {
+                        $layerControls.find('input[type="checkbox"]').prop('disabled', false);
+                        $layerControls.find('div, button').css('opacity', '1').css('pointer-events', 'auto');
+                    }
+
+                    // Force a re-render to ensure everything is visible
+                    map.renderSync();
+
+                    console.log('✅ Contextual menu functionality restored');
+                }, 500);
+                
+                // Skip overlay restoration completely to prevent SynchronizedOverlay errors and menu disappearance
+                if (window.overlaysFor2D && window.overlaysFor2D.length > 0) {
+                    console.log(`Skipping restoration of ${window.overlaysFor2D.length} overlays to prevent UI conflicts`);
+                    console.log('Overlays will be recreated by user interaction when needed');
+                    window.overlaysFor2D = null; // Clear stored overlays
+                }
+                
                 // Restore original layer visibility
                 map.getLayers().getArray().forEach(layer => {
                     if (layer instanceof ol.layer.Vector && layer.get('originalVisible') !== undefined) {
@@ -1060,8 +1518,56 @@ function toggle3DControlBuild() {
                     }
                 });
                 
+                // Restore all UI controls and buttons
+                $('.osmcat-menu').show();
+                $('.osmcat-layer').show();
+                $('.osmcat-content').show();
+                $('.ol-control').show();
+                
+                // Ensure layer selector is fully functional
+                const $layerControls = $('.osmcat-menu');
+                if ($layerControls.length) {
+                    $layerControls.find('input[type="checkbox"]').prop('disabled', false);
+                    $layerControls.find('div, button').css('opacity', '1').css('pointer-events', 'auto');
+                }
+                
                 // Hide return to 2D button
                 hideReturnTo2DButton();
+                
+                // Hide 3D background selector
+                hide3DBackgroundSelector();
+                
+                // IMPORTANT: Hide any active loaders that might be showing
+                if (window.loading && window.loading.forceHide) {
+                    window.loading.forceHide();
+                    console.log('Force hidden loader when returning to 2D');
+                } else if (window.loading && window.loading.hide) {
+                    window.loading.hide();
+                    // Reset loading counter to prevent stuck loaders
+                    window.loading.count = 0;
+                    console.log('Hidden loader and reset counter when returning to 2D');
+                }
+                
+                // Also hide any visible spinner elements directly as a backup
+                $('.osmcat-loading').hide();
+                $('.spinner').hide();
+                $('.loading-spinner').hide();
+                $('.fa-spinner').hide();
+                $('.fa-spin').removeClass('fa-spin');
+                console.log('Hidden all possible spinner elements');
+                
+                // Additional force hide with multiple selectors
+                setTimeout(() => {
+                    $('.osmcat-loading').hide();
+                    $('.spinner').hide();
+                    $('.loading-spinner').hide();
+                    $('.fa-spinner').hide();
+                    $('.fa-spin').removeClass('fa-spin');
+                    // Also check for any elements with loading-related classes
+                    $('[class*="loading"]').hide();
+                    $('[class*="spinner"]').hide();
+                    console.log('Second pass: Hidden all spinner elements');
+                }, 100);
                 
                 // Update 2D map view to match 3D camera
                 const view = map.getView();
@@ -1086,9 +1592,90 @@ function toggle3DControlBuild() {
             button.style.opacity = '0.5';
             button.style.cursor = 'not-allowed';
         }
-    });
+    };
+
+    // Attach the click handler to the button and store the reference
+    button.addEventListener('click', clickHandler);
+    button._clickHandler = clickHandler;
 
     return element;
+}
+
+// Function to refresh 3D imagery layers when queries interfere with background tiles
+function refresh3DImagery() {
+    if (!window.ol3d || !window.ol3d.getEnabled()) {
+        return;
+    }
+    
+    try {
+        const scene = window.ol3d.getCesiumScene();
+        
+        // Clear existing imagery layers
+        scene.imageryLayers.removeAll();
+        
+        // Get the currently visible base layer from the 2D map
+        let currentBaseLayer = null;
+        let imageryProvider = null;
+        
+        // Find the currently visible base layer
+        config.layers.forEach(layer => {
+            if (layer.get && layer.get('type') !== 'overlay' && layer.getVisible && layer.getVisible()) {
+                currentBaseLayer = layer;
+            }
+        });
+        
+        // Choose appropriate imagery provider based on the current base layer
+        if (currentBaseLayer) {
+            const layerTitle = currentBaseLayer.get('title') || '';
+            console.log('Refreshing 3D imagery with base layer:', layerTitle);
+            
+            // Map different base layers to appropriate Cesium providers
+            if (layerTitle.includes('MapTiler') || layerTitle.includes('Basic')) {
+                // Use a reliable satellite provider instead of MapTiler to avoid API key issues
+                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    tileWidth: 256,
+                    tileHeight: 256,
+                    minimumLevel: 0,
+                    maximumLevel: 18
+                });
+            } else if (layerTitle.includes('OpenStreetMap') || layerTitle.includes('OSM')) {
+                // Use OSM tiles
+                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                    tileWidth: 256,
+                    tileHeight: 256,
+                    minimumLevel: 0,
+                    maximumLevel: 19
+                });
+            } else if (layerTitle.includes('Satellite') || layerTitle.includes('Aerial')) {
+                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    tileWidth: 256,
+                    tileHeight: 256,
+                    minimumLevel: 0,
+                    maximumLevel: 18
+                });
+            } else {
+                // Default provider
+                imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    tileWidth: 256,
+                    tileHeight: 256,
+                    minimumLevel: 0,
+                    maximumLevel: 18
+                });
+            }
+            
+            // Add the imagery provider to the scene
+            scene.imageryLayers.addImageryProvider(imageryProvider);
+            
+            console.log('3D imagery refreshed successfully');
+        }
+    } catch (error) {
+        console.warn('Failed to refresh 3D imagery:', error);
+    }
 }
 
 // Functions to show/hide persistent return to 2D button in 3D mode
@@ -1096,43 +1683,152 @@ function showReturnTo2DButton() {
     // Remove existing button if any
     hideReturnTo2DButton();
     
+    // Find the layer selector menu
+    const layerMenu = $('.osmcat-menu');
+    if (layerMenu.length === 0) {
+        console.error('Layer selector not found, using fallback fixed position');
+        showReturnTo2DButtonFallback();
+        return;
+    }
+    
+    // Create return to 2D button
+    const returnButton = document.createElement('button');
+    returnButton.id = 'return-to-2d-btn';
+    returnButton.innerHTML = '<i class="fa fa-map"></i> Return to 2D';
+    returnButton.title = 'Return to 2D';
+    returnButton.style.cssText = `
+        width: 100%;
+        margin: 5px 0;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    `;
+    
+    returnButton.addEventListener('click', function() {
+        console.log('Return to 2D button clicked');
+        
+        // Try multiple methods to trigger the 3D toggle button click
+        const toggle3dButton = document.querySelector('.ol-3d-toggle button');
+        if (toggle3dButton) {
+            console.log('Found 3D toggle button');
+            
+            // Method 1: Direct call to stored click handler
+            if (toggle3dButton._clickHandler && typeof toggle3dButton._clickHandler === 'function') {
+                console.log('Calling stored click handler directly');
+                toggle3dButton._clickHandler();
+                return;
+            }
+            
+            // Method 2: Dispatch click event
+            console.log('Dispatching click event');
+            toggle3dButton.dispatchEvent(new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            }));
+            return;
+        }
+        
+        // Method 3: Find and disable any Cesium instances
+        const controls = document.querySelectorAll('.ol-3d-toggle');
+        controls.forEach(control => {
+            const button = control.querySelector('button');
+            if (button && button._clickHandler) {
+                button._clickHandler();
+                return;
+            }
+        });
+        
+        // If all else fails, try to find and disable any Cesium instances
+        if (window.ol3d && window.ol3d.setEnabled) {
+            console.log('Using fallback: disabling ol3d directly');
+            window.ol3d.setEnabled(false);
+            
+            // Try to find and update the 3D toggle button state
+            const toggleButton = document.querySelector('.ol-3d-toggle button');
+            if (toggleButton) {
+                toggleButton.innerHTML = '<i class="fa fa-cube"></i>';
+                toggleButton.title = 'Switch to 3D';
+                // Try to update the internal state if possible
+                if (toggleButton._clickHandler && toggleButton._clickHandler.is3d !== undefined) {
+                    // This won't work because is3d is in closure, but we try anyway
+                    console.log('Attempting to update internal state');
+                }
+            }
+            
+            // Restore UI elements
+            $('.osmcat-menu').show();
+            $('.ol-control').show();
+            hideReturnTo2DButton();
+            hide3DBackgroundSelector();
+            
+            // IMPORTANT: Hide any active loaders that might be showing
+            if (window.loading && window.loading.hide) {
+                window.loading.hide();
+                // Reset loading counter to prevent stuck loaders
+                window.loading.count = 0;
+                console.log('Hidden loader and reset counter in fallback 2D return');
+            }
+            
+            // Also hide any visible spinner elements directly as a backup
+            $('.osmcat-loading').hide();
+            console.log('Hidden any visible spinner elements in fallback');
+        } else {
+            console.error('Could not find any 3D controls to disable');
+            alert('Unable to return to 2D mode. Please refresh the page.');
+        }
+    });
+    
+    returnButton.addEventListener('mouseenter', function() {
+        this.style.background = '#45a049';
+    });
+    
+    returnButton.addEventListener('mouseleave', function() {
+        this.style.background = '#4CAF50';
+    });
+    
+    // Add to the top of the layer menu
+    layerMenu.prepend(returnButton);
+}
+
+function showReturnTo2DButtonFallback() {
+    // Fallback to fixed position if layer menu is not found
     const returnButton = document.createElement('button');
     returnButton.id = 'return-to-2d-btn';
     returnButton.innerHTML = '<i class="fa fa-map"></i>';
     returnButton.title = 'Return to 2D';
     returnButton.style.cssText = `
         position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 9999;
-        width: 40px;
-        height: 40px;
-        background: rgba(255,255,255,0.9);
-        border: 2px solid #567CAC;
-        border-radius: 5px;
-        cursor: pointer;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: #ffffff;
+        border: 2px solid #4CAF50;
+        border-radius: 8px;
+        padding: 12px 16px;
         font-size: 16px;
-        color: #567CAC;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         transition: all 0.3s ease;
+        color: #333;
     `;
     
     returnButton.addEventListener('click', function() {
-        // Find the 3D toggle button and click it to return to 2D
-        const toggle3DBtn = document.querySelector('.ol-3d-toggle button');
-        if (toggle3DBtn) {
-            toggle3DBtn.click();
+        // Same click handler as above
+        const toggle3dButton = document.querySelector('.ol-3d-toggle button');
+        if (toggle3dButton && toggle3dButton._clickHandler) {
+            toggle3dButton._clickHandler();
+        } else if (window.ol3d && window.ol3d.setEnabled) {
+            window.ol3d.setEnabled(false);
+            hideReturnTo2DButton();
+            hide3DBackgroundSelector();
         }
-    });
-    
-    returnButton.addEventListener('mouseenter', function() {
-        this.style.background = '#567CAC';
-        this.style.color = 'white';
-    });
-    
-    returnButton.addEventListener('mouseleave', function() {
-        this.style.background = 'rgba(255,255,255,0.9)';
-        this.style.color = '#567CAC';
     });
     
     document.body.appendChild(returnButton);
@@ -1142,6 +1838,201 @@ function hideReturnTo2DButton() {
     const returnButton = document.getElementById('return-to-2d-btn');
     if (returnButton) {
         returnButton.remove();
+    }
+}
+
+function show3DBackgroundSelector() {
+    // Remove existing selector if any
+    hide3DBackgroundSelector();
+    
+    // Find the layer selector menu
+    const layerMenu = $('.osmcat-menu');
+    if (layerMenu.length === 0) {
+        console.error('Layer selector not found, using fallback fixed position');
+        show3DBackgroundSelectorFallback();
+        return;
+    }
+    
+    // Create background selector container
+    const selectorContainer = document.createElement('div');
+    selectorContainer.id = '3d-background-selector';
+    selectorContainer.style.cssText = `
+        margin: 5px 0;
+        padding: 8px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    `;
+    
+    const title = document.createElement('div');
+    title.innerHTML = '<strong style="color: #333; font-size: 14px;">3D Background</strong>';
+    title.style.marginBottom = '8px';
+    selectorContainer.appendChild(title);
+    
+    const select = document.createElement('select');
+    select.style.cssText = `
+        width: 100%;
+        padding: 4px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: white;
+        font-size: 13px;
+    `;
+    
+    // Add background options
+    const options = [
+        { value: 'osm', text: 'OpenStreetMap', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
+        { value: 'satellite', text: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
+        { value: 'terrain', text: 'Terrain', url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png' }
+    ];
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.text = option.text;
+        optionElement.dataset.url = option.url;
+        select.appendChild(optionElement);
+    });
+    
+    select.addEventListener('change', function() {
+        // Only allow background changes when in 3D mode
+        if (!window.ol3d || !window.ol3d.getEnabled()) {
+            console.warn('3D background changes only available in 3D mode');
+            return;
+        }
+        
+        const selectedOption = this.options[this.selectedIndex];
+        const newUrl = selectedOption.dataset.url;
+        change3DBackground(newUrl, selectedOption.text);
+    });
+    
+    selectorContainer.appendChild(select);
+    
+    // Add to the layer menu after the return button
+    const returnButton = document.getElementById('return-to-2d-btn');
+    if (returnButton) {
+        returnButton.after(selectorContainer);
+    } else {
+        layerMenu.prepend(selectorContainer);
+    }
+}
+
+function show3DBackgroundSelectorFallback() {
+    // Fallback to fixed position if layer menu is not found
+    const selectorContainer = document.createElement('div');
+    selectorContainer.id = '3d-background-selector';
+    selectorContainer.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 10000;
+        background: #ffffff;
+        border: 2px solid #2196F3;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        font-size: 14px;
+        color: #333;
+    `;
+    
+    const title = document.createElement('div');
+    title.innerHTML = '<strong>3D Background</strong>';
+    title.style.marginBottom = '8px';
+    selectorContainer.appendChild(title);
+    
+    const select = document.createElement('select');
+    select.style.cssText = `
+        width: 150px;
+        padding: 4px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: white;
+    `;
+    
+    // Add background options
+    const options = [
+        { value: 'osm', text: 'OpenStreetMap', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
+        { value: 'satellite', text: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
+        { value: 'terrain', text: 'Terrain', url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png' }
+    ];
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.text = option.text;
+        optionElement.dataset.url = option.url;
+        select.appendChild(optionElement);
+    });
+    
+    select.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const newUrl = selectedOption.dataset.url;
+        change3DBackground(newUrl, selectedOption.text);
+    });
+    
+    selectorContainer.appendChild(select);
+    document.body.appendChild(selectorContainer);
+}
+
+function hide3DBackgroundSelector() {
+    const selector = document.getElementById('3d-background-selector');
+    if (selector) {
+        selector.remove();
+    }
+}
+
+function change3DBackground(newUrl, layerName) {
+    // Check if we're in 3D mode and ol3d is available
+    if (!window.ol3d || !window.ol3d.getEnabled()) {
+        console.warn('3D background change only available in 3D mode');
+        return;
+    }
+    
+    try {
+        const scene = window.ol3d.getCesiumScene();
+        
+        // Remove all existing imagery layers
+        scene.imageryLayers.removeAll();
+        
+        // Create new imagery provider
+        let imageryProvider;
+        
+        if (newUrl.includes('{s}')) {
+            // OSM-style with subdomains
+            imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                url: newUrl,
+                subdomains: ['a', 'b', 'c'],
+                tileWidth: 256,
+                tileHeight: 256,
+                minimumLevel: 0,
+                maximumLevel: 19
+            });
+        } else {
+            // Direct URL without subdomains
+            imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                url: newUrl,
+                tileWidth: 256,
+                tileHeight: 256,
+                minimumLevel: 0,
+                maximumLevel: 18
+            });
+        }
+        
+        // Add error handling if available
+        if (imageryProvider.errorEvent && imageryProvider.errorEvent.addEventListener) {
+            imageryProvider.errorEvent.addEventListener(function(error) {
+                console.warn('Imagery provider tile loading error:', error);
+            });
+        }
+        
+        // Add the new imagery provider
+        scene.imageryLayers.addImageryProvider(imageryProvider);
+        
+        console.log('Changed 3D background to:', layerName);
+        
+    } catch (error) {
+        console.error('Error changing 3D background:', error);
+        alert('Failed to change 3D background. Please try again.');
     }
 }
 
@@ -1159,11 +2050,26 @@ rotateLeftControl.set('className', 'ol-rotate-left ol-unselectable ol-control');
 map.addControl(rotateLeftControl);
 
 // Add 3D toggle button with higher z-index to ensure it's on top
-const toggle3DControl = new ol.control.Control({
-    element: toggle3DControlBuild()
-});
-toggle3DControl.set('className', 'ol-3d-toggle ol-unselectable ol-control');
-map.addControl(toggle3DControl);
+// Wait a bit to ensure all libraries are loaded
+setTimeout(() => {
+    const toggle3DControl = new ol.control.Control({
+        element: toggle3DControlBuild()
+    });
+    toggle3DControl.set('className', 'ol-3d-toggle ol-unselectable ol-control');
+    map.addControl(toggle3DControl);
+    
+    // Ensure layer selector works in both 2D and 3D modes
+    map.getLayers().on('change:length', function() {
+        // Force layer controls to update when layers change
+        setTimeout(() => {
+            const $layerControls = $('.osmcat-menu');
+            if ($layerControls.length) {
+                $layerControls.find('input[type="checkbox"]').prop('disabled', false);
+                $layerControls.find('div, button').css('opacity', '1').css('pointer-events', 'auto');
+            }
+        }, 100);
+    });
+}, 1000);
 
 // Add some CSS to position the controls properly
 const style = document.createElement('style');
@@ -1248,13 +2154,10 @@ document.head.appendChild(style);
 		map.getView().setZoom(event.state.zoom);
 		map.getView().setRotation(event.state.rotation);
 
-			// Restore tag queries from URL
+			// DISABLED: Automatic restoration of tag queries from browser history
+			// Only execute queries when user clicks the button
 			if (event.state.tagQueries && Array.isArray(event.state.tagQueries)) {
-				event.state.tagQueries.forEach(tagQuery => {
-					if (window.executeTagQuery && typeof window.executeTagQuery === 'function') {
-						window.executeTagQuery(tagQuery.key, tagQuery.value);
-					}
-				});
+				console.log('🔍 Tag queries from browser history found but NOT executed automatically:', event.state.tagQueries);
 			}
 
 			$.each(config.layers, function(indexLayer, layer) {
@@ -1380,41 +2283,155 @@ document.head.appendChild(style);
 		});
 	});
 
-	map.on('singleclick', function (evt) {
-		var coordinate = evt.coordinate,
-				coordinateLL = ol.proj.toLonLat(coordinate),
-				coordinateText = ol.coordinate.format(coordinateLL, '[{y}, {x}]', 5);
-		console.log('pinMap', coordinateText);
-		var pinMap = new ol.Overlay({
-			element: $('<div>').addClass('osmcat-map-pin').attr('title', coordinateText).html('<i class="fa fa-map-pin"></i>')[0],
-			position: coordinate
-			//positioning: 'bottom-center' //BUG center no funciona correctament en la v6.1.1 -> FIX setPositioning
-		});
-		map.addOverlay(pinMap);
-		pinMap.setPositioning('bottom-center'); //FIX bug al centrar l'element
+		map.on('singleclick', function (evt) {
+			console.log('🗺️ Map clicked - processing click event');
 
-		var popupContingut = config.onClickEvent.call(this, evt, view, coordinateLL);
+			var coordinate = evt.coordinate,
+					coordinateLL = ol.proj.toLonLat(coordinate),
+					coordinateText = ol.coordinate.format(coordinateLL, '[{y}, {x}]', 5);
+			console.log('📍 Click coordinates:', coordinateText);
+
+			var pinMap = new ol.Overlay({
+				element: $('<div>').addClass('osmcat-map-pin').attr('title', coordinateText).html('<i class="fa fa-map-pin"></i>')[0],
+				position: coordinate
+				//positioning: 'bottom-center' //BUG center no funciona correctament en la v6.1.1 -> FIX setPositioning
+			});
+
+			// Fix for 3D/2D overlay synchronization issue
+			try {
+				// Check if we're in 3D mode and ol3d exists
+				if (window.ol3d && window.ol3d.getEnabled()) {
+					console.log('📌 Adding overlay in 3D mode - using direct addition');
+					// In 3D mode, add overlay directly to the map
+					map.addOverlay(pinMap);
+					pinMap.setPositioning('bottom-center');
+				} else {
+					// In 2D mode, use normal overlay addition
+					console.log('📌 Adding overlay in 2D mode');
+
+					// Check if overlay synchronizer is causing issues
+					if (window.ol3d && window.ol3d.overlaySynchronizer) {
+						console.log('🔧 Temporarily disabling overlay synchronizer for this operation');
+						const originalSync = window.ol3d.overlaySynchronizer.synchronizeOverlays;
+						window.ol3d.overlaySynchronizer.synchronizeOverlays = function() {
+							console.log('🚫 Skipping overlay synchronization to prevent errors');
+						};
+
+						// Add overlay with synchronizer disabled
+						map.addOverlay(pinMap);
+						pinMap.setPositioning('bottom-center');
+
+						// Restore synchronizer after a short delay
+						setTimeout(() => {
+							window.ol3d.overlaySynchronizer.synchronizeOverlays = originalSync;
+							console.log('🔧 Restored overlay synchronizer');
+						}, 100);
+					} else {
+						// Normal overlay addition
+						map.addOverlay(pinMap);
+						pinMap.setPositioning('bottom-center');
+					}
+				}
+			} catch (error) {
+				console.error('❌ Error adding overlay:', error);
+
+				// More robust fallback - create a simple DOM overlay
+				if (error.message.includes('getMap') || error.message.includes('SynchronizedOverlay')) {
+					console.log('🚨 SynchronizedOverlay error detected, using DOM fallback');
+
+					// Create a simple DOM element overlay
+					const domOverlay = document.createElement('div');
+					domOverlay.className = 'osmcat-map-pin';
+					domOverlay.title = coordinateText;
+					domOverlay.innerHTML = '<i class="fa fa-map-pin"></i>';
+					domOverlay.style.position = 'absolute';
+					domOverlay.style.left = evt.pixel[0] + 'px';
+					domOverlay.style.top = evt.pixel[1] + 'px';
+					domOverlay.style.zIndex = '1000';
+
+					// Add to map container
+					document.getElementById('map').appendChild(domOverlay);
+
+					// Remove after dialog closes
+					setTimeout(() => {
+						if (domOverlay.parentNode) {
+							domOverlay.parentNode.removeChild(domOverlay);
+						}
+					}, 10000);
+				} else {
+					// Try direct overlay addition as last resort
+					try {
+						map.addOverlay(pinMap);
+						pinMap.setPositioning('bottom-center');
+					} catch (fallbackError) {
+						console.error('❌ All overlay addition methods failed:', fallbackError);
+					}
+				}
+			} finally {
+				// Ensure loader is hidden regardless of success/failure
+				if (window.loading && window.loading.hide) {
+					window.loading.hide();
+					window.loading.count = 0;
+					console.log('🔄 Forced loader to hide after overlay operation');
+				}
+			}
+
+			console.log('📌 Pin overlay added to map');
+
+		var popupContingut = null;
+		try {
+			popupContingut = config.onClickEvent.call(this, evt, view, coordinateLL);
+			console.log('📋 onClickEvent executed successfully');
+		} catch (error) {
+			console.error('❌ Error in config.onClickEvent:', error);
+			popupContingut = $('<div>').html('Error generating click content');
+		}
 
 		var nodeInfo = $('<div>');
 		var numFeatures = 0;
-		map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-			numFeatures++;
-			nodeInfo.append(config.forFeatureAtPixel.call(this, evt, feature));
-		});
+		try {
+			map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+				numFeatures++;
+				console.log('🎯 Found feature at pixel:', feature.getId(), feature.getProperties());
+				try {
+					nodeInfo.append(config.forFeatureAtPixel.call(this, evt, feature));
+				} catch (featureError) {
+					console.error('❌ Error processing feature:', featureError);
+					nodeInfo.append($('<div>').html('Error processing feature: ' + feature.getId()));
+				}
+			});
+			console.log('🔍 Found', numFeatures, 'features at click location');
+		} catch (pixelError) {
+			console.error('❌ Error in forEachFeatureAtPixel:', pixelError);
+		}
 
-		var popupContingutExtra = config.onClickEventExtra.call(this, evt, view, coordinateLL, numFeatures);
+		var popupContingutExtra = null;
+		try {
+			popupContingutExtra = config.onClickEventExtra.call(this, evt, view, coordinateLL, numFeatures);
+			console.log('📋 onClickEventExtra executed successfully');
+		} catch (extraError) {
+			console.error('❌ Error in config.onClickEventExtra:', extraError);
+			popupContingutExtra = $('<div>').html('Error generating extra content');
+		}
 
-		$('<div>').html([popupContingut, nodeInfo, popupContingutExtra]).dialog({
-			title: coordinateText,
-			position: {my: 'left top', at: 'left bottom', of: $(pinMap.getElement())},
-			close: function () {
-				$(this).dialog('destroy');
-				map.removeOverlay(pinMap);
-			},
-			focus: function () {
-				$(pinMap.getElement()).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200);
-			}
-		});
+		console.log('💬 Creating dialog with content');
+		try {
+			$('<div>').html([popupContingut, nodeInfo, popupContingutExtra]).dialog({
+				title: coordinateText,
+				position: {my: 'left top', at: 'left bottom', of: $(pinMap.getElement())},
+				close: function () {
+					$(this).dialog('destroy');
+					map.removeOverlay(pinMap);
+				},
+				focus: function () {
+					$(pinMap.getElement()).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200).animate({color: '#F00', paddingBottom: 5}, 200).animate({color: '#000', paddingBottom: 0}, 200);
+				}
+			});
+			console.log('✅ Dialog created successfully');
+		} catch (dialogError) {
+			console.error('❌ Error creating dialog:', dialogError);
+			alert('Error creating popup dialog - check console for details');
+		}
 
 	});
 });

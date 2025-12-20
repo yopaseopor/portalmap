@@ -159,7 +159,11 @@
 
     /* Button positions */
     .osmcat-router { top: 80px; }
-    .osmcat-clearoverlaybutton { top: 120px; }
+    .osmcat-clearoverlaybutton { 
+        top: 115px; 
+        pointer-events: auto;
+        z-index: 1002;
+    }
     .osmcat-mapillary { bottom: 260px; }
     .osmcat-panoramax { bottom: 210px; }
     .osmcat-sharebutton { bottom: 160px; }

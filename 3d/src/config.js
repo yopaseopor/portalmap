@@ -64,14 +64,33 @@ var config = {
 		wayLabel: 'Vía:'
 	},
 	overpassApi: function(){
-		//@@posibilidad de cambiar el servidor de overpass https://overpass-turbo.eu/
-		var proxyOverpassApi = false;  // Changed to false to use main API
-		var overpassApi = 'https://overpass-api.de/api/interpreter';
-		if (proxyOverpassApi)
-		{
-			overpassApi = 'https://overpass.kumi.systems/api/interpreter';
-		}
-		return overpassApi;
+		// Multiple Overpass API servers for fallback
+		var overpassServers = [
+			'https://overpass-api.de/api/interpreter',
+			'https://overpass.kumi.systems/api/interpreter',
+			'https://overpass.nchc.org.tw/api/interpreter',
+			'https://z.overpass-api.de/api/interpreter'
+		];
+		
+		// Try to get a working server from localStorage or use the first one
+		var currentServerIndex = parseInt(localStorage.getItem('overpassServerIndex') || '0');
+		return overpassServers[currentServerIndex];
+	},
+	overpassApiFallback: function() {
+		// Get next available server
+		var overpassServers = [
+			'https://overpass-api.de/api/interpreter',
+			'https://overpass.kumi.systems/api/interpreter',
+			'https://overpass.nchc.org.tw/api/interpreter',
+			'https://z.overpass-api.de/api/interpreter'
+		];
+		
+		var currentIndex = parseInt(localStorage.getItem('overpassServerIndex') || '0');
+		var nextIndex = (currentIndex + 1) % overpassServers.length;
+		localStorage.setItem('overpassServerIndex', nextIndex.toString());
+		
+		console.log('Switching to Overpass server:', overpassServers[nextIndex]);
+		return overpassServers[nextIndex];
 	},
 	//@@ Mapas de fondo
 	layers: [
@@ -403,7 +422,7 @@ style: function (feature) {
 		//Level0 editor
 		edit.append($('<a>').css('marginLeft', 5).attr({title: 'Potlatch 2', href: 'https://level0.osmz.ru/index.php?center=' + coordinateLL[1] + ',' + coordinateLL[0], target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/L0_logo.png', height: 20, width: 20})));
 		//JOSM, Mercator, Potlach2 (remote control) editor
-		edit.append($('<a>').css('marginLeft', 5).attr({title: 'JOSM', href: 'https://www.openstreetmap.org/edit?editor=remote&lon=' + coordinateLL[0] + '&lat=' + coordinateLL[1] + '&zoom=' + view.getZoom(), target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/JOSM Logotype 2019.svg', height: 20, width: 20})));
+		edit.append($('<a>').css('marginLeft', 5).attr({title: 'JOSM', href: 'https://www.openstreetmap.org/edit?editor=remote&lon=' + coordinateLL[0] + '&lat=' + coordinateLL[1] + '&zoom=' + view.getZoom(), target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/josm_logo.svg', height: 20, width: 20})));
 		//@@RapiD editor
 		edit.append($('<a>').css('marginLeft', 5).attr({title: 'iD', href: 'https://rapideditor.org/edit#background=Bing&datasets=fbRoads,msBuildings&disable_features=boundaries&map=' + view.getZoom() + '/' + coordinateLL[1] + '/' + coordinateLL[0], target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/rapid_logo.png', height: 20, width: 20})));
 		

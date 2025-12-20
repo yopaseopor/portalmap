@@ -131,6 +131,9 @@ CLEAR ACTIVE OVERLAY BUTTON
     transition: background 0.2s;
     padding: 0;
     margin: 0;
+    pointer-events: auto;
+    z-index: 1002;
+    position: relative;
 }
 
 
@@ -730,7 +733,13 @@ CLEAR ACTIVE OVERLAY BUTTON
     left: auto !important;
     position: absolute !important;
 }
-.osmcat-clearoverlaybutton { top: 140px; }
+.osmcat-clearoverlaybutton { 
+    top: 110px; 
+    right: 8px;
+    position: absolute;
+    z-index: 1002;
+    pointer-events: auto;
+}
 .osmcat-panoramax { 
     bottom: 210px;
     right: 8px;

@@ -1,13 +1,14 @@
-//import { an } from './an.js';
-//import { ar } from './ar.js';
-//import { ast } from './ast.js';
-//import { bn } from './bn.js';
+import { an } from './an.js';
+import { ast } from './ast.js';
 import { ca } from './ca.js';
-//import { da } from './da.js';
+import { da } from './da.js';
 import { de } from './de.js';
 import { en } from './en.js';
 import { es } from './es.js';
-//import { eu } from './eu.js';
+import { eu } from './eu.js';
+import { fr } from './fr.js';
+import { gl } from './gl.js';
+import { it } from './it.js';
 //import { fi } from './fi.js';
 //import { fr } from './fr.js';
 //import { gl } from './gl.js';
@@ -36,10 +37,17 @@ import { es } from './es.js';
 // Create a sorted and formatted languages object
 export const languages = (() => {
     const langEntries = [
+        { code: 'an', native: 'Aragonés', en: 'Aragonese', translations: an },
+        { code: 'ast', native: 'Asturleonés', en: 'Asturian-Leonese', translations: ast },
         { code: 'ca', native: 'Català', en: 'Catalan', translations: ca },
+        { code: 'da', native: 'Dansk', en: 'Danish', translations: da },
         { code: 'de', native: 'Deutsch', en: 'German', translations: de },
         { code: 'en', native: 'English', en: 'English', translations: en },
-        { code: 'es', native: 'Español', en: 'Spanish', translations: es }
+        { code: 'es', native: 'Español', en: 'Spanish', translations: es },
+        { code: 'eu', native: 'Euskera', en: 'Basque', translations: eu },
+        { code: 'fr', native: 'Français', en: 'French', translations: fr },
+        { code: 'gl', native: 'Galego', en: 'Galician', translations: gl },
+        { code: 'it', native: 'Italiano', en: 'Italian', translations: it }
     ];
 
     // Sort by English name
@@ -193,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // If no URL parameter, use browser language
     const browserLang = navigator.language.split('-')[0];
-    const supportedLangs = ['en', 'es', 'ca'];
+    const supportedLangs = ['en', 'es', 'ca', 'eu', 'ast', 'gl', 'an', 'fr', 'it', 'da'];
     const initialLang = supportedLangs.includes(browserLang) ? browserLang : 'en';
     console.log('🔧 Setting initial language to:', initialLang, 'based on browser language:', browserLang);
     setLanguage(initialLang, true);
@@ -251,4 +259,4 @@ function translateElementTypeCheckboxes() {
             // console.log(`🔄 Label text after: "${$label.text()}"`);
         }
     });
-} 
+}
