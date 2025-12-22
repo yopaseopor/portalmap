@@ -184,8 +184,14 @@ window.addEventListener('popstate', () => {
 // Expose updateTranslations globally for overlays/layers re-render
 window.updateTranslations = updateTranslations;
 
-// Make getTranslation available globally
+// Make getTranslation and getCurrentLanguage available globally
 window.getTranslation = getTranslation;
+window.getCurrentLanguage = getCurrentLanguage;
+
+// Create i18n namespace for backward compatibility with taginfo_api.js
+window.i18n = {
+    getCurrentLanguage: getCurrentLanguage
+};
 
 // Initialize translations when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

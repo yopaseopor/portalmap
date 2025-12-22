@@ -28,7 +28,7 @@ function getCurrentLanguage() {
         const lang = urlParams.get('lang') || 'ca';
         
         // Validate language
-        if (['ca', 'es', 'en'].includes(lang)) {
+        if (['ca', 'es', 'en', 'da'].includes(lang)) {
             return lang;
         }
         
@@ -57,31 +57,48 @@ function loadTaginfoDefinitions() {
     return new Promise((resolve, reject) => {
         // Check if already loaded
         if (window.taginfoData.loaded) {
-            // console.log('📊 Taginfo data already loaded');
+            console.log('📊 Taginfo data already loaded');
             resolve();
             return;
         }
 
-        // console.log('📊 Loading taginfo definitions from CSV...');
+        console.log('📊 Loading taginfo definitions from CSV...');
         const csvPath = getTaginfoCsvPath(false);
-        // console.log('📊 Loading CSV from:', csvPath);
+        console.log('📊 Loading CSV from:', csvPath);
+        
         fetch(csvPath)
             .then(response => {
-                // console.log('📊 CSV fetch response:', response.status);
+                console.log('📊 CSV fetch response status:', response.status);
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    return response.text().then(text => {
+                        console.error('❌ Failed to load CSV:', text);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}\n${text}`);
+                    });
                 }
                 return response.text();
             })
             .then(csvText => {
-                // console.log('📊 CSV loaded, length:', csvText.length);
+                console.log('📊 CSV loaded, length:', csvText.length);
+                if (!csvText || csvText.trim().length === 0) {
+                    throw new Error('CSV file is empty');
+                }
+                
+                // Log first 200 chars of CSV for debugging
+                console.log('📊 CSV sample:', csvText.substring(0, 200) + '...');
+                
                 parseCSVDataSimple(csvText, window.taginfoData);
                 window.taginfoData.loaded = true;
-                // console.log('📊 Taginfo data loaded successfully');
+                console.log('📊 Taginfo data loaded successfully');
+                console.log(`📊 Loaded ${window.taginfoData.keys.size} keys and ${window.taginfoData.definitions.size} definitions`);
                 resolve();
             })
             .catch(error => {
                 console.error('❌ Error loading taginfo definitions:', error);
+                console.error('❌ Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
                 reject(error);
             });
     });
@@ -122,76 +139,113 @@ function loadTaginfoDefinitionsYes() {
 }
 
 /**
- * Parse simplified CSV data (key, value, definition_ca) and organize it for fast searching
+ * Parse simplified CSV data (key, value, definition) and organize it for fast searching
  */
 function parseCSVDataSimple(csvText, targetData = window.taginfoData) {
-    const lines = csvText.split('\n');
+    try {
+        console.log('📊 Starting to parse CSV data');
+        const lines = csvText.split('\n');
 
-    if (lines.length === 0) {
-        console.error('Empty CSV data');
-        return;
-    }
+        if (lines.length === 0) {
+            console.error('❌ Empty CSV data');
+            return;
+        }
 
-    const headers = lines[0].split(',');
+        console.log(`📊 Parsing ${lines.length} lines of CSV data`);
+        
+        // Get current language for dynamic property names
+        const lang = getCurrentLanguage();
+        console.log(`📊 Current language: ${lang}`);
 
-    for (let i = 1; i < lines.length && i < 50000; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
+        // Process each line
+        let lineCount = 0;
+        for (let i = 1; i < lines.length && i < 50000; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
 
-        const values = parseCSVLine(line);
-        if (values.length >= 3) {  // Simplified structure (3 columns)
-            const key = values[0];
-            const value = values[1];
-            let definition = values[2];
-            definition = definition
-                .replace(/Ã³/g, 'ó')
-                .replace(/Ã©/g, 'é')
-                .replace(/Ã¨/g, 'è')
-                .replace(/Ã /g, 'à')
-                .replace(/Ã¯/g, 'ï')
-                .replace(/Ã±/g, 'ñ')
-                .replace(/Ã§/g, 'ç')
-                .replace(/Ã/g, 'í');
+            try {
+                const values = parseCSVLine(line);
+                if (values.length < 3) {
+                    console.warn(`⚠️ Line ${i + 1}: Expected at least 3 columns, got ${values.length}`, values);
+                    continue;
+                }
 
-            if (!targetData.keys.has(key)) {
-                targetData.keys.set(key, {
-                    definition: definition || '',
-                    definition_ca: definition || '',
-                    totalCount: 0,
-                    values: new Map() // Map<value, Array<entries>>
-                });
-            }
+                const key = values[0]?.trim() || '';
+                const value = values[1]?.trim() || '';
+                let definition = values[2]?.trim() || '';
 
-            const keyData = targetData.keys.get(key);
+                // Handle common character encoding issues
+                if (typeof definition === 'string') {
+                    definition = definition
+                        .replace(/Ã³/g, 'ó')
+                        .replace(/Ã©/g, 'é')
+                        .replace(/Ã¨/g, 'è')
+                        .replace(/Ã /g, 'à')
+                        .replace(/Ã¯/g, 'ï')
+                        .replace(/Ã±/g, 'ñ')
+                        .replace(/Ã§/g, 'ç')
+                        .replace(/Ã/g, 'í')
+                        .replace(/â/g, '–')  // en dash
+                        .replace(/â/g, '—')  // em dash
+                        .replace(/â/g, '\'')  // right single quote
+                        .replace(/â/g, '"')  // left double quote
+                        .replace(/â/g, '"');  // right double quote
+                }
 
-            if (!keyData.values.has(value)) {
-                keyData.values.set(value, []);
-            }
+                // Initialize key data if it doesn't exist
+                if (!targetData.keys.has(key)) {
+                    targetData.keys.set(key, {
+                        definition: definition,
+                        totalCount: 0,
+                        values: new Map()
+                    });
+                    
+                    // Set language-specific definition
+                    targetData.keys.get(key)[`definition_${lang}`] = definition;
+                }
 
-            const entry = {
-                definition: definition || '',
-                countAll: 0 // No count data in simplified CSV
-            };
-            
-            const lang = getCurrentLanguage();
-            entry[`definition_${lang}`] = definition || '';
-            
-            keyData.values.get(value).push(entry);
+                const keyData = targetData.keys.get(key);
 
-            keyData.totalCount += 1; // Increment by 1 for each entry
+                // Initialize value array if it doesn't exist
+                if (!keyData.values.has(value)) {
+                    keyData.values.set(value, []);
+                }
 
-            if (!targetData.values.has(value)) {
-                targetData.values.set(value, {
-                    totalCount: 0
-                });
-            }
-            targetData.values.get(value).totalCount += 1;
+                // Create entry with language-specific definition
+                const entry = {
+                    definition: definition,
+                    countAll: 0, // No count data in simplified CSV
+                    [`definition_${lang}`]: definition
+                };
+                
+                keyData.values.get(value).push(entry);
+                keyData.totalCount += 1;
+                lineCount++;
+                
+                // Track values globally
+                if (!targetData.values.has(value)) {
+                    targetData.values.set(value, { totalCount: 0 });
+                }
+                targetData.values.get(value).totalCount += 1;
 
-            const tag = `${key}=${value}`;
-            if (tag) {
-                targetData.definitions.set(tag, definition || '');
+                // Store the tag for reverse lookup
+                const tag = `${key}=${value}`;
+                if (tag) {
+                    targetData.definitions.set(tag, definition || '');
+                }
+            } catch (lineError) {
+                console.error(`❌ Error processing line ${i + 1}:`, lineError);
+                console.error('Line content:', line);
+                continue;
             }
         }
+        
+        console.log(`✅ Successfully parsed ${lineCount} entries from CSV`);
+        return lineCount;
+        
+    } catch (error) {
+        console.error('❌ Fatal error in parseCSVDataSimple:', error);
+        throw error; // Re-throw to allow caller to handle the error
     }
 }
 
@@ -322,15 +376,11 @@ function searchKeys(query, limit = 20) {
 
     let matchCount = 0;
     for (const [key, keyData] of window.taginfoData.keys) {
-        const searchTexts = [];
-
-        searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));  
-
-        searchTexts.push(removeDiacritics(`${keyData.definition_en || ''}`.toLowerCase()));
-        searchTexts.push(removeDiacritics(`${keyData.definition_ca || ''}`.toLowerCase()));
-        searchTexts.push(removeDiacritics(`${keyData.definition_es || ''}`.toLowerCase()));
-        searchTexts.push(removeDiacritics(`${keyData.key_ca || ''}`.toLowerCase()));
-        searchTexts.push(removeDiacritics(`${keyData.key_es || ''}`.toLowerCase()));
+        // Only search in the key and main definition (already in current language)
+        const searchTexts = [
+            removeDiacritics(`${key}`.toLowerCase()),
+            removeDiacritics(`${keyData.definition || ''}`.toLowerCase())
+        ];
 
         let matchFound = false;
         let matchScore = 0;
@@ -407,7 +457,7 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
                 const keyMatch = currentKey.toLowerCase().includes(queryNormalized);
                 let definitionMatch = false;
                 
-                // Check all entries for a matching definition
+                // Check all entries for a matching definition in the current language
                 for (const valueData of valueEntries) {
                     if (valueData.definition && 
                         removeDiacritics(valueData.definition.toLowerCase()).includes(queryNormalized)) {
@@ -451,12 +501,17 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
                 const keyMatch = key.toLowerCase().includes(queryNormalized);
                 let definitionMatch = false;
                 
-                // Check all entries for a matching definition
+                // Check all entries for a matching definition in the current language
                 for (const valueData of valueEntries) {
-                    if (valueData.definition && 
-                        removeDiacritics(valueData.definition.toLowerCase()).includes(queryNormalized)) {
-                        definitionMatch = true;
-                        break;
+                    if (valueData.definition) {
+                        // Normalize the definition by removing spaces around equals sign for better matching
+                        const normalizedDef = removeDiacritics(valueData.definition.toLowerCase())
+                            .replace(/\s*=\s*/g, '=');
+                        
+                        if (normalizedDef.includes(queryNormalized)) {
+                            definitionMatch = true;
+                            break;
+                        }
                     }
                 }
                 
@@ -479,12 +534,14 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
                 searchTexts.push(removeDiacritics(`${value}`.toLowerCase()));  // Value name gets highest weight
                 searchTexts.push(removeDiacritics(`${key}`.toLowerCase()));     // Key name gets high weight
 
-                // Get all possible definition fields to search in
+                // Normalize the definition by removing spaces around equals sign for better matching
+                const normalizedDef = valueData.definition 
+                    ? removeDiacritics(valueData.definition.toLowerCase())
+                        .replace(/\s*=\s*/g, '=')
+                    : '';
+                    
                 const searchFields = [
-                    valueData.definition,
-                    valueData.definition_ca,
-                    valueData.definition_es,
-                    valueData.definition_en
+                    normalizedDef
                 ].filter(Boolean); // Remove any undefined/null values
                 
                 // Add all available definitions to search text
@@ -588,22 +645,19 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
             // console.log('🔍 Query normalized:', queryNormalized);
             // console.log('🔍 Search texts:', searchTexts);
 
-            // Add definition columns with lower weight - search in ALL entries for each key
+            // Add main definition field for each key that uses this value
             for (const valueKey of keysWithValue) {
                 const keyData = data.keys.get(valueKey);
                 if (keyData && keyData.values.has(value)) {
-                    // valueEntries is now an array of entries
                     const valueEntries = keyData.values.get(value);
                     for (const valueEntry of valueEntries) {
-                        // Definition columns get much lower weight
-                        searchTexts.push(removeDiacritics(`${valueEntry.definition_en || ''}`.toLowerCase()));
-                        searchTexts.push(removeDiacritics(`${valueEntry.definition_ca || ''}`.toLowerCase()));
-                        searchTexts.push(removeDiacritics(`${valueEntry.definition_es || ''}`.toLowerCase()));
-                        searchTexts.push(removeDiacritics(`${valueEntry.value_ca || ''}`.toLowerCase()));
-                        searchTexts.push(removeDiacritics(`${valueEntry.value_es || ''}`.toLowerCase()));
-                        // Key translation columns also get lower weight
-                        searchTexts.push(removeDiacritics(`${keyData.key_ca || ''}`.toLowerCase()));
-                        searchTexts.push(removeDiacritics(`${keyData.key_es || ''}`.toLowerCase()));
+                        // Only use the main definition field (already in current language)
+                        if (valueEntry.definition) {
+                            // Normalize the definition by removing spaces around equals sign for better matching
+                            const normalizedDef = removeDiacritics(valueEntry.definition.toLowerCase())
+                                .replace(/\s*=\s*/g, '=');
+                            searchTexts.push(normalizedDef);
+                        }
                     }
                 }
             }
@@ -616,7 +670,6 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
 
                 if (searchText.includes(queryNormalized)) {
                     matchFound = true;
-                    // console.log('🔍 Match found! searchText:', searchText, 'query:', queryNormalized);
                     // Give much higher scores to exact matches vs partial matches
                     if (searchText === removeDiacritics(`${value}`.toLowerCase())) {
                         matchScore += 1000;  // Exact value match gets highest priority
@@ -703,14 +756,10 @@ function searchValues(query, key = null, limit = 100, useYesCsv = false) {
             for (const [keyItem, keyData] of data.keys) {
                 if (results.length >= limit) break;
 
-                // Search in key and all definition columns
+                // Search in key and main definition (already in current language)
                 const searchTexts = [
                     removeDiacritics(`${keyItem}`.toLowerCase()),
-                    removeDiacritics(`${keyData.definition_en || ''}`.toLowerCase()),
-                    removeDiacritics(`${keyData.definition_ca || ''}`.toLowerCase()),
-                    removeDiacritics(`${keyData.definition_es || ''}`.toLowerCase()),
-                    removeDiacritics(`${keyData.key_ca || ''}`.toLowerCase()),
-                    removeDiacritics(`${keyData.key_es || ''}`.toLowerCase())
+                    removeDiacritics(`${keyData.definition || ''}`.toLowerCase())
                 ];
 
                 let matchFound = false;

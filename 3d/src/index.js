@@ -593,43 +593,88 @@ $(function () {
     // Initialize Nominatim search
     initNominatimSearch(map);
 
-	// Initialize Taginfo API
-	initTaginfoAPI().then(() => {
-		console.log('Taginfo API initialized');
+	// Wait for translations to be initialized before initializing Taginfo API
+	const waitForTranslationsThenInitTaginfo = () => {
+		try {
+			const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'ca';
+			console.log('🔍 Initializing Taginfo API for language:', currentLang);
 
-		// Wait for translations to be initialized before starting search modules
-		const waitForTranslations = () => {
-			if (typeof window.getTranslation === 'function') {
-				console.log('🔍 Translations available, initializing search modules');
-				// Initialize search modules after taginfo is ready AND translations are available
+			// Check if i18n is fully initialized
+			if (typeof window.getTranslation === 'function' && window.i18n && typeof window.i18n.getCurrentLanguage === 'function') {
+				console.log('🔍 Translations and i18n available, initializing Taginfo API');
+
+				// Initialize Taginfo API now that i18n is ready
+				initTaginfoAPI().then(() => {
+					console.log('✅ Taginfo API initialized successfully');
+
+					try {
+						// Initialize search modules after taginfo is ready
+						initKeySearch();
+						initValueSearch();
+
+						// DISABLED: Automatic execution of tag queries from URL
+						// Only execute queries when user clicks the button
+						if (window.initialTagQueries && window.initialTagQueries.length > 0) {
+							console.log('🔍 Tag queries from URL stored but NOT executed automatically:', window.initialTagQueries);
+						}
+
+						// Set up event listeners for tag query URL updates
+						setupTagQueryEventListeners();
+					} catch (initError) {
+						console.error('❌ Error initializing search modules:', initError);
+					}
+				}).catch(error => {
+					console.error('❌ Failed to initialize Taginfo API:', error);
+					// Try to continue with the rest of the app even if Taginfo fails
+					try {
+						initKeySearch();
+						initValueSearch();
+						setupTagQueryEventListeners();
+					} catch (fallbackError) {
+						console.error('❌ Fallback initialization also failed:', fallbackError);
+					}
+				});
+			} else {
+				console.warn('⚠️ i18n not fully initialized, but attempting to load Taginfo API anyway');
+				
+				// Try to initialize anyway with a fallback
+				try {
+					initTaginfoAPI()
+						.then(() => {
+							console.log('✅ Taginfo API initialized without i18n');
+							initKeySearch();
+							initValueSearch();
+							setupTagQueryEventListeners();
+						})
+						.catch(error => {
+							console.error('❌ Failed to initialize Taginfo API without i18n:', error);
+							// Still try to initialize search modules
+							try {
+								initKeySearch();
+								initValueSearch();
+								setupTagQueryEventListeners();
+							} catch (e) {
+								console.error('❌ Failed to initialize search modules:', e);
+							}
+						});
+				} catch (e) {
+					console.error('❌ Error during Taginfo API initialization attempt:', e);
+				}
+			}
+		} catch (e) {
+			console.error('❌ Error in waitForTranslationsThenInitTaginfo:', e);
+			// Last resort: try to initialize search modules even if everything else failed
+			try {
 				initKeySearch();
 				initValueSearch();
-
-				// DISABLED: Automatic execution of tag queries from URL
-				// Only execute queries when user clicks the button
-				if (window.initialTagQueries && window.initialTagQueries.length > 0) {
-					console.log('🔍 Tag queries from URL stored but NOT executed automatically:', window.initialTagQueries);
-					// Keep the queries stored for manual execution if needed
-					// window.initialTagQueries = [];
-				}
-
-				// Set up event listeners for tag query URL updates
 				setupTagQueryEventListeners();
-			} else {
-				setTimeout(waitForTranslations, 50);
+			} catch (finalError) {
+				console.error('❌ Final fallback initialization failed:', finalError);
 			}
-		};
+		}
+	};
 
-		waitForTranslations();
-	}).catch(error => {
-		console.error('Failed to initialize Taginfo API:', error);
-		// Still initialize search modules even if taginfo fails
-		initKeySearch();
-		initValueSearch();
-
-		// Set up event listeners even if taginfo fails
-		setupTagQueryEventListeners();
-	});
+	waitForTranslationsThenInitTaginfo();
 
     // Initialize PanoraMax viewer
     initPanoraMaxViewer(map);

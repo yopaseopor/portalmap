@@ -1365,6 +1365,19 @@ function initValueSearch() {
     let currentValue = null;
     let currentResults = [];
 
+    // Listen for language changes to clear search results
+    window.addEventListener('languageChanged', function(event) {
+        console.log('🔄 Language changed, clearing search results');
+        // Clear UI state
+        searchInput.val('');
+        resultsContainer.empty().hide();
+        $('#execute-query-btn').hide();
+        $('#clear-search-btn').hide();
+        // Clear data
+        searchInput.removeData('selectedKey');
+        currentResults = [];
+    });
+
     // Initialize search input
     searchInput.on('input', function() {
         const query = $(this).val().trim();
@@ -1626,6 +1639,7 @@ function initValueSearch() {
             const highlightedKey = result.key ? highlightText(result.key, query) : '';
 
             // Apply highlighting to all definition columns
+            const highlightedDef = highlightText(result.definition || '', query);
             const highlightedDefEn = highlightText(result.definition_en || '', query);
             const highlightedDefCa = highlightText(result.definition_ca || '', query);
             const highlightedDefEs = highlightText(result.definition_es || '', query);
@@ -1637,15 +1651,38 @@ function initValueSearch() {
 
             // Show only definition columns that contain the search term (with diacritic normalization)
             const queryNormalized = removeDiacritics(query.toLowerCase());
-            const defEnHtml = result.definition_en && removeDiacritics(result.definition_en.toLowerCase()).includes(queryNormalized)
-                ? `<div class="value-definition-en">EN: ${highlightedDefEn}</div>`
+            
+            // Get current language and its definition
+            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'ca';
+            const langDefinition = result[`definition_${currentLang}`] || '';
+            
+            // Always show main definition if it contains the search term
+            const defHtml = result.definition && 
+                removeDiacritics(result.definition.toLowerCase()).includes(queryNormalized)
+                ? `<div class="value-definition">${highlightedDef}</div>`
                 : '';
-            const defCaHtml = result.definition_ca && removeDiacritics(result.definition_ca.toLowerCase()).includes(queryNormalized)
-                ? `<div class="value-definition-ca">CA: ${highlightedDefCa}</div>`
-                : '';
-            const defEsHtml = result.definition_es && removeDiacritics(result.definition_es.toLowerCase()).includes(queryNormalized)
-                ? `<div class="value-definition-es">ES: ${highlightedDefEs}</div>`
-                : '';
+                
+            // Only show language-specific definition if it's different from main definition and contains the search term
+            const defEnHtml = 
+                result.definition_en && 
+                removeDiacritics(result.definition_en.toLowerCase()).includes(queryNormalized) &&
+                result.definition_en !== result.definition
+                    ? `<div class="value-definition-en">EN: ${highlightedDefEn}</div>`
+                    : '';
+                    
+            const defCaHtml = 
+                result.definition_ca && 
+                removeDiacritics(result.definition_ca.toLowerCase()).includes(queryNormalized) &&
+                result.definition_ca !== result.definition
+                    ? `<div class="value-definition-ca">CA: ${highlightedDefCa}</div>`
+                    : '';
+                    
+            const defEsHtml = 
+                result.definition_es && 
+                removeDiacritics(result.definition_es.toLowerCase()).includes(queryNormalized) &&
+                result.definition_es !== result.definition
+                    ? `<div class="value-definition-es">ES: ${highlightedDefEs}</div>`
+                    : '';
 
             const valueCountHtml = `<div class="value-count">${formatValueCount(countToUse, definitionToUse)}</div>`;
 
@@ -1653,6 +1690,7 @@ function initValueSearch() {
                 ${valueNameHtml}
                 ${valueKeyHtml}
                 ${valueTagHtml}
+                ${defHtml}
                 ${defEnHtml}
                 ${defCaHtml}
                 ${defEsHtml}
@@ -2442,19 +2480,19 @@ function generateQueryColor(overlayId, isFixed = false) {
         }
     }
 }
-// Initialize when DOM is ready
-$(document).ready(function() {
-    // Wait for map to be ready
-    const waitForMap = () => {
-        if (window.map && typeof window.map.getView === 'function') {
-            initValueSearch();
-        } else {
-            setTimeout(waitForMap, 100);
-        }
-    };
+    // Initialize when DOM is ready
+    $(document).ready(function() {
+        // Wait for map to be ready
+        const waitForMap = () => {
+            if (window.map && typeof window.map.getView === 'function') {
+                initValueSearch();
+            } else {
+                setTimeout(waitForMap, 100);
+            }
+        };
 
-    waitForMap();
-});
+        waitForMap();
+    });
 
 // Export for use in other modules
 window.initValueSearch = initValueSearch;
