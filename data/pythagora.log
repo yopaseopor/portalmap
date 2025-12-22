@@ -200,3 +200,97 @@ Stack: Canceled: Canceled
 Extra context: {
   "message": "Canceled"
 }
+2025-12-20T22:09:52.187Z INFO Is remote: false
+2025-12-20T22:09:52.651Z INFO Starting Local. Installation path: d:\_x\a\GitHub\portalmap
+2025-12-20T22:09:52.652Z INFO [MainProvider] Creating new MainProvider instance...
+2025-12-20T22:09:52.653Z INFO [TabsManager] Code view listener set up at initialization
+2025-12-20T22:09:52.654Z INFO Installation path exists: d:\_x\a\GitHub\portalmap
+2025-12-20T22:09:52.654Z INFO Initializing database with URL: file:d:\_x\a\GitHub\portalmap\pythagora-core\data\database\pythagora.db
+2025-12-20T22:09:52.673Z INFO Database file exists, skipping prisma generate/push for faster startup
+2025-12-20T22:09:52.673Z INFO Database initialized successfully
+2025-12-20T22:09:52.674Z INFO [Migration] Checking for database migration...
+2025-12-20T22:09:52.855Z INFO [Migration] No migration needed
+2025-12-20T22:11:06.916Z INFO [TabsManager] First file opened, triggering split view
+2025-12-20T22:11:06.970Z INFO [MainProvider] First file opened, creating split view
+2025-12-21T18:46:36.617Z ERROR axios failed after all retries:
+Error: getaddrinfo ENOTFOUND api.pythagora.ai
+Stack: Error: getaddrinfo ENOTFOUND api.pythagora.ai
+    at AxiosError.from (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:857:14)
+    at RedirectableRequest.handleRequestError (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:3169:25)
+    at RedirectableRequest.emit (node:events:519:28)
+    at RedirectableRequest.emit (node:domain:489:12)
+    at eventHandlers.<computed> (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\follow-redirects\index.js:49:24)
+    at ClientRequest.emit (node:events:531:35)
+    at ClientRequest.emit (node:domain:489:12)
+    at emitErrorEvent (node:_http_client:107:11)
+    at TLSSocket.socketErrorListener (node:_http_client:574:5)
+    at TLSSocket.emit (node:events:519:28)
+    at TLSSocket.emit (node:domain:489:12)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:4258:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\services\authService.js:20:67
+    at async withRetry (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\utils\axios.js:22:20)
+    at async Object.refreshTokens (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\services\authService.js:20:26)
+    at async Timeout._onTimeout (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\extension.js:279:13)
+Extra context: {
+  "code": "ENOTFOUND",
+  "message": "getaddrinfo ENOTFOUND api.pythagora.ai"
+}
+2025-12-21T18:46:37.397Z ERROR Token refresh failed:
+Error: getaddrinfo ENOTFOUND api.pythagora.ai
+Stack: Error: getaddrinfo ENOTFOUND api.pythagora.ai
+    at AxiosError.from (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:857:14)
+    at RedirectableRequest.handleRequestError (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:3169:25)
+    at RedirectableRequest.emit (node:events:519:28)
+    at RedirectableRequest.emit (node:domain:489:12)
+    at eventHandlers.<computed> (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\follow-redirects\index.js:49:24)
+    at ClientRequest.emit (node:events:531:35)
+    at ClientRequest.emit (node:domain:489:12)
+    at emitErrorEvent (node:_http_client:107:11)
+    at TLSSocket.socketErrorListener (node:_http_client:574:5)
+    at TLSSocket.emit (node:events:519:28)
+    at TLSSocket.emit (node:domain:489:12)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\node_modules\axios\dist\node\axios.cjs:4258:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\services\authService.js:20:67
+    at async withRetry (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\utils\axios.js:22:20)
+    at async Object.refreshTokens (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\services\authService.js:20:26)
+    at async Timeout._onTimeout (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\extension.js:279:13)
+Extra context: {
+  "code": "ENOTFOUND",
+  "message": "getaddrinfo ENOTFOUND api.pythagora.ai"
+}
+2025-12-21T21:52:35.509Z INFO Closing entire Pythagora extension...
+2025-12-21T21:52:35.716Z ERROR Error closing extension
+Error: Canceled
+Stack: Canceled: Canceled
+    at new wU (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:120470)
+    at l5.U (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:125080)
+    at s.<computed>.n.charCodeAt.s.<computed> (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:122574)
+    at cA.g (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:41228)
+    at cA.executeCommand (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:40732)
+    at Object.executeCommand (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:212:102269)
+    at closeEntirePythagoraExtension (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\extension.js:542:31)
+    at Object.deactivate (c:\Users\xd2023\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.6.19\out\extension.js:409:15)
+    at HX.eb (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:11850)
+    at file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:10000
+    at Array.map (<anonymous>)
+    at HX.$ (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:9988)
+    at HX.terminate (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:10231)
+    at yN.terminate (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:122:914)
+    at Us (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:404:11129)
+    at MessagePortMain.<anonymous> (file:///c:/Users/xd2023/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:404:7604)
+    at MessagePortMain.emit (node:events:519:28)
+    at MessagePortMain.emit (node:domain:489:12)
+    at MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:2949)
+    at Object.topLevelDomainCallback (node:domain:161:15)
+    at Object.callbackTrampoline (node:internal/async_hooks:128:24)
+Extra context: {
+  "message": "Canceled"
+}
