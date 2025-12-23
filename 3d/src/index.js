@@ -513,66 +513,122 @@ $(function () {
 			return r;
 		};
 
+	// Parse both query string and hash parameters
+	var urlParams = new URLSearchParams(window.location.search);
+	var hashParams = {};
 	if (window.location.hash !== '') {
 		window.location.hash.replace(/[#?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
-			vars[key] = decodeURIComponent(value);
+			hashParams[key] = decodeURIComponent(value);
 		});
-		
-		
-		// map = zoom, center (lon, lat), [rotation]
-		var mapParam = getUrlParam('map', ''), parts;
-		if (mapParam !== '') {
-			parts = mapParam.split('/');
-			config.initialConfig.zoom = parseFloat(parts[0]);
-			config.initialConfig.lat = parseFloat(parts[1]);
-			config.initialConfig.lon = parseFloat(parts[2]);
-			if (typeof parts[3] !== 'undefined') {
-				config.initialConfig.rotation = parseFloat(parts[3]);
+	}
+
+	// Merge hash params into vars (for backward compatibility)
+	vars = Object.assign(vars, hashParams);
+
+	// Handle map parameters from hash
+	var mapParam = hashParams['map'] || '', parts;
+	if (mapParam !== '') {
+		parts = mapParam.split('/');
+		config.initialConfig.zoom = parseFloat(parts[0]);
+		config.initialConfig.lat = parseFloat(parts[1]);
+		config.initialConfig.lon = parseFloat(parts[2]);
+		if (typeof parts[3] !== 'undefined') {
+			config.initialConfig.rotation = parseFloat(parts[3]);
+		}
+	}
+
+	// Handle parameters from query string (higher priority than hash)
+	var lat = urlParams.get('lat');
+	var lon = urlParams.get('lon');
+	var zoom = urlParams.get('zoom');
+	var baseParam = urlParams.get('base');
+	var lang = urlParams.get('lang');
+	var key = urlParams.get('key');
+	var value = urlParams.get('value');
+
+	if (lat !== null) config.initialConfig.lat = parseFloat(lat);
+	if (lon !== null) config.initialConfig.lon = parseFloat(lon);
+	if (zoom !== null) config.initialConfig.zoom = parseFloat(zoom);
+	if (baseParam !== null) baseParam = parseInt(baseParam, 10);
+
+	// Handle tag queries from both query string and hash
+	var tagQueryParams = [];
+
+	// Handle key=value from query string
+	if (key && value) {
+		tagQueryParams.push({key: key, value: value});
+	}
+
+	// Handle tag parameters from query string
+	urlParams.forEach(function(value, key) {
+		if (key === 'tag') {
+			// Handle tag=key:value[nwr] format
+			var colonIndex = value.indexOf(':');
+			if (colonIndex !== -1) {
+				var tagKey = value.substring(0, colonIndex);
+				var bracketIndex = value.indexOf('[', colonIndex);
+				var tagValue;
+				if (bracketIndex !== -1) {
+					// Extract value before bracket
+					tagValue = value.substring(colonIndex + 1, bracketIndex);
+					// Could extract element types from brackets if needed in future
+					var elementTypes = value.substring(bracketIndex + 1, value.indexOf(']', bracketIndex));
+					console.log('🔗 Element types from URL:', elementTypes, 'for tag:', tagKey, '=', tagValue);
+				} else {
+					// Legacy format without brackets
+					tagValue = value.substring(colonIndex + 1);
+				}
+				tagQueryParams.push({key: tagKey, value: tagValue});
 			}
 		}
+	});
 
-		// base = index
-		var baseParam = parseInt(getUrlParam('base', 0), 10);
-		
-		// tag queries from URL
-		var tagQueryParams = [];
-		Object.keys(vars).forEach(function(key) {
-			if (key.startsWith('tag.') || (key === 'tag' && vars[key].includes('='))) {
-				// Handle tag.key=value format
+	// Handle tag parameters from hash (legacy support)
+	Object.keys(hashParams).forEach(function(key) {
+		if (key.startsWith('tag.') || (key === 'tag' && hashParams[key].includes('='))) {
 			if (key.startsWith('tag.')) {
 				const tagKey = key.substring(4); // Remove 'tag.' prefix
-				tagQueryParams.push({key: tagKey, value: vars[key]});
+				tagQueryParams.push({key: tagKey, value: hashParams[key]});
 			} else if (key === 'tag') {
 				// Handle tag=key=value format
-				const tagParts = vars[key].split('=');
+				const tagParts = hashParams[key].split('=');
 				if (tagParts.length === 2) {
 					tagQueryParams.push({key: tagParts[0], value: tagParts[1]});
 				}
 			}
 		}
-		});
-		
-		$.each(config.layers, function(indexLayer, layer) {
-			if (layer.get('type') === 'overlay') {
-				// overlays
-				var overlayParam = getUrlParam(layer.get('title'), '');
-				$.each(layer.getLayers().getArray(), function (overlayIndex, overlayValue) {
-					overlayValue.setVisible(!!parseInt(overlayParam.charAt(overlayIndex)));
-				});
-			} else {
-				// overlays
-				if (indexLayer === baseParam) {
-					layer.setVisible(true);
-				} else {
-					layer.setVisible(false);
-				}
+	});
+
+	// Set base layer visibility
+	$.each(config.layers, function(indexLayer, layer) {
+		if (layer.get('type') === 'overlay') {
+			// overlays
+			var overlayParam = hashParams[layer.get('title')] || '';
+			$.each(layer.getLayers().getArray(), function (overlayIndex, overlayValue) {
+				overlayValue.setVisible(!!parseInt(overlayParam.charAt(overlayIndex)));
+			});
+		} else {
+			// base layers
+			if (baseParam !== null && indexLayer === baseParam) {
+				layer.setVisible(true);
+			} else if (baseParam === null && indexLayer === 0) {
+				// Default to first layer if no base specified
+				layer.setVisible(true);
+			} else if (baseParam !== null) {
+				layer.setVisible(false);
 			}
-		});
-		
-		// Store tag queries for later execution
-		if (tagQueryParams.length > 0) {
-			window.initialTagQueries = tagQueryParams;
 		}
+	});
+
+	// Store tag queries for later execution
+	if (tagQueryParams.length > 0) {
+		window.initialTagQueries = tagQueryParams;
+	}
+
+	// Set language if specified
+	if (lang) {
+		// Store for later use when i18n is ready
+		window.urlLanguage = lang;
 	}
 
 	var view = new ol.View({
@@ -612,10 +668,20 @@ $(function () {
 						initKeySearch();
 						initValueSearch();
 
-						// DISABLED: Automatic execution of tag queries from URL
-						// Only execute queries when user clicks the button
+						// Enable automatic execution of tag queries from URL
 						if (window.initialTagQueries && window.initialTagQueries.length > 0) {
-							console.log('🔍 Tag queries from URL stored but NOT executed automatically:', window.initialTagQueries);
+							console.log('🔍 Tag queries from URL found, executing automatically:', window.initialTagQueries);
+
+							// Execute tag queries from URL
+							window.initialTagQueries.forEach(function(query) {
+								console.log('🔍 Executing tag query from URL:', query);
+								if (window.executeTagQuery && typeof window.executeTagQuery === 'function') {
+									window.executeTagQuery(query.key, query.value);
+								}
+							});
+
+							// Clear the initial queries after execution
+							window.initialTagQueries = [];
 						}
 
 						// Set up event listeners for tag query URL updates
@@ -2642,27 +2708,31 @@ function updatePermalink() {
 
     // console.log('🔗 Final tag queries to add to URL:', tagQueries);
 
-    // Build URL parameters
+    // Build URL parameters - only include non-map parameters to avoid duplication with hash
     const params = new URLSearchParams();
 
-    // Add tag queries to URL
-    tagQueries.forEach((query, index) => {
-        // console.log('🔗 Adding tag to URL:', query.key, query.value);
-        params.append('tag', `${query.key}:${query.value}`);
+    // Group tag queries by key:value and create element type acronyms
+    const tagQueryElements = new Map();
+    tagQueries.forEach(query => {
+        const key = `${query.key}:${query.value}`;
+        if (!tagQueryElements.has(key)) {
+            tagQueryElements.set(key, new Set());
+        }
+        // For now, assume all queries include all element types (nwr)
+        // In the future, this could be enhanced to track which element types each query actually targets
+        tagQueryElements.get(key).add('n').add('w').add('r');
     });
 
-    // Add current map view parameters if available
-    if (window.map && window.map.getView()) {
-        const view = window.map.getView();
-        const center = ol.proj.toLonLat(view.getCenter());
-        const zoom = view.getZoom();
+    // Add tag queries to URL with element type acronyms
+    tagQueryElements.forEach((elementTypes, keyValue) => {
+        const sortedTypes = Array.from(elementTypes).sort().join(''); // nwr
+        const tagWithTypes = `${keyValue}[${sortedTypes}]`;
+        // console.log('🔗 Adding tag to URL:', tagWithTypes);
+        params.append('tag', tagWithTypes);
+    });
 
-        params.append('lat', center[1].toFixed(6));
-        params.append('lon', center[0].toFixed(6));
-        params.append('zoom', Math.round(zoom));
-    }
-
-    // Preserve language parameter if present
+    // Do NOT add lat/lon/zoom to query string - these are already in the hash
+    // Only preserve language parameter if present
     const currentUrl = new URL(window.location.href);
     const currentLang = currentUrl.searchParams.get('lang');
     if (currentLang) {
@@ -2670,7 +2740,12 @@ function updatePermalink() {
     }
 
     // Update URL without triggering page reload
-    const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}${window.location.hash}`;
+    // If no query parameters, just use the hash
+    const queryString = params.toString();
+    const newUrl = queryString
+        ? `${window.location.origin}${window.location.pathname}?${queryString}${window.location.hash}`
+        : `${window.location.origin}${window.location.pathname}${window.location.hash}`;
+
     console.log('🔗 New URL:', newUrl);
     window.history.replaceState({}, '', newUrl);
 
