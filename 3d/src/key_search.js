@@ -598,6 +598,7 @@ function initKeySearch() {
                                         
                                         // Also call the update function for consistency
                                         window.updateQueryStatistics({
+                                            query: value ? `${key}=${value}` : key,
                                             dataSize: window.formatBytes(features.length * 100), // Approximate size
                                             executionTime: '0.000s',
                                             nodes: elementCounts.node,

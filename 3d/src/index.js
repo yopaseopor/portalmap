@@ -568,17 +568,42 @@ $(function () {
 				var tagKey = value.substring(0, colonIndex);
 				var bracketIndex = value.indexOf('[', colonIndex);
 				var tagValue;
+				var urlElementTypes = null;
 				if (bracketIndex !== -1) {
 					// Extract value before bracket
 					tagValue = value.substring(colonIndex + 1, bracketIndex);
-					// Could extract element types from brackets if needed in future
-					var elementTypes = value.substring(bracketIndex + 1, value.indexOf(']', bracketIndex));
-					console.log('🔗 Element types from URL:', elementTypes, 'for tag:', tagKey, '=', tagValue);
+					// Extract element types from brackets
+					var elementTypesStr = value.substring(bracketIndex + 1, value.indexOf(']', bracketIndex));
+					console.log('🔗 Element types from URL:', elementTypesStr, 'for tag:', tagKey, '=', tagValue);
+
+					// Convert element type acronyms to full names
+					urlElementTypes = [];
+					for (var i = 0; i < elementTypesStr.length; i++) {
+						switch(elementTypesStr[i]) {
+							case 'n': urlElementTypes.push('node'); break;
+							case 'w': urlElementTypes.push('way'); break;
+							case 'r': urlElementTypes.push('relation'); break;
+						}
+					}
 				} else {
-					// Legacy format without brackets
+					// Legacy format without brackets - assume all element types
 					tagValue = value.substring(colonIndex + 1);
+					urlElementTypes = ['node', 'way', 'relation'];
 				}
-				tagQueryParams.push({key: tagKey, value: tagValue});
+				tagQueryParams.push({key: tagKey, value: tagValue, elementTypes: urlElementTypes});
+
+				// Set checkboxes based on URL element types
+				if (urlElementTypes && urlElementTypes.length > 0) {
+					// Uncheck all checkboxes first
+					$('.element-type-checkbox').prop('checked', false);
+
+					// Check the appropriate checkboxes based on URL element types
+					urlElementTypes.forEach(function(type) {
+						$(`.element-type-checkbox[value="${type}"]`).prop('checked', true);
+					});
+
+					console.log('🔗 Set checkboxes based on URL element types:', urlElementTypes);
+				}
 			}
 		}
 	});
@@ -2311,16 +2336,6 @@ document.head.appendChild(style);
 				hash += '&base=' + baseLayerIndex;
 			}
 
-			// Add tag queries to URL
-			if (window.tagQueryLegend && window.tagQueryLegend.queries) {
-				const visibleQueries = window.tagQueryLegend.getVisibleQueries();
-				if (visibleQueries.length > 0) {
-					visibleQueries.forEach(query => {
-						hash += '&tag=' + encodeURIComponent(query.key) + '=' + encodeURIComponent(query.value);
-					});
-			}
-			}
-
 			$.each(config.layers, function(indexLayer, layer) {
 				var hashOverlay = '', addHash = false;
 				if (layer.get('type') === 'overlay') {
@@ -2711,16 +2726,22 @@ function updatePermalink() {
     // Build URL parameters - only include non-map parameters to avoid duplication with hash
     const params = new URLSearchParams();
 
-    // Group tag queries by key:value and create element type acronyms
+    // Get current selected element types
+    const currentSelectedElementTypes = getSelectedElementTypes();
+
+    // Group tag queries by key:value and use current element type selection for all
     const tagQueryElements = new Map();
     tagQueries.forEach(query => {
         const key = `${query.key}:${query.value}`;
         if (!tagQueryElements.has(key)) {
             tagQueryElements.set(key, new Set());
         }
-        // For now, assume all queries include all element types (nwr)
-        // In the future, this could be enhanced to track which element types each query actually targets
-        tagQueryElements.get(key).add('n').add('w').add('r');
+        // Use the current selected element types for all queries
+        currentSelectedElementTypes.forEach(type => {
+            if (type === 'node') tagQueryElements.get(key).add('n');
+            else if (type === 'way') tagQueryElements.get(key).add('w');
+            else if (type === 'relation') tagQueryElements.get(key).add('r');
+        });
     });
 
     // Add tag queries to URL with element type acronyms
@@ -2739,12 +2760,23 @@ function updatePermalink() {
         params.append('lang', currentLang);
     }
 
+    // Clean hash of tag parameters before using it
+    let cleanHash = window.location.hash;
+    if (cleanHash) {
+        // Remove tag parameters from hash
+        const hashParts = cleanHash.split('&').filter(part => {
+            // Keep map parameter and overlay parameters, remove tag parameters
+            return part.startsWith('#map=') || (!part.startsWith('tag=') && !part.startsWith('tag.'));
+        });
+        cleanHash = hashParts.join('&');
+    }
+
     // Update URL without triggering page reload
-    // If no query parameters, just use the hash
+    // If no query parameters, just use the cleaned hash
     const queryString = params.toString();
     const newUrl = queryString
-        ? `${window.location.origin}${window.location.pathname}?${queryString}${window.location.hash}`
-        : `${window.location.origin}${window.location.pathname}${window.location.hash}`;
+        ? `${window.location.origin}${window.location.pathname}?${queryString}${cleanHash}`
+        : `${window.location.origin}${window.location.pathname}${cleanHash}`;
 
     console.log('🔗 New URL:', newUrl);
     window.history.replaceState({}, '', newUrl);

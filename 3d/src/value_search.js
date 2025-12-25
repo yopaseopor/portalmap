@@ -280,6 +280,7 @@ function processQueryResults(allFeatures, key, value) {
     console.log('📊 Node statistics:', nodeStats);
 
     updateQueryStatistics({
+        query: `${key}=${value}`,
         dataSize: formatBytes(allFeatures.length * 100), // Approximate data size
         executionTime: executionTime,
         nodes: nodeStats.standaloneNodes || 0,
@@ -726,6 +727,9 @@ function updateQueryStatistics(stats) {
     if (statsContainer.length > 0) {
         statsContainer.show();
 
+        // Update query
+        $('#current-query').text(stats.query || '-');
+
         // Update execution time
         $('#execution-time').text(stats.executionTime || '0.000s');
 
@@ -741,7 +745,7 @@ function updateQueryStatistics(stats) {
 
         // Update color indicators
         $('.stat-value').removeClass('color-indicator');
-        $('#execution-time, #data-size, #nodes-count, #polygon-nodes-count, #ways-count, #relations-count, #polygons-count')
+        $('#current-query, #execution-time, #data-size, #nodes-count, #polygon-nodes-count, #ways-count, #relations-count, #polygons-count')
             .addClass('color-indicator')
             .css('background-color', `rgba(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]}, 0.1)`)
             .css('border-left', `3px solid rgb(${stats.color[0]}, ${stats.color[1]}, ${stats.color[2]})`);
@@ -882,13 +886,14 @@ window.tagQueryLegend = {
     /**
      * Add or update a query in the legend
      */
-    addQuery(overlayId, key, value, color, count = 0, visible = true) {
+    addQuery(overlayId, key, value, color, count = 0, visible = true, elementTypes = null) {
             const queryObject = {
             key,
             value,
             color,
             count,
             visible,
+            elementTypes: elementTypes || getSelectedElementTypes(), // Store selected element types
             timestamp: Date.now()
         };
         this.queries.set(overlayId, queryObject);
@@ -1376,6 +1381,14 @@ function initValueSearch() {
         // Clear data
         searchInput.removeData('selectedKey');
         currentResults = [];
+    });
+
+    // Add event listeners for element type checkboxes
+    $('.element-type-checkbox').on('change', function() {
+        console.log('🔍 Element type checkbox changed, updating URL');
+        if (window.updatePermalink) {
+            window.updatePermalink();
+        }
     });
 
     // Initialize search input
@@ -2217,16 +2230,17 @@ function initValueSearch() {
 
         console.log('📊 Node statistics:', nodeStats);
 
-        updateQueryStatistics({
-            dataSize: formatBytes(allFeatures.length * 100), // Approximate data size
-            executionTime: executionTime,
-            nodes: nodeStats.standaloneNodes || 0,
-            polygonNodes: nodeStats.polygonNodes || 0,
-            ways: nodeStats.ways || 0,
-            relations: nodeStats.polygons || 0,
-            polygons: nodeStats.polygons || 0,
-            color: uniqueColor
-        });
+    updateQueryStatistics({
+        query: `${key}=${value}`,
+        dataSize: formatBytes(allFeatures.length * 100), // Approximate data size
+        executionTime: executionTime,
+        nodes: nodeStats.standaloneNodes || 0,
+        polygonNodes: nodeStats.polygonNodes || 0,
+        ways: nodeStats.ways || 0,
+        relations: nodeStats.polygons || 0,
+        polygons: nodeStats.polygons || 0,
+        color: uniqueColor
+    });
 
         // Add vector layer to map
         const tagQueriesGroup = findOrCreateTagOverlaysGroup();
