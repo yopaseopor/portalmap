@@ -100,7 +100,7 @@ var config = {
 			const layer = new ol.layer.VectorTile({
 				title: 'MapTiler Basic',
 				iconSrc: imgSrc + 'icones_web/maptiler_logo.png',
-				visible: true,
+				visible: false,
 				opacity: 1.0,
 				source: new ol.source.VectorTile({
 					tilePixelRatio: 1,
@@ -169,7 +169,7 @@ var config = {
 		new ol.layer.Tile({
 			title: 'OpenStreetMap',
 			iconSrc: imgSrc + 'icones_web/osm_logo-layer.svg',
-			visible: false,
+			visible: true,
 			source: new ol.source.OSM()
 /*@@ inicio de copia */			}),
 								new ol.layer.Tile({
