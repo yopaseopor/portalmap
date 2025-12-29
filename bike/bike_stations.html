@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcelona Bike Stations - Real Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #searchInput {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007cba;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007cba;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .status-available {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-low {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .status-empty {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .last-update {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .station-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcelona Bike Stations - Real Time</h1>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search stations by name...">
+        </div>
+
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="totalStations">0</div>
+                <div class="stat-label">Total Stations</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="availableBikes">0</div>
+                <div class="stat-label">Available Bikes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="availableDocks">0</div>
+                <div class="stat-label">Available Docks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="activeStations">0</div>
+                <div class="stat-label">Active Stations</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading bike station data...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <table id="stationsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Station Name</th>
+                    <th>Available Bikes</th>
+                    <th>Available Docks</th>
+                    <th>Total Capacity</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody id="stationsBody">
+            </tbody>
+        </table>
+
+        <div id="lastUpdate" class="last-update" style="display: none;"></div>
+    </div>
+
+    <script>
+        const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+        const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+
+        let stationInfo = {};
+        let stationStatus = {};
+        let allStations = [];
+
+        async function fetchStationData() {
+            try {
+                // Fetch station information
+                const infoResponse = await fetch(STATION_INFO_URL);
+                const infoData = await infoResponse.json();
+                stationInfo = {};
+                infoData.data.stations.forEach(station => {
+                    stationInfo[station.station_id] = station;
+                });
+
+                // Fetch station status
+                const statusResponse = await fetch(STATION_STATUS_URL);
+                const statusData = await statusResponse.json();
+                stationStatus = {};
+                statusData.data.stations.forEach(station => {
+                    stationStatus[station.station_id] = station;
+                });
+
+                // Combine data
+                allStations = Object.keys(stationInfo).map(stationId => {
+                    const info = stationInfo[stationId];
+                    const status = stationStatus[stationId];
+                    return {
+                        ...info,
+                        ...status,
+                        last_reported: status ? new Date(status.last_reported * 1000) : null
+                    };
+                });
+
+                updateDisplay();
+                document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleString()}`;
+                document.getElementById('lastUpdate').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('error').textContent = 'Error loading bike station data. Please try again later.';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function updateDisplay() {
+            const filteredStations = filterStations();
+            updateStats(filteredStations);
+            renderTable(filteredStations);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('stationsTable').style.display = 'table';
+            document.getElementById('stats').style.display = 'flex';
+        }
+
+        function filterStations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) return allStations;
+
+            return allStations.filter(station =>
+                station.name && station.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        function updateStats(stations) {
+            const totalStations = stations.length;
+            const availableBikes = stations.reduce((sum, station) => sum + (station.num_bikes_available || 0), 0);
+            const availableDocks = stations.reduce((sum, station) => sum + (station.num_docks_available || 0), 0);
+            const activeStations = stations.filter(station => station.is_renting === 1).length;
+
+            document.getElementById('totalStations').textContent = totalStations;
+            document.getElementById('availableBikes').textContent = availableBikes;
+            document.getElementById('availableDocks').textContent = availableDocks;
+            document.getElementById('activeStations').textContent = activeStations;
+        }
+
+        function renderTable(stations) {
+            const tbody = document.getElementById('stationsBody');
+            tbody.innerHTML = '';
+
+            stations.forEach(station => {
+                const row = document.createElement('tr');
+
+                const nameCell = document.createElement('td');
+                nameCell.innerHTML = `<span class="station-name">${station.name || 'Unknown'}</span>`;
+                row.appendChild(nameCell);
+
+                const bikesCell = document.createElement('td');
+                const bikes = station.num_bikes_available || 0;
+                bikesCell.textContent = bikes;
+                bikesCell.className = getBikeStatusClass(bikes);
+                row.appendChild(bikesCell);
+
+                const docksCell = document.createElement('td');
+                docksCell.textContent = station.num_docks_available || 0;
+                row.appendChild(docksCell);
+
+                const capacityCell = document.createElement('td');
+                capacityCell.textContent = station.capacity || 0;
+                row.appendChild(capacityCell);
+
+                const statusCell = document.createElement('td');
+                statusCell.textContent = getStationStatus(station);
+                row.appendChild(statusCell);
+
+                const updateCell = document.createElement('td');
+                updateCell.textContent = station.last_reported ? station.last_reported.toLocaleTimeString() : 'Unknown';
+                row.appendChild(updateCell);
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function getBikeStatusClass(bikes) {
+            if (bikes === 0) return 'status-empty';
+            if (bikes <= 2) return 'status-low';
+            return 'status-available';
+        }
+
+        function getStationStatus(station) {
+            if (station.is_renting === 0) return 'Not renting';
+            if (station.is_returning === 0) return 'Not returning';
+            if (station.is_installed === 0) return 'Not installed';
+            return 'Active';
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', () => {
+            updateDisplay();
+        });
+
+        // Initial load
+        fetchStationData();
+
+        // Refresh data every 60 seconds
+        setInterval(fetchStationData, 60000);
+    </script>
+</body>
+</html>

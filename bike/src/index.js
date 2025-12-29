@@ -1473,6 +1473,9 @@ if (routeLayers.length > 0) {
                 console.log('Updated is3d state to true');
             } else {
                 console.log('Switching from 3D to 2D mode');
+
+                // Dispatch custom event to notify bike station code to restore markers
+                window.dispatchEvent(new CustomEvent('modeChanged', { detail: '2d' }));
                 
                 // Store current view before disabling 3D
                 const scene = ol3d.getCesiumScene();
@@ -2382,7 +2385,8 @@ document.head.appendChild(style);
 	var selectedFeature = null;
 	map.on('pointermove', function (evt) {
 		if (selectedFeature !== null) {
-			if (typeof selectedFeature.setStyle === 'function') {
+			// Skip resetting style for bike station features - they manage their own styles
+			if (typeof selectedFeature.setStyle === 'function' && !selectedFeature.get('station')) {
                 selectedFeature.setStyle(undefined);
             }
 			selectedFeature = null;
@@ -2390,7 +2394,13 @@ document.head.appendChild(style);
 		}
 		map.forEachFeatureAtPixel(evt.pixel, function (feature) {
 			selectedFeature = feature;
-			// Get the original style
+			// Skip style manipulation for bike station features - they have custom styling
+			if (feature.get('station')) {
+				$('#map').css('cursor', 'pointer');
+				return true;
+			}
+
+			// Get the original style for non-bike-station features
 			let originalStyle = feature.getStyle ? feature.getStyle() : null;
 			// If the style is a plain object (from JSON), convert it
 			if (originalStyle && !(originalStyle instanceof ol.style.Style)) {
@@ -2411,6 +2421,20 @@ document.head.appendChild(style);
 
 		map.on('singleclick', function (evt) {
 			console.log('🗺️ Map clicked - processing click event');
+
+			// Check if clicked on a bike station feature - if so, skip creating pin overlay
+			var clickedOnBikeStation = false;
+			map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+				if (feature.get('station')) {
+					clickedOnBikeStation = true;
+					return true; // Stop iteration
+				}
+			});
+
+			if (clickedOnBikeStation) {
+				console.log('🗺️ Clicked on bike station - skipping pin overlay creation');
+				return; // Don't create the pin overlay for bike station clicks
+			}
 
 			var coordinate = evt.coordinate,
 					coordinateLL = ol.proj.toLonLat(coordinate),
