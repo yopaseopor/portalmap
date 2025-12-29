@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ca">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>Portal Map</title>
+	<!--@@ Título a modificar para la descripción -->
+	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
+
+	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
+	<!-- OpenLayers -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css" type="text/css"/>
+	<!-- Cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<!-- ol-cesium -->
+	<link href="https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
+	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
+	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
+	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
+	
+	<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+</head>
+<body>
+	<div class="flex-row">
+	<!--@@ Modificar comentario de Javascript -->
+		<div id="map" class="map">Loading... You need Javascript...Cargando necesitas Javascript...Carregant...necessites Javascript</div>
+		<div id="menu" class="menu">
+			<!-- Language Selector -->
+			<div id="language-selector-container" class="language-selector-wrapper"></div>
+			<!-- Key Searcher -->
+			<div id="key-search-container" style="margin: 10px 0; position: relative;">
+			  <input type="text" id="key-search" placeholder="Search OSM keys..." data-i18n="searchOsmKeys" style="width: 100%; padding: 5px;">
+			  <div id="key-search-dropdown"></div>
+			  <button id="execute-key-query-btn" style="display:none; margin-top:5px; width:100%; padding:5px; background:#007cba; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="executeKeyQuery">Execute Key Query</button>
+			  <button id="clear-key-search-btn" style="display:none; margin-top:3px; width:100%; padding:3px; background:#666; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="clearButton">Clear</button>
+			</div>
+			<!-- Value Searcher -->
+			<div id="value-search-container" style="margin: 10px 0; position: relative;">
+			  <input type="text" id="value-search" placeholder="Search OSM values..." data-i18n="searchOsmValues" style="width: 100%; padding: 5px;">
+								<div id="use-yes-csv-container" style="margin-top:6px; font-size:12px;">
+									<label style="cursor:pointer;">
+											<input type="checkbox" id="use-yes-csv-checkbox" style="margin-right:6px;" />
+											<span data-i18n="useYesNoDefinitions">Use yes/no definitions (focus on definitions)</span>
+									</label>
+								</div>
+			  <div id="value-search-dropdown"></div>
+			  <button id="execute-query-btn" style="display:none; margin-top:5px; width:100%; padding:5px; background:#007cba; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="executeQuery">Execute Query</button>
+			  <button id="clear-search-btn" style="display:none; margin-top:3px; width:100%; padding:3px; background:#666; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="clearButton">Clear</button>
+			</div>
+			<!-- Element Type Filter -->
+			<div class="element-type-filter">
+			  <label data-i18n="nodesCheckbox"><input type="checkbox" class="element-type-checkbox" value="node" checked> Nodes</label>
+			  <label data-i18n="waysCheckbox"><input type="checkbox" class="element-type-checkbox" value="way" checked> Ways</label>
+			  <label data-i18n="relationsCheckbox"><input type="checkbox" class="element-type-checkbox" value="relation" checked> Relations</label>
+			</div>
+			<!-- Query Statistics - moved inside menu next to layers -->
+			<div id="query-statistics" class="query-statistics" style="display: none; margin: 0; padding: 8px; background: #f5f5f5; border-radius: 0;">
+			  <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #333;" data-i18n="currentQuery">📊 Consulta Actual</h4>
+			  <div class="stat-item">
+			    <div class="stat-label">Query:</div>
+			    <div class="stat-value" id="current-query">-</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="executionTime">Temps:</div>
+			    <div class="stat-value" id="execution-time">0.000s</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="nodesLabel">Nodes:</div>
+			    <div class="stat-value" id="nodes-count">0</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="waysLabel">Vies:</div>
+			    <div class="stat-value" id="ways-count">0</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="relationsLabel">Relacions:</div>
+			    <div class="stat-value" id="relations-count">0</div>
+			  </div>
+			</div>
+			<!-- Overlays section -->
+			<div id="overlay-list" style="display: none;"></div>
+		</div>
+	</div>
+	<!-- Core Libraries -->
+	<!-- jQuery (load first as other scripts depend on it) -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+	
+	<!-- Proj4 for coordinate transformations (must be loaded before OpenLayers) -->
+	<script src="https://cdn.jsdelivr.net/npm/proj4@2.10.0/dist/proj4.js"></script>
+	
+	<!-- OpenLayers CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css">
+	<!-- OpenLayers (must be loaded before ol-cesium) -->
+	<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
+	
+	<!-- Cesium configuration -->
+    <style>
+        /* Cesium widget styles */
+        .cesium-widget-credits {
+            display: none !important;
+        }
+    </style>
+    <script>
+        // Configure Cesium before loading it
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/';
+        // Disable source maps to prevent console warnings
+        window.CESIUM_sourceMap = false;
+        // Configure Cesium to use CDN for assets
+        window.CESIUM_BASE_URL = window.CESIUM_BASE_URL.replace('Source/', '');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Cesium.js"></script>
+    <!-- ol-cesium with explicit CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol-cesium@2.15.1/dist/olcs.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.15.1/dist/olcesium.js"></script>
+    
+    <!-- osmtogeojson for data conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
+
+	<!-- Vector Tile Style -->
+	<script src="src/assets/styles/vector-tile-style.js"></script>
+	<!-- ol-mapbox-style for MapTiler styles -->
+	<script src="https://unpkg.com/ol-mapbox-style@6.1.3/dist/olms.js"></script>
+	<!-- Opening Hours Library -->
+	<!-- Opening Hours Library (local copy) -->
+	<script src="src/vendor/opening_hours.min.js"></script>
+
+	<!-- Vector tile styles -->
+	<script src="src/assets/vector-tile-styles.js"></script>
+
+	<!-- Configuration -->
+	<script src="src/assets/maptiler-style.js"></script>
+	<script src="src/assets/versatiles-style.js"></script>
+	<script src="src/assets/customyopaseopor-style.js"></script>
+	<script src="src/config.js"></script>
+
+	<!-- Modules -->
+	<script type="module" src="src/components/LanguageSelector.js"></script>
+	<script type="module" src="src/language_init.js"></script>
+	<script type="module" src="src/overlays/translated_overlays.js"></script>
+	<!--<script type="module" src="src/overlays/external/loader.js"></script>-->
+	<script type="module" src="src/overlays/index.js"></script>
+	<script type="module" src="src/overlay_integration.js"></script>
+	<script type="module" src="src/init.js"></script>
+
+	<!-- Application Logic -->
+	<script src="src/taginfo_api.js"></script>
+	<script src="src/key_search.js"></script>
+	<script src="src/value_search.js"></script>
+	<script src="src/nominatim_search.js"></script>
+	<script src="src/panoramax_viewer.js"></script>
+	<script src="src/mapillary_viewer.js"></script>
+	<script src="src/router.js"></script>
+	<script src="src/index.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# OSM Utils
+# PortalMap
 
 Based on [https://github.com/yopaseopor/osmpoismap](https://github.com/yopaseopor/osmpoismap)
 

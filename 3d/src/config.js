@@ -205,7 +205,7 @@ var config = {
 			iconSrc: imgSrc + 'icones_web/logo_ign.png',
 			source: new ol.source.TileWMS({
 				attributions: 'Map data &copy; <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap Contributors</a>,Tiles &copy; IGN &mdash; Source: IGN',
-				url: 'http://www.ign.es/wms-inspire/pnoa-ma?',
+				url: 'https://www.ign.es/wms-inspire/pnoa-ma?',
 				params: {'LAYERS': 'OI.OrthoimageCoverage', 'VERSION': '1.3.0'}
 			}),
 			visible: false
@@ -477,13 +477,13 @@ style: function (feature) {
 		show.append($('<a>').css('marginLeft', 5).attr({title: 'OpenRouteService', href: 'https://maps.openrouteservice.org/#/place/@' + coordinateLL[0] + ',' + coordinateLL[1] + ',' + Math.min(view.getZoom(), 20) , target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/ors_logo.svg', height: 20, width: 20})));
 		
 		//OSM Routing Machine
-		show.append($('<a>').css('marginLeft', 5).attr({title: 'OSM Routing Machine', href: 'http://map.project-osrm.org/?z=' + Math.min(view.getZoom(), 20) + '&center=' + coordinateLL[1] + '%2C' + coordinateLL[0] + '&hl=en&alt=0&srv=0', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/osrm_logo.png', height: 20, width: 20})));
+		show.append($('<a>').css('marginLeft', 5).attr({title: 'OSM Routing Machine', href: 'https://map.project-osrm.org/?z=' + Math.min(view.getZoom(), 20) + '&center=' + coordinateLL[1] + '%2C' + coordinateLL[0] + '&hl=en&alt=0&srv=0', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/osrm_logo.png', height: 20, width: 20})));
 		
 		//Graphhopper
 		show.append($('<a>').css('marginLeft', 5).attr({title: 'Graphhopper', href: 'https://graphhopper.com/maps/?point=' + coordinateLL[1] + '%2C' + coordinateLL[0] + '&locale=en&elevation=true&profile=car&use_miles=false&selected_detail=Elevation&layer=Omniscale', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/graphhopper_logo.png', height: 20, width: 20})));
 		
 		//Brouter
-		show.append($('<a>').css('marginLeft', 5).attr({title: 'Brouter', href: 'http://brouter.de/brouter-web/#map=' + Math.min(view.getZoom(), 20) + '/' + coordinateLL[1] + '/' + coordinateLL[0] + '/standard', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/brouter_logo.png', height: 20, width: 20})));
+		show.append($('<a>').css('marginLeft', 5).attr({title: 'Brouter', href: 'https://brouter.de/brouter-web/#map=' + Math.min(view.getZoom(), 20) + '/' + coordinateLL[1] + '/' + coordinateLL[0] + '/standard', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/brouter_logo.png', height: 20, width: 20})));
 		
 		//F4 Map 3D
 		show.append($('<a>').css('marginLeft', 5).attr({title: 'F4 Map 3D', href: 'https://demo.f4map.com/#lat=' + coordinateLL[1] + '&lon=' + coordinateLL[0] + '&zoom=' + Math.min(view.getZoom(), 20) + '&view=tagging', target: '_blank'}).html($('<img>').attr({src: imgSrc + 'icones_web/f4map_logo.png', height: 20, width: 20})));

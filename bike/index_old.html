@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ca">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.fbcdn.net https://*.facebook.com https://unpkg.com https://cdnjs.cloudflare.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; style-src 'self' 'unsafe-inline' https://*.fbcdn.net https://*.facebook.com https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: https://tiles.versatiles.org https://cdn.jsdelivr.net; connect-src 'self' https://*.fbcdn.net https://*.facebook.com https://graph.mapillary.com https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org https://*.openstreetmap.org https://*.mapillary.com https://cors-anywhere.herokuapp.com https://api.allorigins.win https://api.maptiler.com https://tiles.versatiles.org https://router.project-osrm.org https://cdn.jsdelivr.net https://unpkg.com/ol-cesium@2.14.0/; font-src 'self' https://*.fbcdn.net https://*.facebook.com https://fonts.gstatic.com https://fonts.googleapis.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https:;">
+	<title>Portal Map</title>
+	<!--@@ Título a modificar para la descripción -->
+	<meta content="Portal Map - Advanced OpenStreetMap viewer with routing, street imagery, search, and multi-language support" name="description"/>
+
+	<link rel="stylesheet" href="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css"/>
+	<link rel="stylesheet" href="src/api/openlayers/v6.2.2-custom/ol.css" type="text/css"/>
+	<link href="https://unpkg.com/ol-cesium@2.14.0/olcs.css" rel="stylesheet">
+	<link rel="stylesheet" href="src/css/font-awesome.css" type="text/css"/>
+	<link href="https://unpkg.com/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
+	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
+	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
+	
+	<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+</head>
+<body>
+	<div class="flex-row">
+	<!--@@ Modificar comentario de Javascript -->
+		<div id="map" class="map">Loading... You need Javascript...Cargando necesitas Javascript...Carregant...necessites Javascript</div>
+		<div id="menu" class="menu">
+			<!-- Language Selector -->
+			<div id="language-selector-container" class="language-selector-wrapper"></div>
+			<!-- Key Searcher -->
+			<div id="key-search-container" style="margin: 10px 0; position: relative;">
+			  <input type="text" id="key-search" placeholder="Search OSM keys..." data-i18n="searchOsmKeys" style="width: 100%; padding: 5px;">
+			  <div id="key-search-dropdown"></div>
+			  <button id="execute-key-query-btn" style="display:none; margin-top:5px; width:100%; padding:5px; background:#007cba; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="executeKeyQuery">Execute Key Query</button>
+			  <button id="clear-key-search-btn" style="display:none; margin-top:3px; width:100%; padding:3px; background:#666; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="clearButton">Clear</button>
+			</div>
+			<!-- Value Searcher -->
+			<div id="value-search-container" style="margin: 10px 0; position: relative;">
+			  <input type="text" id="value-search" placeholder="Search OSM values..." data-i18n="searchOsmValues" style="width: 100%; padding: 5px;">
+								<div id="use-yes-csv-container" style="margin-top:6px; font-size:12px;">
+									<label style="cursor:pointer;">
+											<input type="checkbox" id="use-yes-csv-checkbox" style="margin-right:6px;" />
+											<span data-i18n="useYesNoDefinitions">Use yes/no definitions (focus on definitions)</span>
+									</label>
+								</div>
+			  <div id="value-search-dropdown"></div>
+			  <button id="execute-query-btn" style="display:none; margin-top:5px; width:100%; padding:5px; background:#007cba; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="executeQuery">Execute Query</button>
+			  <button id="clear-search-btn" style="display:none; margin-top:3px; width:100%; padding:3px; background:#666; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="clearButton">Clear</button>
+			</div>
+			<!-- Element Type Filter -->
+			<div class="element-type-filter">
+			  <label data-i18n="nodesCheckbox"><input type="checkbox" class="element-type-checkbox" value="node" checked> Nodes</label>
+			  <label data-i18n="waysCheckbox"><input type="checkbox" class="element-type-checkbox" value="way" checked> Ways</label>
+			  <label data-i18n="relationsCheckbox"><input type="checkbox" class="element-type-checkbox" value="relation" checked> Relations</label>
+			</div>
+			<!-- Query Statistics - moved inside menu next to layers -->
+			<div id="query-statistics" class="query-statistics" style="display: none; margin: 0; padding: 8px; background: #f5f5f5; border-radius: 0;">
+			  <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #333;" data-i18n="currentQuery">📊 Consulta Actual</h4>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="executionTime">Temps:</div>
+			    <div class="stat-value" id="execution-time">0.000s</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="nodesLabel">Nodes:</div>
+			    <div class="stat-value" id="nodes-count">0</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="waysLabel">Vies:</div>
+			    <div class="stat-value" id="ways-count">0</div>
+			  </div>
+			  <div class="stat-item">
+			    <div class="stat-label" data-i18n="relationsLabel">Relacions:</div>
+			    <div class="stat-value" id="relations-count">0</div>
+			  </div>
+			</div>
+			<!-- Overlays section -->
+			<div id="overlay-list" style="display: none;"></div>
+		</div>
+	</div>
+	<!-- Core Libraries -->
+	<script src="src/api/jquery/3.4.1/jquery.min.js"></script>
+	<script src="src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    
+    <!-- OpenLayers -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@6.4.3/ol.css">
+    <script>
+        // Create a promise that resolves when OpenLayers is loaded
+        window.olLoaded = new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/ol@6.4.3/dist/ol.js';
+            script.onload = () => {
+                console.log('OpenLayers loaded successfully');
+                // Make sure ol is globally available
+                window.ol = ol;
+                resolve(ol);
+            };
+            script.onerror = (error) => {
+                console.error('Failed to load OpenLayers:', error);
+                // Still resolve to allow the app to try to continue
+                resolve(null);
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+    
+    <!-- Other required libraries -->
+    <script src="https://unpkg.com/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+    <script src="https://unpkg.com/ol-mapbox-style@6.1.3/dist/olms.js"></script>
+    
+    <!-- Cesium for 3D view -->
+    <link href="https://unpkg.com/cesium@1.95.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script>
+        // Configure Cesium base URL
+        window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/';
+        
+        // Load Cesium asynchronously
+        window.cesiumLoaded = new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Cesium.js';
+            script.onload = () => {
+                console.log('Cesium loaded successfully');
+                window.Cesium = Cesium;
+                resolve();
+            };
+            script.onerror = (error) => {
+                console.warn('Failed to load Cesium, 3D view will be disabled:', error);
+                resolve();
+            };
+            document.head.appendChild(script);
+        });
+        
+        // Load ol-cesium after Cesium is loaded
+        window.olCesiumLoaded = window.cesiumLoaded.then(() => {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.js';
+                script.onload = () => {
+                    console.log('ol-cesium loaded successfully');
+                    window.olcs = olcs;
+                    resolve();
+                };
+                script.onerror = (error) => {
+                    console.warn('Failed to load ol-cesium, 3D view will be disabled:', error);
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        });
+    </script>
+    
+    <!-- Script loader for the application -->
+    <script>
+        // Create global namespace for our application
+        window.PortalMap = window.PortalMap || {};
+        // Function to load a script
+        function loadScript(src, isModule = false) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                if (isModule) script.type = 'module';
+                script.src = src;
+                script.onload = () => {
+                    console.log(`Loaded: ${src}`);
+                    resolve();
+                };
+                script.onerror = (err) => {
+                    console.error(`Failed to load: ${src}`, err);
+                    resolve(); // Continue even if script fails to load
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        // Function to wait for OpenLayers to be loaded
+        function waitForOpenLayers() {
+            return new Promise((resolve) => {
+                if (typeof ol !== 'undefined') {
+                    resolve(ol);
+                } else if (window.olLoaded) {
+                    window.olLoaded.then(resolve).catch(() => resolve(null));
+                } else {
+                    const checkOl = setInterval(() => {
+                        if (typeof ol !== 'undefined') {
+                            clearInterval(checkOl);
+                            resolve(ol);
+                        }
+                    }, 100);
+                    
+                    // Timeout after 5 seconds
+                    setTimeout(() => {
+                        clearInterval(checkOl);
+                        console.error('Timed out waiting for OpenLayers to load');
+                        resolve(null);
+                    }, 5000);
+                }
+            });
+        }
+        
+        // Start the application when the DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        // Function to initialize the application
+        async function initializeApp() {
+            console.log('Starting application initialization...');
+            
+            try {
+                // Wait for OpenLayers to be loaded
+                const ol = await waitForOpenLayers();
+                if (!ol) {
+                    throw new Error('OpenLayers failed to load');
+                }
+                
+                console.log('OpenLayers version:', ol.VERSION);
+                
+                // Load application scripts in order
+                await loadScript('src/config.js');
+                await loadScript('src/init.js');
+                await loadScript('src/index.js');
+                
+                // Load other components
+                await Promise.all([
+                    loadScript('src/components/LanguageSelector.js'),
+                    loadScript('src/language_init.js')
+                ]);
+                
+                console.log('All scripts loaded successfully');
+                
+                // Initialize the application
+                if (typeof window.initApp === 'function') {
+                    window.initApp();
+                }
+                
+            } catch (error) {
+                console.error('Error initializing application:', error);
+            }
+        }
+                };
+                script.onerror = (err) => {
+                    console.error(`Failed to load: ${src}`, err);
+                    resolve(); // Continue even if script fails to load
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        // Load all required scripts in order
+        async function loadAllScripts() {
+            try {
+                console.log('Starting to load application scripts...');
+                
+                // Wait for OpenLayers to be loaded
+                await waitForOpenLayers();
+                console.log('OpenLayers is available:', !!ol);
+                
+                // Load jQuery and UI
+                await loadScript('src/api/jquery/3.4.1/jquery.min.js');
+                await loadScript('src/api/jquery-ui-1.12.1.custom/jquery-ui.min.js');
+                
+                // Load Cesium and ol-cesium (3D support)
+                try {
+                    window.CESIUM_BASE_URL = 'https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/';
+                    await loadScript('https://cdn.jsdelivr.net/npm/cesium@1.95.0/Build/Cesium/Cesium.js');
+                    window.Cesium = Cesium;
+                    await loadScript('https://cdn.jsdelivr.net/npm/ol-cesium@2.14.0/dist/olcesium.js');
+                    window.olcs = olcs;
+                    console.log('3D features enabled');
+                } catch (error) {
+                    console.warn('3D features will be disabled due to loading error:', error);
+                }
+                
+                // Load application configuration and core functionality
+                const coreScripts = [
+                    'src/config.js',
+                    'src/assets/styles/vector-tile-style.js',
+                    'src/taginfo_api.js',
+                    'src/key_search.js',
+                    'src/value_search.js',
+                    'src/nominatim_search.js',
+                    'src/panoramax_viewer.js',
+                    'src/mapillary_viewer.js',
+                    'src/router.js'
+                ];
+                
+                for (const script of coreScripts) {
+                    await loadScript(script);
+                }
+                
+                // Load overlay system
+                await loadScript('src/overlays/translated_overlays.js');
+                await loadScript('src/overlays/index.js');
+                await loadScript('src/overlay_integration.js');
+                
+                // Load UI components
+                await loadScript('src/components/LanguageSelector.js');
+                
+                // Load initialization and main application
+                await loadScript('src/init.js');
+                await loadScript('src/index.js');
+                
+                // Load language initialization after everything else
+                await loadScript('src/language_init.js');
+                
+                console.log('All scripts loaded successfully');
+                
+                // Initialize the application
+                if (typeof window.initApp === 'function') {
+                    window.initApp();
+                } else {
+                    console.error('initApp function not found');
+                }
+                
+            } catch (error) {
+                console.error('Error loading scripts:', error);
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.innerHTML = 'Error loading application. Please check console for details.';
+                    loading.style.background = '#d32f2f';
+                }
+            }
+        }
+        
+        // Start loading scripts when the page is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadAllScripts);
+        } else {
+            loadAllScripts();
+        }
+        
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.innerHTML = 'Error: ' + (event.error?.message || 'Unknown error occurred');
+                loading.style.background = '#d32f2f';
+            }
+        });
+    </script>
+	<!-- Opening Hours Library -->
+	<!-- Opening Hours Library (local copy) -->
+	<script src="src/vendor/opening_hours.min.js"></script>
+
+	<!-- Configuration -->
+	<script src="src/config.js"></script>
+
+	<!-- Load overlay-related scripts after all globals are defined -->
+	<!-- Converted modules to regular scripts with proper order -->
+	<script>
+        // Load scripts in sequence
+        function loadScripts() {
+            const scripts = [
+                'src/overlays/translated_overlays.js',
+                'src/overlays/index.js',
+                'src/overlay_integration.js',
+                'src/init.js',
+                'src/components/LanguageSelector.js',
+                'src/language_init.js'
+            ];
+            
+            function loadScript(index) {
+                if (index >= scripts.length) {
+                    // All scripts loaded, initialize the app
+                    if (window.initApp) {
+                        window.initApp();
+                    }
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = scripts[index];
+                script.onload = () => loadScript(index + 1);
+                script.onerror = (e) => {
+                    console.error(`Failed to load script: ${scripts[index]}`, e);
+                    loadScript(index + 1); // Continue with next script even if one fails
+                };
+                document.head.appendChild(script);
+            }
+            
+            loadScript(0);
+        }
+        
+        // Start loading scripts after the page is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadScripts);
+        } else {
+            loadScripts();
+        }
+    </script>
+
+    <!-- Main content will be inserted here by JavaScript -->
+    <div id="map" class="map"></div>
+    
+    <!-- Loading indicator -->
+    <div id="loading" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
+        Loading application...
+    </div>
+    
+    <script>
+        // Hide loading indicator when app is ready
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.innerHTML = 'Error loading application. Please check console for details.';
+                loading.style.background = '#d32f2f';
+            }
+        });
+        
+        // Initialize the application
+        window.initApp = function() {
+            try {
+                console.log('Initializing application...');
+                
+                // Check for required globals
+                if (typeof ol === 'undefined') {
+                    throw new Error('OpenLayers not loaded');
+                }
+                
+                if (typeof olcs === 'undefined') {
+                    console.warn('ol-cesium not loaded, 3D view will be disabled');
+                }
+                
+                // Initialize the map if the function exists
+                if (typeof initMap === 'function') {
+                    initMap();
+                } else {
+                    console.warn('initMap function not found');
+                }
+                
+                // Initialize other components
+                if (window.initializeSearch && typeof window.initializeSearch === 'function') {
+                    window.initializeSearch();
+                }
+                
+                console.log('Application initialized successfully');
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Error initializing application:', error);
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.innerHTML = 'Error: ' + error.message;
+                    loading.style.background = '#d32f2f';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
