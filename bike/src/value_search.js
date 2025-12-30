@@ -482,52 +482,84 @@ function executeSingleQuery(query, queryType, retryCount = 0) {
 }
 
 /**
- * Perform value search with debouncing and results display
- * @param {string} query - The search query
- * @param {string} key - Optional key to filter by
- * @param {boolean} useYesCsv - Whether to use yes/no focused CSV
+ * Perform value search using systems API
  */
-function performValueSearch(query, key, useYesCsv = false) {
-    let results = []; // Initialize results variable
+function performValueSearch(query, selectedKey) {
+    console.log('🔍 performValueSearch called with:', { query, selectedKey });
+
+    if (!query || query.length < 1) {
+        displayValueResults([], query);
+        return;
+    }
 
     try {
-        // Read checkbox state (default false)
-        const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
-
-        // Choose appropriate loader/init function
-        const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
-        const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
-
-        if (!loadedFlag) {
-            console.log('Taginfo data for requested dataset not loaded, initializing...');
-            if (ensureLoaded) {
-                ensureLoaded().then(() => {
-                    console.log('Taginfo API (requested dataset) initialized, retrying search');
-                    window.performValueSearch(query, key);
-                }).catch(error => {
-                    console.error('Failed to initialize taginfo API for requested dataset:', error);
-                });
-            } else {
-                console.error('No init function for requested taginfo dataset');
-            }
-            return;
-        }
-
-        results = window.searchValues(query, key, 100, useYesCsv);
-        currentResults = results;
-
-        // Check if displayValueResults exists before calling it
-        if (typeof displayValueResults === 'function') {
-            displayValueResults(results, query);
-        } else {
-            console.error('displayValueResults is not defined');
-        }
-
-        // Trigger custom event for other components
-        searchInput.trigger('valueSearchResults', [results, key]);
+        // Use systems API to search
+        const results = window.searchSystems ? window.searchSystems(query, 50) : [];
+        console.log('🔍 performValueSearch results:', results);
+        displayValueResults(results, query);
     } catch (error) {
-        console.error('Error in performValueSearch:', error);
+        console.error('🔍 Error in performValueSearch:', error);
+        displayValueResults([], query);
     }
+}
+
+/**
+ * Display value search results
+ */
+function displayValueResults(results, query) {
+    const resultsContainer = $('#value-search-dropdown');
+
+    if (!resultsContainer.length) {
+        console.error('Value search dropdown not found!');
+        return;
+    }
+
+    resultsContainer.empty();
+
+    if (results.length === 0) {
+        // Show option to execute custom value
+        const customValueOption = `
+            <div class="value-search-result custom-value-option" data-custom-value="${escapeHtml(query)}">
+                <div class="value-name">"${escapeHtml(query)}"</div>
+                <div class="value-definition">${window.getTranslation ? window.getTranslation('customValueQuery') : 'Custom system - load HTML file'}</div>
+                <div class="value-count">${window.getTranslation ? window.getTranslation('clickToExecute') : 'Click to load'}</div>
+            </div>
+        `;
+        resultsContainer.append(customValueOption);
+        resultsContainer.show();
+        return;
+    }
+
+    results.forEach((result, index) => {
+        // Apply highlighting to search query
+        const highlightedSystemId = highlightText(result.systemId, query);
+        const highlightedName = highlightText(result.name, query);
+        const highlightedLocation = highlightText(result.location, query);
+        const highlightedCountry = highlightText(result.countryCode, query);
+
+        // Build HTML for system display
+        const systemIdHtml = `<div class="value-name" style="color: black; font-weight: bold;">${highlightedSystemId}</div>`;
+        const nameHtml = `<div class="value-definition" style="color: #666; font-size: 12px;">${highlightedName}</div>`;
+        const locationHtml = `<div class="value-key" style="color: #007cba; font-size: 12px;">Location: ${highlightedLocation}, ${highlightedCountry}</div>`;
+        const urlHtml = result.url ? `<div class="value-count"><a href="${escapeHtml(result.url)}" target="_blank">Website</a></div>` : '';
+
+        const html = `
+            ${systemIdHtml}
+            ${nameHtml}
+            ${locationHtml}
+            ${urlHtml}
+        `;
+
+        const resultElement = $('<div>')
+            .addClass('value-search-result')
+            .attr('data-result', JSON.stringify(result))
+            .data('result', result)
+            .html(html);
+
+        resultsContainer.append(resultElement);
+    });
+
+    resultsContainer.show();
 }
 
 /**
@@ -1481,16 +1513,15 @@ function initValueSearch() {
 
     // Handle execute button click
     $('#execute-query-btn').on('click', function() {
-        // Get key and value directly from input fields instead of global variables
-        const selectedKey = $('#value-search').data('selectedKey');
-        const valueInput = $('#value-search').val().trim();
+        // Get system ID from input field
+        const selectedSystemId = $('#value-search').data('selectedSystemId') || $('#value-search').val().trim();
 
-        if (selectedKey && valueInput) {
-            executeTagQuery(selectedKey, valueInput);
-            const executingText = window.getTranslation ? window.getTranslation('executing') || 'Executing...' : 'Executing...';
-            $(this).prop('disabled', true).text(executingText);
+        if (selectedSystemId) {
+            loadSystemHTML(selectedSystemId);
+            const loadingText = 'Loading HTML file...';
+            $(this).prop('disabled', true).text(loadingText);
         } else {
-            console.error('Execute button clicked but missing key or value');
+            console.error('Execute button clicked but missing system ID');
         }
     });
 
@@ -1563,164 +1594,7 @@ function initValueSearch() {
         }
     });
 
-    // Define performValueSearch as a global function
-    window.performValueSearch = function(query, key, useYesCsv = false) {
-        let results = []; // Initialize results variable
-
-        try {
-            // Read checkbox state (default false)
-            const useYesCsv = $('#use-yes-csv-checkbox').is(':checked');
-
-            // Choose appropriate loader/init function
-            const ensureLoaded = useYesCsv ? window.initTaginfoAPIYes : window.initTaginfoAPI;
-            const loadedFlag = useYesCsv ? (window.taginfoDataYes && window.taginfoDataYes.loaded) : (window.taginfoData && window.taginfoData.loaded);
-
-            if (!loadedFlag) {
-                console.log('Taginfo data for requested dataset not loaded, initializing...');
-                if (ensureLoaded) {
-                    ensureLoaded().then(() => {
-                        console.log('Taginfo API (requested dataset) initialized, retrying search');
-                        window.performValueSearch(query, key);
-                    }).catch(error => {
-                        console.error('Failed to initialize taginfo API for requested dataset:', error);
-                    });
-                } else {
-                    console.error('No init function for requested taginfo dataset');
-                }
-                return;
-            }
-
-            results = window.searchValues(query, key, 100, useYesCsv);
-            currentResults = results;
-
-            // Check if displayValueResults exists before calling it
-            if (typeof displayValueResults === 'function') {
-                displayValueResults(results, query);
-            } else {
-                console.error('displayValueResults is not defined');
-            }
-
-            // Trigger custom event for other components
-            searchInput.trigger('valueSearchResults', [results, key]);
-        } catch (error) {
-            console.error('Error in performValueSearch:', error);
-        }
-    }
-
-    function displayValueResults(results, query) {
-        resultsContainer.empty();
-
-        if (results.length === 0) {
-            // Show option to execute custom value
-            const customValueOption = `
-                <div class="value-search-result custom-value-option" data-custom-value="${escapeHtml(query)}">
-                    <div class="value-name">"${escapeHtml(query)}"</div>
-                    <div class="value-definition">${window.getTranslation ? window.getTranslation('customValueQuery') : 'Custom value - execute direct query'}</div>
-                    <div class="value-count">${window.getTranslation ? window.getTranslation('clickToExecute') : 'Click to execute'}</div>
-                </div>
-            `;
-            resultsContainer.append(customValueOption);
-            resultsContainer.show();
-            return;
-        }
-
-        results.forEach((result, index) => {
-            let countToUse = result.countAll || result.totalCount || 0;
-            if (typeof countToUse === 'string') {
-                countToUse = parseInt(countToUse) || 0;
-            }
-            if (typeof countToUse !== 'number' || countToUse <= 0) {
-                countToUse = 0;
-            }
-            let definitionToUse = result.definition_en || result.definition_ca || result.definition_es || result.definition || '';
-
-            // For global value search results, we need to get the definition from the keys that use this value
-            if (result.keys && result.keys.length > 0 && !definitionToUse) {
-                // Try to get definition from the first key that uses this value
-                const firstKey = result.keys[0];
-                if (window.taginfoData.keys.has(firstKey)) {
-                    const keyData = window.taginfoData.keys.get(firstKey);
-                    if (keyData.values.has(result.value)) {
-                        const valueData = keyData.values.get(result.value);
-                        definitionToUse = valueData.definition_en || valueData.definition_ca || valueData.definition_es || valueData.definition || '';
-                    }
-                }
-            }
-
-            // Apply highlighting to search query
-            const highlightedValue = highlightText(result.value || result.key || 'No value', query);
-            const highlightedKey = result.key ? highlightText(result.key, query) : '';
-
-            // Apply highlighting to all definition columns
-            const highlightedDef = highlightText(result.definition || '', query);
-            const highlightedDefEn = highlightText(result.definition_en || '', query);
-            const highlightedDefCa = highlightText(result.definition_ca || '', query);
-            const highlightedDefEs = highlightText(result.definition_es || '', query);
-
-            // Debug the HTML structure
-            const valueNameHtml = `<div class="value-name">${highlightedValue}</div>`;
-            const valueKeyHtml = result.key ? `<div class="value-key">for key: ${highlightedKey}</div>` : '';
-            const valueTagHtml = result.tag ? `<div class="value-tag">${escapeHtml(result.tag)}</div>` : '';
-
-            // Show only definition columns that contain the search term (with diacritic normalization)
-            const queryNormalized = removeDiacritics(query.toLowerCase());
-            
-            // Get current language and its definition
-            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'ca';
-            const langDefinition = result[`definition_${currentLang}`] || '';
-            
-            // Always show main definition if it contains the search term
-            const defHtml = result.definition && 
-                removeDiacritics(result.definition.toLowerCase()).includes(queryNormalized)
-                ? `<div class="value-definition">${highlightedDef}</div>`
-                : '';
-                
-            // Only show language-specific definition if it's different from main definition and contains the search term
-            const defEnHtml = 
-                result.definition_en && 
-                removeDiacritics(result.definition_en.toLowerCase()).includes(queryNormalized) &&
-                result.definition_en !== result.definition
-                    ? `<div class="value-definition-en">EN: ${highlightedDefEn}</div>`
-                    : '';
-                    
-            const defCaHtml = 
-                result.definition_ca && 
-                removeDiacritics(result.definition_ca.toLowerCase()).includes(queryNormalized) &&
-                result.definition_ca !== result.definition
-                    ? `<div class="value-definition-ca">CA: ${highlightedDefCa}</div>`
-                    : '';
-                    
-            const defEsHtml = 
-                result.definition_es && 
-                removeDiacritics(result.definition_es.toLowerCase()).includes(queryNormalized) &&
-                result.definition_es !== result.definition
-                    ? `<div class="value-definition-es">ES: ${highlightedDefEs}</div>`
-                    : '';
-
-            const valueCountHtml = `<div class="value-count">${formatValueCount(countToUse, definitionToUse)}</div>`;
-
-            const html = `
-                ${valueNameHtml}
-                ${valueKeyHtml}
-                ${valueTagHtml}
-                ${defHtml}
-                ${defEnHtml}
-                ${defCaHtml}
-                ${defEsHtml}
-                ${valueCountHtml}
-            `;
-
-            const resultElement = $('<div>')
-                .addClass('value-search-result')
-                .attr('data-result', JSON.stringify(result))  // Store as attribute as well
-                .data('result', result)
-                .html(html);
-
-            resultsContainer.append(resultElement);
-        });
-
-        resultsContainer.show();
-    }
+    // displayValueResults is now defined globally above
 
     function selectValueResult(result) {
         if (!result) {
@@ -1728,22 +1602,15 @@ function initValueSearch() {
             return;
         }
 
-        if (result.key && result.value) {
-            // Key-value pair selected (from specific key search) - use the selected values
-            $('#value-search').val(result.value);
-            $('#value-search').data('selectedKey', result.key);
+        if (result.systemId) {
+            // System selected - store the system ID and show execute button
+            $('#value-search').val(result.systemId);
+            $('#value-search').data('selectedSystemId', result.systemId);
             resultsContainer.empty().hide();
 
-            showExecuteButton(result.key, result.value);
-        } else if (result.keys && result.keys.length > 0 && result.value) {
-            // Value with multiple possible keys - use the first one and the selected value
-            $('#value-search').val(result.value);
-            $('#value-search').data('selectedKey', result.keys[0]);
-            resultsContainer.empty().hide();
-
-            showExecuteButton(result.keys[0], result.value);
+            showExecuteButton(result.systemId, result.name || result.systemId);
         } else if (result.value) {
-            // Just a value selected (no specific key) - use current key if available
+            // Fallback for old tag-based results
             const currentKey = $('#value-search').data('selectedKey');
             if (!currentKey) {
                 console.warn('No key available for value selection');
@@ -1768,6 +1635,54 @@ function initValueSearch() {
             .text(`${window.getTranslation ? window.getTranslation('executeQuery') : 'Execute Query'}: ${key}=${value}`);
 
         clearBtn.show();
+    }
+
+    /**
+     * Load system HTML file into the bike container iframe
+     * @param {string} systemId - The system ID to load HTML for
+     */
+    function loadSystemHTML(systemId) {
+        console.log('🚲 Loading HTML file for system:', systemId);
+
+        const htmlFileName = `${systemId}.html`;
+        const htmlFilePath = htmlFileName; // Assuming HTML files are in the root directory
+
+        // Check if the HTML file exists first
+        fetch(htmlFilePath, { method: 'HEAD' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                console.log('🚲 HTML file exists, loading into iframe:', htmlFileName);
+
+                // Update the iframe src to load the new HTML file
+                const iframe = document.getElementById('bike-stations-iframe');
+                if (iframe) {
+                    iframe.src = htmlFileName;
+                    iframe.title = `${systemId} Bike Stations`;
+
+                    // Update the iframe title in the HTML for accessibility
+                    iframe.setAttribute('title', `${systemId} Bike Stations`);
+
+                    // Reset button state
+                    $('#execute-query-btn').prop('disabled', false).text('HTML Loaded Successfully');
+
+                    console.log('🚲 HTML file loaded into iframe');
+                } else {
+                    throw new Error('Bike stations iframe not found');
+                }
+            })
+            .catch(error => {
+                console.error('🚲 Error loading HTML file:', error);
+
+                // Show error message
+                const errorMsg = `Error loading HTML file for system "${systemId}": ${error.message}`;
+                alert(errorMsg);
+
+                // Reset button state
+                $('#execute-query-btn').prop('disabled', false).text('Failed to Load HTML');
+            });
     }
 
     function clearMapLayers() {
@@ -2496,16 +2411,44 @@ function generateQueryColor(overlayId, isFixed = false) {
 }
     // Initialize when DOM is ready
     $(document).ready(function() {
-        // Wait for map to be ready
-        const waitForMap = () => {
-            if (window.map && typeof window.map.getView === 'function') {
-                initValueSearch();
-            } else {
-                setTimeout(waitForMap, 100);
-            }
-        };
-
-        waitForMap();
+        // Initialize systems API first
+        if (window.initSystemsAPI) {
+            console.log('🚲 Initializing systems API...');
+            window.initSystemsAPI().then(() => {
+                console.log('🚲 Systems API initialized successfully');
+                // Wait for map to be ready
+                const waitForMap = () => {
+                    if (window.map && typeof window.map.getView === 'function') {
+                        initValueSearch();
+                    } else {
+                        setTimeout(waitForMap, 100);
+                    }
+                };
+                waitForMap();
+            }).catch(error => {
+                console.error('🚲 Failed to initialize systems API:', error);
+                // Still initialize value search even if systems API fails
+                const waitForMap = () => {
+                    if (window.map && typeof window.map.getView === 'function') {
+                        initValueSearch();
+                    } else {
+                        setTimeout(waitForMap, 100);
+                    }
+                };
+                waitForMap();
+            });
+        } else {
+            console.error('🚲 Systems API not available');
+            // Wait for map to be ready anyway
+            const waitForMap = () => {
+                if (window.map && typeof window.map.getView === 'function') {
+                    initValueSearch();
+                } else {
+                    setTimeout(waitForMap, 100);
+                }
+            };
+            waitForMap();
+        }
     });
 
 // Export for use in other modules

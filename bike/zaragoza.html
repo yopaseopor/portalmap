@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcelona Bike Stations - Real Time</title>
+    <title>Zaragoza Bike Stations - Real Time</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -342,7 +342,7 @@
 <body>
     <div class="container">
         <div class="bike-controls">
-            <button id="show-bike-stations" class="bike-toggle-btn">🚲 Show Barcelona Bike Stations</button>
+            <button id="show-bike-stations" class="bike-toggle-btn">🚲 Show Zaragoza Bike Stations</button>
             <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
         </div>
 
@@ -377,8 +377,8 @@
     </div>
 
     <script>
-        const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-        const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+        const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+        const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
 
         let stationInfo = {};
         let stationStatus = {};
@@ -602,13 +602,13 @@
                         await loadBikeStations();
                         notifyParentShowStations();
                         bikeStationsContent.style.display = 'block';
-                        showBikeStationsBtn.textContent = '🚲 Hide Barcelona Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Hide Zaragoza Bike Stations';
                         showBikeStationsBtn.classList.add('active');
                     } else {
                         // Hide bike stations from main map
                         notifyParentHideStations();
                         bikeStationsContent.style.display = 'none';
-                        showBikeStationsBtn.textContent = '🚲 Show Barcelona Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Show Zaragoza Bike Stations';
                         showBikeStationsBtn.classList.remove('active');
                     }
                 });
@@ -620,9 +620,9 @@
             content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading bike station data...</div>';
 
             try {
-                const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-                const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
-                const VEHICLE_TYPES_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
+                const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+                const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+                const VEHICLE_TYPES_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
 
                 // Fetch all datasets
                 const [infoResponse, statusResponse, vehicleTypesResponse] = await Promise.all([
@@ -891,7 +891,7 @@
             // Create vector layer
             bikeStationsLayer = new ol.layer.Vector({
                 source: vectorSource,
-                title: 'Barcelona Bike Stations'
+                title: 'Zaragoza Bike Stations'
             });
 
             // Add layer to map

@@ -19,7 +19,7 @@
 	<link rel="stylesheet" href="src/css/index.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/mobile.css" type="text/css"/>
 	<link rel="stylesheet" href="src/css/language-selector.css" type="text/css"/>
-	
+
 	<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
 </head>
 <body>
@@ -37,12 +37,9 @@
 			  <button id="execute-query-btn" style="display:none; margin-top:5px; width:100%; padding:5px; background:#007cba; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="executeQuery">Execute Query</button>
 			  <button id="clear-search-btn" style="display:none; margin-top:3px; width:100%; padding:3px; background:#666; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;" data-i18n="clearButton">Clear</button>
 			</div>
-			<!-- HTML Page Container -->
-			<div id="html-page-container" style="margin: 10px 0;">
-				<button id="show-bike-stations" style="width: 100%; padding: 8px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">
-					🚲 Show Barcelona Bike Stations
-				</button>
-				<div id="bike-stations-content" style="display: none;"></div>
+			<!-- Bike Stations Container - Embedded separate webpage -->
+			<div id="bike-container" style="margin: 0;">
+				<iframe id="bike-stations-iframe" src="bike_stations.html" style="width: 100%; height: 400px; border: none; margin: 0; padding: 0;" title="Barcelona Bike Stations"></iframe>
 			</div>
 			<!-- Element Type Filter -->
 			<div class="element-type-filter">
@@ -82,15 +79,15 @@
 	<!-- jQuery (load first as other scripts depend on it) -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-	
+
 	<!-- Proj4 for coordinate transformations (must be loaded before OpenLayers) -->
 	<script src="https://cdn.jsdelivr.net/npm/proj4@2.10.0/dist/proj4.js"></script>
-	
+
 	<!-- OpenLayers CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css">
 	<!-- OpenLayers (must be loaded before ol-cesium) -->
 	<script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
-	
+
 	<!-- Cesium configuration -->
     <style>
         /* Cesium widget styles */
@@ -110,7 +107,7 @@
     <!-- ol-cesium with explicit CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol-cesium@2.15.1/dist/olcs.css">
     <script src="https://cdn.jsdelivr.net/npm/ol-cesium@2.15.1/dist/olcesium.js"></script>
-    
+
     <!-- osmtogeojson for data conversion -->
     <script src="https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0-beta.5/osmtogeojson.js"></script>
 
@@ -142,6 +139,7 @@
 
 	<!-- Application Logic -->
 	<script src="src/taginfo_api.js"></script>
+	<script src="src/systems_api.js"></script>
 	<script src="src/value_search.js"></script>
 	<script src="src/nominatim_search.js"></script>
 	<script src="src/panoramax_viewer.js"></script>
@@ -149,249 +147,28 @@
 	<script src="src/router.js"></script>
 	<script src="src/index.js"></script>
 
-	<!-- Bike Stations Integration -->
+	<!-- Bike Stations Map Integration -->
 	<script>
 		let bikeStationsLayer = null;
-		let bikeStationsData = [];
-		let bikeStationsEnabled = false;
+		let bikeStationsPopup = null;
 
-		document.addEventListener('DOMContentLoaded', function() {
-			const showBikeStationsBtn = document.getElementById('show-bike-stations');
-			const bikeStationsContent = document.getElementById('bike-stations-content');
-
-			if (showBikeStationsBtn && bikeStationsContent) {
-				showBikeStationsBtn.addEventListener('click', function() {
-					if (bikeStationsContent.style.display === 'none' || bikeStationsContent.style.display === '') {
-						loadBikeStations().then(() => {
-							showBikeStationsOnMap();
-						});
-						bikeStationsContent.style.display = 'block';
-						showBikeStationsBtn.textContent = '🚲 Hide Barcelona Bike Stations';
-						bikeStationsEnabled = true;
-					} else {
-						bikeStationsContent.style.display = 'none';
-						showBikeStationsBtn.textContent = '🚲 Show Barcelona Bike Stations';
-						hideBikeStationsOnMap();
-						bikeStationsEnabled = false;
-					}
-				});
+		// Listen for messages from the embedded bike stations iframe
+		window.addEventListener('message', function(event) {
+			// Basic origin check for security (you might want to restrict this further)
+			if (event.data.type === 'showBikeStations') {
+				displayBikeStationsOnMap(event.data.data);
+			} else if (event.data.type === 'hideBikeStations') {
+				hideBikeStationsFromMap();
+			} else if (event.data.type === 'zoomToBikeStation') {
+				zoomToBikeStation(event.data.stationId);
 			}
-
-			// Listen for 3D/2D mode changes to restore bike stations
-			window.addEventListener('modeChanged', function(event) {
-				const newMode = event.detail;
-				if (newMode === '2d' && bikeStationsEnabled && bikeStationsData.length > 0) {
-					// Small delay to ensure map is ready
-					setTimeout(() => {
-						showBikeStationsOnMap();
-					}, 1000);
-				}
-			});
 		});
 
-		async function loadBikeStations() {
-			const content = document.getElementById('bike-stations-content');
-			content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading bike station data...</div>';
+		function displayBikeStationsOnMap(stationsData) {
+			if (!window.map || !stationsData || !stationsData.length) return;
 
-			try {
-				const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-				const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
-				const VEHICLE_TYPES_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
-
-				// Fetch all datasets
-				const [infoResponse, statusResponse, vehicleTypesResponse] = await Promise.all([
-					fetch(STATION_INFO_URL),
-					fetch(STATION_STATUS_URL),
-					fetch(VEHICLE_TYPES_URL)
-				]);
-
-				const infoData = await infoResponse.json();
-				const statusData = await statusResponse.json();
-				const vehicleTypesData = await vehicleTypesResponse.json();
-
-				// Create vehicle types lookup with descriptive names
-				const vehicleTypesLookup = {};
-				if (vehicleTypesData.data && vehicleTypesData.data.vehicle_types) {
-					vehicleTypesData.data.vehicle_types.forEach(vehicleType => {
-						let descriptiveName = vehicleType.name || vehicleType.vehicle_type_id;
-
-						// Use propulsion_type and form_factor for better descriptions
-						const propulsion = vehicleType.propulsion_type;
-						const formFactor = vehicleType.form_factor;
-
-						if (propulsion === 'electric') {
-							if (formFactor === 'bicycle') {
-								descriptiveName = 'Electric Bike';
-							} else if (formFactor === 'scooter') {
-								descriptiveName = 'Electric Scooter';
-							} else {
-								descriptiveName = 'Electric Vehicle';
-							}
-						} else if (propulsion === 'human') {
-							if (formFactor === 'bicycle') {
-								descriptiveName = 'Regular Bike';
-							} else if (formFactor === 'scooter') {
-								descriptiveName = 'Manual Scooter';
-							} else {
-								descriptiveName = 'Manual Vehicle';
-							}
-						} else if (propulsion === 'electric_assist') {
-							descriptiveName = 'E-Bike Assist';
-						} else if (propulsion === 'combustion') {
-							descriptiveName = 'Gas Vehicle';
-						}
-
-						vehicleTypesLookup[vehicleType.vehicle_type_id] = {
-							name: descriptiveName,
-							originalName: vehicleType.name || vehicleType.vehicle_type_id,
-							form_factor: vehicleType.form_factor,
-							propulsion_type: vehicleType.propulsion_type
-						};
-					});
-				}
-
-				// Store globally for popup use
-				window.vehicleTypesLookup = vehicleTypesLookup;
-
-				// Create lookup maps
-				const stationInfo = {};
-				infoData.data.stations.forEach(station => {
-					stationInfo[station.station_id] = station;
-				});
-
-				const stationStatus = {};
-				statusData.data.stations.forEach(station => {
-					stationStatus[station.station_id] = station;
-				});
-
-				// Combine data
-				bikeStationsData = Object.keys(stationInfo).map(stationId => {
-					const info = stationInfo[stationId];
-					const status = stationStatus[stationId];
-					return {
-						...info,
-						...status,
-						last_reported: status ? new Date(status.last_reported * 1000) : null
-					};
-				});
-
-				// Calculate stats including bike types
-				const totalStations = bikeStationsData.length;
-				const availableBikes = bikeStationsData.reduce((sum, station) => sum + (station.num_bikes_available || 0), 0);
-				const availableDocks = bikeStationsData.reduce((sum, station) => sum + (station.num_docks_available || 0), 0);
-				const activeStations = bikeStationsData.filter(station => station.is_renting === 1).length;
-
-				// Calculate bike type statistics
-				const bikeTypeStats = {};
-				bikeStationsData.forEach(station => {
-					if (station.vehicle_types_available && Array.isArray(station.vehicle_types_available)) {
-						station.vehicle_types_available.forEach(vehicleType => {
-							const type = vehicleType.vehicle_type_id || 'unknown';
-							const count = vehicleType.count || 0;
-							if (!bikeTypeStats[type]) {
-								bikeTypeStats[type] = 0;
-							}
-							bikeTypeStats[type] += count;
-						});
-					}
-				});
-
-				// Create bike type display
-				let bikeTypesHtml = '';
-				if (Object.keys(bikeTypeStats).length > 0) {
-					bikeTypesHtml = '<div style="background: #e8f5e8; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px;">';
-					bikeTypesHtml += '<div style="font-weight: bold; margin-bottom: 4px;">🚲 Bike Types Available:</div>';
-					Object.entries(bikeTypeStats).forEach(([type, count]) => {
-						const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[type] : null;
-						const typeName = typeInfo ? typeInfo.name : (type === '1' ? 'Regular Bike' : type === '2' ? 'Electric Bike' : type === '3' ? 'Cargo Bike' : `Type ${type}`);
-						bikeTypesHtml += `<div style="display: inline-block; margin-right: 12px;">${typeName}: <strong>${count}</strong></div>`;
-					});
-					bikeTypesHtml += '</div>';
-				}
-
-				// Create compact display
-				content.innerHTML = `
-					<div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
-						<div style="display: flex; justify-content: space-between; font-size: 12px;">
-							<span><strong>${totalStations}</strong> stations</span>
-							<span><strong>${availableBikes}</strong> bikes available</span>
-							<span><strong>${availableDocks}</strong> docks available</span>
-						</div>
-					</div>
-					${bikeTypesHtml}
-					<div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px;">
-						<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-							<thead style="background: #007cba; color: white; position: sticky; top: 0;">
-								<tr>
-									<th style="padding: 8px; text-align: left;">Station</th>
-									<th style="padding: 8px; text-align: center;">Bikes</th>
-									<th style="padding: 8px; text-align: center;">Types</th>
-									<th style="padding: 8px; text-align: center;">Docks</th>
-									<th style="padding: 8px; text-align: center;">Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								${bikeStationsData.slice(0, 50).map(station => {
-									let bikeTypesText = '';
-									if (station.vehicle_types_available && Array.isArray(station.vehicle_types_available)) {
-										bikeTypesText = station.vehicle_types_available.map(vehicleType => {
-											const typeId = vehicleType.vehicle_type_id;
-											const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[typeId] : null;
-											const typeName = typeInfo ? typeInfo.name : typeId;
-											const count = vehicleType.count || 0;
-											// Use more descriptive abbreviations
-											let shortName = typeName;
-											if (typeName.includes('Electric Bike')) shortName = 'E-Bike';
-											else if (typeName.includes('Regular Bike')) shortName = 'Bike';
-											else if (typeName.includes('Electric Scooter')) shortName = 'E-Scoot';
-											else if (typeName.includes('Manual Scooter')) shortName = 'Scooter';
-											else shortName = typeName.substring(0, 6); // Fallback to first 6 chars
-											return count > 0 ? `${shortName}:${count}` : '';
-										}).filter(text => text).join(', ');
-									}
-									return `
-									<tr style="border-bottom: 1px solid #eee;">
-										<td style="padding: 8px; font-weight: bold;">${station.name || 'Unknown'}</td>
-										<td style="padding: 8px; text-align: center; color: ${getBikeColor(station.num_bikes_available || 0)}; font-weight: bold;">
-											${station.num_bikes_available || 0}
-										</td>
-										<td style="padding: 8px; text-align: center; font-size: 10px;">${bikeTypesText || '-'}</td>
-										<td style="padding: 8px; text-align: center;">${station.num_docks_available || 0}</td>
-										<td style="padding: 8px; text-align: center;">${getStatusText(station)}</td>
-									</tr>
-									`;
-								}).join('')}
-							</tbody>
-						</table>
-						${bikeStationsData.length > 50 ? `<div style="padding: 10px; text-align: center; color: #666; font-size: 11px;">Showing first 50 of ${bikeStationsData.length} stations</div>` : ''}
-					</div>
-					<div style="margin-top: 10px; font-size: 11px; color: #666; text-align: center;">
-						Last updated: ${new Date().toLocaleTimeString()}
-						<button onclick="this.parentElement.parentElement.querySelector('button').click(); loadBikeStations();" style="margin-left: 10px; padding: 2px 6px; background: #007cba; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 10px;">Refresh</button>
-					</div>
-				`;
-
-			} catch (error) {
-				console.error('Error loading bike stations:', error);
-				content.innerHTML = '<div style="text-align: center; padding: 20px; color: #d32f2f;">Error loading bike station data. Please try again.</div>';
-			}
-		}
-
-		function getBikeColor(bikes) {
-			if (bikes === 0) return '#dc3545'; // red
-			if (bikes <= 2) return '#ffc107'; // yellow
-			return '#28a745'; // green
-		}
-
-		function getStatusText(station) {
-			if (station.is_renting === 0) return 'Not renting';
-			if (station.is_returning === 0) return 'Not returning';
-			if (station.is_installed === 0) return 'Not installed';
-			return 'Active';
-		}
-
-		function showBikeStationsOnMap() {
-			if (!window.map || !bikeStationsData.length) return;
+			// Store data globally for zoom functionality
+			window.bikeStationsData = stationsData;
 
 			// Remove existing layer if it exists
 			if (bikeStationsLayer) {
@@ -402,7 +179,7 @@
 			const vectorSource = new ol.source.Vector();
 
 			// Create features for each station
-			bikeStationsData.forEach(station => {
+			stationsData.forEach(station => {
 				if (station.lat && station.lon) {
 					const feature = new ol.Feature({
 						geometry: new ol.geom.Point(ol.proj.fromLonLat([station.lon, station.lat])),
@@ -457,7 +234,7 @@
 			window.map.addLayer(bikeStationsLayer);
 
 			// Add popup overlay if not exists
-			if (!window.bikeStationPopup) {
+			if (!bikeStationsPopup) {
 				const popupElement = document.createElement('div');
 				popupElement.className = 'ol-popup';
 				popupElement.style.cssText = `
@@ -472,17 +249,18 @@
 					min-width: 200px;
 					font-size: 12px;
 					display: none;
+					z-index: 1000;
 				`;
 				document.body.appendChild(popupElement);
 
-				window.bikeStationPopup = new ol.Overlay({
+				bikeStationsPopup = new ol.Overlay({
 					element: popupElement,
 					positioning: 'bottom-center',
 					stopEvent: false,
 					offset: [0, -10]
 				});
 
-				window.map.addOverlay(window.bikeStationPopup);
+				window.map.addOverlay(bikeStationsPopup);
 			}
 
 			// Remove any existing bike station click handler to avoid duplicates
@@ -498,43 +276,45 @@
 
 				if (feature && feature.get('station')) {
 					const station = feature.get('station');
-					const popupElement = window.bikeStationPopup.getElement();
+					const popupElement = bikeStationsPopup.getElement();
 
 					// Build bike types information
 					let bikeTypesInfo = '';
 					if (station.vehicle_types_available && Array.isArray(station.vehicle_types_available)) {
 						bikeTypesInfo = '<div style="margin-top: 8px; font-size: 11px;">';
 						bikeTypesInfo += '<div style="font-weight: bold; margin-bottom: 4px;">🚲 Available by Type:</div>';
-						station.vehicle_types_available.forEach(vehicleType => {
-							const typeId = vehicleType.vehicle_type_id;
-							const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[typeId] : null;
-							const typeName = typeInfo ? typeInfo.name : typeId;
-							const count = vehicleType.count || 0;
-							if (count > 0) {
-								bikeTypesInfo += `<div>• ${typeName}: <strong>${count}</strong></div>`;
-							}
-						});
+                        station.vehicle_types_available.forEach(vehicleType => {
+                            const typeId = vehicleType.vehicle_type_id;
+                            const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[typeId] : null;
+                            const typeName = typeInfo ? typeInfo.name : typeId;
+                            const count = vehicleType.count || 0;
+                            if (count > 0) {
+                                bikeTypesInfo += `<div>• ${typeName} (${typeId}): <strong>${count}</strong></div>`;
+                            }
+                        });
 						bikeTypesInfo += '</div>';
 					}
 
 					popupElement.innerHTML = `
-						<div style="font-weight: bold; margin-bottom: 8px;">${station.name || 'Unknown Station'}</div>
+						<div style="font-weight: bold; margin-bottom: 8px;">${station.name || 'Unknown Station'} (${station.station_id})</div>
 						<div>🚲 Available bikes: <strong>${station.num_bikes_available || 0}</strong></div>
 						<div>📍 Available docks: <strong>${station.num_docks_available || 0}</strong></div>
 						<div>📊 Capacity: <strong>${station.capacity || 0}</strong></div>
-						<div>📡 Status: <strong>${getStatusText(station)}</strong></div>
+						<div>📡 Status: <strong>${getStationStatus(station)}</strong></div>
 						${bikeTypesInfo}
 						${station.last_reported ? `<div style="margin-top: 8px; font-size: 11px;">🕒 Updated: ${station.last_reported.toLocaleTimeString()}</div>` : ''}
 					`;
 
-					window.bikeStationPopup.setPosition(evt.coordinate);
+					bikeStationsPopup.setPosition(evt.coordinate);
 					popupElement.style.display = 'block';
 
 					// Prevent the default map click behavior
 					evt.stopPropagation();
 					return false;
 				} else {
-					window.bikeStationPopup.getElement().style.display = 'none';
+					if (bikeStationsPopup) {
+						bikeStationsPopup.getElement().style.display = 'none';
+					}
 				}
 			};
 
@@ -555,24 +335,47 @@
 				});
 
 				// Only hide popup if not hovering over a bike station
-				if (!hoveringOverBikeStation) {
-					window.bikeStationPopup.getElement().style.display = 'none';
+				if (!hoveringOverBikeStation && bikeStationsPopup) {
+					bikeStationsPopup.getElement().style.display = 'none';
 				}
 			});
 		}
 
-		function hideBikeStationsOnMap() {
+		function getStationStatus(station) {
+			if (station.is_renting === 0) return 'Not renting';
+			if (station.is_returning === 0) return 'Not returning';
+			if (station.is_installed === 0) return 'Not installed';
+			return 'Active';
+		}
+
+		function zoomToBikeStation(stationId) {
+			if (!window.map || !window.bikeStationsData) return;
+
+			// Find the station by stationId
+			const station = window.bikeStationsData.find(s => s.station_id === stationId);
+			if (station && station.lat && station.lon) {
+				// Convert coordinates to map projection
+				const coordinates = ol.proj.fromLonLat([station.lon, station.lat]);
+
+				// Create a view with the station centered and zoomed in
+				const view = window.map.getView();
+				view.animate({
+					center: coordinates,
+					zoom: 18, // High zoom level to focus on the station
+					duration: 1000 // Smooth animation over 1 second
+				});
+			}
+		}
+
+		function hideBikeStationsFromMap() {
 			if (window.map && bikeStationsLayer) {
 				window.map.removeLayer(bikeStationsLayer);
 				bikeStationsLayer = null;
 			}
-			if (window.bikeStationPopup) {
-				window.bikeStationPopup.getElement().style.display = 'none';
+			if (bikeStationsPopup) {
+				bikeStationsPopup.getElement().style.display = 'none';
 			}
 		}
-
-		// Store data globally for map functions
-		window.bikeStationsData = bikeStationsData;
 	</script>
 </body>
 </html>
