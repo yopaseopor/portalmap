@@ -1,16 +1,16 @@
-But th<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zaragoza Bike Stations - Real Time</title>
+    <title>Barcelona Bike Stations - Real Time</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
-            font-size: 9px;
+            font-size: 8px;
         }
 
         /* Styles for standalone viewing */
@@ -127,14 +127,14 @@ But th<!DOCTYPE html>
         }
 
         .stat-number {
-            font-size: 8px;
+            font-size: 7px;
             font-weight: bold;
             color: #007cba;
         }
 
         .stat-label {
             color: #666;
-            font-size: 11px;
+            font-size: 10px;
         }
 
         table {
@@ -167,7 +167,7 @@ But th<!DOCTYPE html>
             color: white;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 9px;
         }
 
         .bike-controls {
@@ -184,7 +184,7 @@ But th<!DOCTYPE html>
             border: none;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 9px;
+            font-size: 8px;
         }
         .search-container {
             margin-bottom: 20px;
@@ -361,14 +361,14 @@ But th<!DOCTYPE html>
                         return langData && langData.translations ? langData.translations[key] || key : key;
                     };
                     window.getCurrentLanguage = window.parent.getCurrentLanguage;
-                    initializeZaragozaTranslations();
+                    initializeBikeTranslations();
                 }
                 // Otherwise, don't initialize translations - they should come from main system
                 else {
                     // No translation system available, use default English
                     window.getTranslation = (key) => key;
                     window.getCurrentLanguage = () => 'en';
-                    initializeZaragozaTranslations();
+                    initializeBikeTranslations();
                 }
             };
 
@@ -376,13 +376,13 @@ But th<!DOCTYPE html>
             initializeTranslations();
         });
 
-        function initializeZaragozaTranslations() {
+        function initializeBikeTranslations() {
             if (!window.getTranslation) return;
 
             // Translate button text
             const showBikeBtn = document.getElementById('show-bike-stations');
             if (showBikeBtn) {
-                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showZaragozaBikeStations');
+                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showBarcelonaBikeStations');
             }
 
             // Translate stat labels
@@ -424,7 +424,7 @@ But th<!DOCTYPE html>
 <body>
     <div class="container">
         <div class="bike-controls">
-            <button id="show-bike-stations" class="bike-toggle-btn" data-i18n="showZaragozaBikeStations">🚲 Show Zaragoza Bike Stations</button>
+            <button id="show-bike-stations" class="bike-toggle-btn">🚲 Show Barcelona Bike Stations</button>
             <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
         </div>
 
@@ -433,34 +433,34 @@ But th<!DOCTYPE html>
         <div id="stats" class="stats" style="display: none;">
             <div class="stat-item">
                 <div class="stat-number" id="totalStations">0</div>
-                <div class="stat-label" data-i18n="totalStations">Total Stations</div>
+                <div class="stat-label">${window.getTranslation ? window.getTranslation('totalStations') : 'Total Stations'}</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="availableBikes">0</div>
-                <div class="stat-label" data-i18n="availableBikes">Available Bikes</div>
+                <div class="stat-label">${window.getTranslation ? window.getTranslation('availableBikes') : 'Available Bikes'}</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="availableDocks">0</div>
-                <div class="stat-label" data-i18n="availableDocks">Available Docks</div>
+                <div class="stat-label">${window.getTranslation ? window.getTranslation('availableDocks') : 'Available Docks'}</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="activeStations">0</div>
-                <div class="stat-label" data-i18n="activeStations">Active Stations</div>
+                <div class="stat-label">${window.getTranslation ? window.getTranslation('activeStations') : 'Active Stations'}</div>
             </div>
         </div>
 
-        <div id="loading" class="loading" data-i18n="loadingBikeStationData">
+        <div id="loading" class="loading">
             Loading bike station data...
         </div>
 
-        <div id="error" class="error" style="display: none;" data-i18n="errorLoadingBikeStationData"></div>
+        <div id="error" class="error" style="display: none;"></div>
 
         <div id="lastUpdate" class="last-update" style="display: none;"></div>
     </div>
 
     <script>
-        const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-        const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+        const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+        const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
 
         let stationInfo = {};
         let stationStatus = {};
@@ -506,7 +506,7 @@ But th<!DOCTYPE html>
 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                document.getElementById('error').textContent = window.getTranslation ? window.getTranslation('errorLoadingBikeStationData') : 'Error loading bike station data. Please try again later.';
+                document.getElementById('error').textContent = 'Error loading bike station data. Please try again later.';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('loading').style.display = 'none';
             }
@@ -626,10 +626,10 @@ But th<!DOCTYPE html>
         }
 
         function getStationStatus(station) {
-            if (station.is_renting === 0) return window.getTranslation ? window.getTranslation('notRenting') : 'Not renting';
-            if (station.is_returning === 0) return window.getTranslation ? window.getTranslation('notReturning') : 'Not returning';
-            if (station.is_installed === 0) return window.getTranslation ? window.getTranslation('notInstalled') : 'Not installed';
-            return window.getTranslation ? window.getTranslation('active') : 'Active';
+            if (station.is_renting === 0) return 'Not renting';
+            if (station.is_returning === 0) return 'Not returning';
+            if (station.is_installed === 0) return 'Not installed';
+            return 'Active';
         }
 
         // Search functionality - only add if element exists
@@ -693,13 +693,13 @@ But th<!DOCTYPE html>
                         await loadBikeStations();
                         notifyParentShowStations();
                         bikeStationsContent.style.display = 'block';
-                        showBikeStationsBtn.textContent = '🚲 Hide Zaragoza Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Hide Barcelona Bike Stations';
                         showBikeStationsBtn.classList.add('active');
                     } else {
                         // Hide bike stations from main map
                         notifyParentHideStations();
                         bikeStationsContent.style.display = 'none';
-                        showBikeStationsBtn.textContent = '🚲 Show Zaragoza Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Show Barcelona Bike Stations';
                         showBikeStationsBtn.classList.remove('active');
                     }
                 });
@@ -711,9 +711,9 @@ But th<!DOCTYPE html>
             content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading bike station data...</div>';
 
             try {
-                const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-                const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
-                const VEHICLE_TYPES_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
+                const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+                const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+                const VEHICLE_TYPES_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
 
                 // Fetch all datasets
                 const [infoResponse, statusResponse, vehicleTypesResponse] = await Promise.all([
@@ -1008,7 +1008,7 @@ But th<!DOCTYPE html>
             // Create vector layer
             bikeStationsLayer = new ol.layer.Vector({
                 source: vectorSource,
-                title: 'Zaragoza Bike Stations'
+                title: 'Barcelona Bike Stations'
             });
 
             // Add layer to map

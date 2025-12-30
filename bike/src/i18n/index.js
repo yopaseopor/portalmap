@@ -188,6 +188,9 @@ window.updateTranslations = updateTranslations;
 window.getTranslation = getTranslation;
 window.getCurrentLanguage = getCurrentLanguage;
 
+// Also expose the full translations object for iframes
+window.translations = languages;
+
 // Create i18n namespace for backward compatibility with taginfo_api.js
 window.i18n = {
     getCurrentLanguage: getCurrentLanguage

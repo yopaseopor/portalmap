@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
-            font-size: 8px;
+            font-size: 9px;
         }
 
         /* Styles for standalone viewing */
@@ -127,14 +127,14 @@
         }
 
         .stat-number {
-            font-size: 7px;
+            font-size: 8px;
             font-weight: bold;
             color: #007cba;
         }
 
         .stat-label {
             color: #666;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         table {
@@ -167,7 +167,7 @@
             color: white;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 9px;
+            font-size: 10px;
         }
 
         .bike-controls {
@@ -184,7 +184,7 @@
             border: none;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 8px;
+            font-size: 9px;
         }
         .search-container {
             margin-bottom: 20px;
@@ -332,10 +332,209 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
+    <!-- Translation system integration -->
+    <script>
+        // Simple translation system that works in both embedded and standalone modes
+        const translations = {
+            'en': {
+                'showBarcelonaBikeStations': 'Show Barcelona Bike Stations',
+                'totalStations': 'Total Stations',
+                'availableBikes': 'Available Bikes',
+                'availableDocks': 'Available Docks',
+                'activeStations': 'Active Stations',
+                'loadingBikeStationData': 'Loading bike station data...',
+                'errorLoadingBikeStationData': 'Error loading bike station data. Please try again later.',
+                'lastUpdated': 'Last updated:',
+                'searchStationsByName': 'Search stations by name...',
+                'stations': 'stations',
+                'bikesAvailable': 'bikes available',
+                'docksAvailable': 'docks available',
+                'station': 'Station',
+                'bikes': 'Bikes',
+                'types': 'Types',
+                'docks': 'Docks',
+                'status': 'Status',
+                'previous': 'Previous',
+                'next': 'Next',
+                'refresh': 'Refresh',
+                'bikeTypesAvailable': 'Bike Types Available:',
+                'regularBike': 'Regular Bike',
+                'electricBike': 'Electric Bike',
+                'electricScooter': 'Electric Scooter',
+                'cargoBike': 'Cargo Bike',
+                'notRenting': 'Not renting',
+                'notReturning': 'Not returning',
+                'notInstalled': 'Not installed',
+                'active': 'Active'
+            },
+            'es': {
+                'showBarcelonaBikeStations': 'Mostrar Estaciones de Bicicletas de Barcelona',
+                'totalStations': 'Total de Estaciones',
+                'availableBikes': 'Bicicletas Disponibles',
+                'availableDocks': 'Aparcaderos Disponibles',
+                'activeStations': 'Estaciones Activas',
+                'loadingBikeStationData': 'Cargando datos de estaciones de bicicletas...',
+                'errorLoadingBikeStationData': 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo más tarde.',
+                'lastUpdated': 'Última actualización:',
+                'searchStationsByName': 'Buscar estaciones por nombre...',
+                'stations': 'estaciones',
+                'bikesAvailable': 'bicicletas disponibles',
+                'docksAvailable': 'aparcaderos disponibles',
+                'station': 'Estación',
+                'bikes': 'Bicicletas',
+                'types': 'Tipos',
+                'docks': 'Aparcaderos',
+                'status': 'Estado',
+                'previous': 'Anterior',
+                'next': 'Siguiente',
+                'refresh': 'Actualizar',
+                'bikeTypesAvailable': 'Tipos de Bicicletas Disponibles:',
+                'regularBike': 'Bicicleta Normal',
+                'electricBike': 'Bicicleta Eléctrica',
+                'electricScooter': 'Patinete Eléctrico',
+                'cargoBike': 'Bicicleta de Carga',
+                'notRenting': 'No alquila',
+                'notReturning': 'No devuelve',
+                'notInstalled': 'No instalada',
+                'active': 'Activa'
+            },
+            'ca': {
+                'showBarcelonaBikeStations': 'Mostrar Estacions de Bicicletes de Barcelona',
+                'totalStations': 'Total d\'Estacions',
+                'availableBikes': 'Bicicletes Disponibles',
+                'availableDocks': 'Aparcadors Disponibles',
+                'activeStations': 'Estacions Actives',
+                'loadingBikeStationData': 'Carregant dades d\'estacions de bicicletes...',
+                'errorLoadingBikeStationData': 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar més tard.',
+                'lastUpdated': 'Última actualització:',
+                'searchStationsByName': 'Cercar estacions per nom...',
+                'stations': 'estacions',
+                'bikesAvailable': 'bicicletes disponibles',
+                'docksAvailable': 'aparcadors disponibles',
+                'station': 'Estació',
+                'bikes': 'Bicicletes',
+                'types': 'Tipus',
+                'docks': 'Aparcadors',
+                'status': 'Estat',
+                'previous': 'Anterior',
+                'next': 'Següent',
+                'refresh': 'Actualitzar',
+                'bikeTypesAvailable': 'Tipus de Bicicletes Disponibles:',
+                'regularBike': 'Bicicleta Normal',
+                'electricBike': 'Bicicleta Elèctrica',
+                'electricScooter': 'Patinet Elèctric',
+                'cargoBike': 'Bicicleta de Càrrega',
+                'notRenting': 'No lloga',
+                'notReturning': 'No retorna',
+                'notInstalled': 'No instal·lada',
+                'active': 'Activa'
+            }
+        };
+
+        // Auto-detect language and create translation function
+        const browserLang = navigator.language.split('-')[0];
+        const urlParams = new URLSearchParams(window.location.search);
+        const langParam = urlParams.get('lang');
+        const supportedLangs = ['en', 'es', 'ca'];
+        const detectedLang = langParam && supportedLangs.includes(langParam) ? langParam :
+                           supportedLangs.includes(browserLang) ? browserLang : 'en';
+
+        // Create translation function that uses the detected language
+        function getBasicTranslation(key) {
+            return translations[detectedLang] ? translations[detectedLang][key] || key : key;
+        }
+
+        // Make translation function available globally
+        window.standaloneGetTranslation = getBasicTranslation;
+        window.standaloneGetCurrentLanguage = () => detectedLang;
+    </script>
+
     <script>
         // Detect if we're in an iframe (embedded in main page) and apply appropriate styling
-        if (window.self !== window.top) {
-            document.body.classList.add('embedded');
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.self !== window.top) {
+                document.body.classList.add('embedded');
+            }
+        });
+
+        // Initialize translations after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up a more reliable translation initialization
+            const initializeTranslations = () => {
+                // Detect current language from browser or URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const langParam = urlParams.get('lang');
+                const browserLang = navigator.language.split('-')[0];
+                const supportedLangs = ['en', 'es', 'ca'];
+                const detectedLang = langParam && supportedLangs.includes(langParam) ? langParam :
+                                   supportedLangs.includes(browserLang) ? browserLang : 'en';
+
+                // Try to use parent window translations first (for iframe mode)
+                if (window.parent && window.parent !== window &&
+                    window.parent.getTranslation && window.parent.translations) {
+                    window.getTranslation = function(key) {
+                        const currentLang = window.parent.getCurrentLanguage();
+                        const langData = window.parent.translations[currentLang];
+                        return langData && langData.translations ? langData.translations[key] || key : key;
+                    };
+                    window.getCurrentLanguage = window.parent.getCurrentLanguage;
+                    initializeBarcelonaTranslations();
+                }
+                // Otherwise, don't initialize translations - they should come from main system
+                else {
+                    // No translation system available, use default English
+                    window.getTranslation = (key) => key;
+                    window.getCurrentLanguage = () => 'en';
+                    initializeBarcelonaTranslations();
+                }
+            };
+
+            // Try to initialize immediately, or wait a bit for ES6 modules
+            initializeTranslations();
+        });
+
+        function initializeBarcelonaTranslations() {
+            if (!window.getTranslation) return;
+
+            // Translate button text
+            const showBikeBtn = document.getElementById('show-bike-stations');
+            if (showBikeBtn) {
+                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showBarcelonaBikeStations');
+            }
+
+            // Translate stat labels
+            const statLabels = document.querySelectorAll('.stat-label');
+            statLabels.forEach(label => {
+                const text = label.textContent.trim();
+                if (text === 'Total Stations') {
+                    label.textContent = window.getTranslation('totalStations');
+                } else if (text === 'Available Bikes') {
+                    label.textContent = window.getTranslation('availableBikes');
+                } else if (text === 'Available Docks') {
+                    label.textContent = window.getTranslation('availableDocks');
+                } else if (text === 'Active Stations') {
+                    label.textContent = window.getTranslation('activeStations');
+                }
+            });
+
+            // Translate loading text
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.textContent = window.getTranslation('loadingBikeStationData');
+            }
+
+            // Translate error text
+            const error = document.getElementById('error');
+            if (error && error.textContent.includes('Error loading bike station data')) {
+                error.textContent = window.getTranslation('errorLoadingBikeStationData');
+            }
+
+            // Translate last updated text
+            const lastUpdate = document.getElementById('lastUpdate');
+            if (lastUpdate && lastUpdate.textContent.includes('Last updated:')) {
+                const timePart = lastUpdate.textContent.split(': ')[1];
+                lastUpdate.textContent = window.getTranslation('lastUpdated') + ' ' + timePart;
+            }
         }
     </script>
 </head>
@@ -550,28 +749,37 @@
             return 'Active';
         }
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', () => {
-            currentPage = 1; // Reset to first page when searching
-            updateDisplay();
-        });
-
-        // Pagination functionality
-        document.getElementById('prevBtn').addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
+        // Search functionality - only add if element exists
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                currentPage = 1; // Reset to first page when searching
                 updateDisplay();
-            }
-        });
+            });
+        }
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            const filteredStations = filterStations();
-            const totalPages = Math.ceil(filteredStations.length / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateDisplay();
-            }
-        });
+        // Pagination functionality - only add if elements exist
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplay();
+                }
+            });
+        }
+
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const filteredStations = filterStations();
+                const totalPages = Math.ceil(filteredStations.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateDisplay();
+                }
+            });
+        }
 
         // Initial load
         fetchStationData();
@@ -725,26 +933,52 @@
                 // Create bike type display
                 let bikeTypesHtml = '';
                 if (Object.keys(bikeTypeStats).length > 0) {
+                    const bikeTypesAvailableText = window.getTranslation ? window.getTranslation('bikeTypesAvailable') : 'Bike Types Available:';
                     bikeTypesHtml = '<div style="background: #e8f5e8; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px;">';
-                    bikeTypesHtml += '<div style="font-weight: bold; margin-bottom: 4px;">🚲 Bike Types Available:</div>';
+                    bikeTypesHtml += `<div style="font-weight: bold; margin-bottom: 4px;">🚲 ${bikeTypesAvailableText}</div>`;
                     Object.entries(bikeTypeStats).forEach(([type, count]) => {
                         const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[type] : null;
-                        const typeName = typeInfo ? typeInfo.name : (type === '1' ? 'Regular Bike' : type === '2' ? 'Electric Bike' : type === '3' ? 'Cargo Bike' : `Type ${type}`);
+                        let typeName = typeInfo ? typeInfo.name : (type === '1' ? 'Regular Bike' : type === '2' ? 'Electric Bike' : type === '3' ? 'Cargo Bike' : `Type ${type}`);
+
+                        // Translate common vehicle types
+                        if (window.getTranslation) {
+                            if (typeName === 'Regular Bike') typeName = window.getTranslation('regularBike');
+                            else if (typeName === 'Electric Bike') typeName = window.getTranslation('electricBike');
+                            else if (typeName === 'Electric Scooter') typeName = window.getTranslation('electricScooter');
+                            else if (typeName === 'E-Bike Assist') typeName = window.getTranslation('eBikeAssist');
+                            else if (typeName === 'Cargo Bike') typeName = window.getTranslation('cargoBike');
+                        }
+
                         bikeTypesHtml += `<div style="display: inline-block; margin-right: 12px;">${typeName}: <strong>${count}</strong></div>`;
                     });
                     bikeTypesHtml += '</div>';
                 }
 
+                // Get translated text for dynamic content
+                const searchPlaceholder = window.getTranslation ? window.getTranslation('searchStationsByName') : 'Search stations by name...';
+                const stationsText = window.getTranslation ? window.getTranslation('stations') : 'stations';
+                const bikesAvailableText = window.getTranslation ? window.getTranslation('bikesAvailable') : 'bikes available';
+                const docksAvailableText = window.getTranslation ? window.getTranslation('docksAvailable') : 'docks available';
+                const stationHeader = window.getTranslation ? window.getTranslation('station') : 'Station';
+                const bikesHeader = window.getTranslation ? window.getTranslation('bikes') : 'Bikes';
+                const typesHeader = window.getTranslation ? window.getTranslation('types') : 'Types';
+                const docksHeader = window.getTranslation ? window.getTranslation('docks') : 'Docks';
+                const statusHeader = window.getTranslation ? window.getTranslation('status') : 'Status';
+                const previousText = window.getTranslation ? window.getTranslation('previous') : 'Previous';
+                const nextText = window.getTranslation ? window.getTranslation('next') : 'Next';
+                const lastUpdatedText = window.getTranslation ? window.getTranslation('lastUpdated') : 'Last updated:';
+                const refreshText = window.getTranslation ? window.getTranslation('refresh') : 'Refresh';
+
                 // Create compact display
                 content.innerHTML = `
                     <div style="margin-bottom: 10px; text-align: center;">
-                        <input type="text" id="bike-search-input" placeholder="Search stations by name..." style="padding: 4px 8px; width: 200px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                        <input type="text" id="bike-search-input" placeholder="${searchPlaceholder}" style="padding: 4px 8px; width: 200px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
                     </div>
                     <div id="bike-stats" style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span><strong id="filtered-total">${totalStations}</strong> stations</span>
-                            <span><strong id="filtered-bikes">${availableBikes}</strong> bikes available</span>
-                            <span><strong id="filtered-docks">${availableDocks}</strong> docks available</span>
+                            <span><strong id="filtered-total">${totalStations}</strong> ${stationsText}</span>
+                            <span><strong id="filtered-bikes">${availableBikes}</strong> ${bikesAvailableText}</span>
+                            <span><strong id="filtered-docks">${availableDocks}</strong> ${docksAvailableText}</span>
                         </div>
                     </div>
                     ${bikeTypesHtml}
@@ -752,11 +986,11 @@
                         <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
                             <thead style="background: #007cba; color: white; position: sticky; top: 0;">
                                 <tr>
-                                    <th style="padding: 8px; text-align: left;">Station</th>
-                                    <th style="padding: 8px; text-align: center;">Bikes</th>
-                                    <th style="padding: 8px; text-align: center;">Types</th>
-                                    <th style="padding: 8px; text-align: center;">Docks</th>
-                                    <th style="padding: 8px; text-align: center;">Status</th>
+                                    <th style="padding: 8px; text-align: left;">${stationHeader}</th>
+                                    <th style="padding: 8px; text-align: center;">${bikesHeader}</th>
+                                    <th style="padding: 8px; text-align: center;">${typesHeader}</th>
+                                    <th style="padding: 8px; text-align: center;">${docksHeader}</th>
+                                    <th style="padding: 8px; text-align: center;">${statusHeader}</th>
                                 </tr>
                             </thead>
                             <tbody id="bike-stations-tbody">
@@ -764,14 +998,14 @@
                             </tbody>
                         </table>
                         <div id="bike-pagination" style="padding: 8px; text-align: center; background: #f8f9fa; border-top: 1px solid #ddd; display: none;">
-                            <button id="bike-prev-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Previous</button>
+                            <button id="bike-prev-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${previousText}</button>
                             <span id="bike-page-info" style="margin: 0 8px; font-size: 11px;"></span>
-                            <button id="bike-next-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Next</button>
+                            <button id="bike-next-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${nextText}</button>
                         </div>
                     </div>
                     <div style="margin-top: 10px; font-size: 11px; color: #666; text-align: center;">
-                        Last updated: ${new Date().toLocaleTimeString()}
-                        <button onclick="this.parentElement.parentElement.querySelector('button').click(); loadBikeStations();" style="margin-left: 10px; padding: 2px 6px; background: #007cba; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 10px;">Refresh</button>
+                        ${lastUpdatedText} ${new Date().toLocaleTimeString()}
+                        <button onclick="this.parentElement.parentElement.querySelector('button').click(); loadBikeStations();" style="margin-left: 10px; padding: 2px 6px; background: #007cba; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 10px;">${refreshText}</button>
                     </div>
                 `;
 
@@ -825,10 +1059,10 @@
         }
 
         function getStatusText(station) {
-            if (station.is_renting === 0) return 'Not renting';
-            if (station.is_returning === 0) return 'Not returning';
-            if (station.is_installed === 0) return 'Not installed';
-            return 'Active';
+            if (station.is_renting === 0) return window.getTranslation ? window.getTranslation('notRenting') : 'Not renting';
+            if (station.is_returning === 0) return window.getTranslation ? window.getTranslation('notReturning') : 'Not returning';
+            if (station.is_installed === 0) return window.getTranslation ? window.getTranslation('notInstalled') : 'Not installed';
+            return window.getTranslation ? window.getTranslation('active') : 'Active';
         }
 
         function showBikeStationsOnMap() {
