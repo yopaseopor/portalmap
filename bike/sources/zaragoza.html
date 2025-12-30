@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcelona Bike Stations - Real Time</title>
+    <title>Zaragoza Bike Stations - Real Time</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -48,15 +48,7 @@
         }
 
         body.embedded * {
-            font-size: 7px !important;
-        }
-
-        body.embedded .stat-number {
-            font-size: 5px !important;
-        }
-
-        body.embedded .stat-label {
-            font-size: 5px !important;
+            font-size: 9px !important;
         }
 
         body.embedded .stat-number {
@@ -65,21 +57,29 @@
 
         body.embedded .stat-label {
             font-size: 7px !important;
+        }
+
+        body.embedded .stat-number {
+            font-size: 9px !important;
+        }
+
+        body.embedded .stat-label {
+            font-size: 9px !important;
         }
 
         body.embedded table th,
         body.embedded table td {
             padding: 0;
-            font-size: 7px !important;
+            font-size: 9px !important;
         }
 
         body.embedded .page-btn {
             padding: 0 1px;
-            font-size: 7px !important;
+            font-size: 9px !important;
         }
 
         body.embedded .bike-toggle-btn {
-            font-size: 7px !important;
+            font-size: 9px !important;
             padding: 0 1px;
             height: 12px;
             line-height: 10px;
@@ -332,130 +332,13 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    <!-- Translation system integration -->
-    <script>
-        // Simple translation system that works in both embedded and standalone modes
-        const translations = {
-            'en': {
-                'showBarcelonaBikeStations': 'Show Barcelona Bike Stations',
-                'totalStations': 'Total Stations',
-                'availableBikes': 'Available Bikes',
-                'availableDocks': 'Available Docks',
-                'activeStations': 'Active Stations',
-                'loadingBikeStationData': 'Loading bike station data...',
-                'errorLoadingBikeStationData': 'Error loading bike station data. Please try again later.',
-                'lastUpdated': 'Last updated:',
-                'searchStationsByName': 'Search stations by name...',
-                'stations': 'stations',
-                'bikesAvailable': 'bikes available',
-                'docksAvailable': 'docks available',
-                'station': 'Station',
-                'bikes': 'Bikes',
-                'types': 'Types',
-                'docks': 'Docks',
-                'status': 'Status',
-                'previous': 'Previous',
-                'next': 'Next',
-                'refresh': 'Refresh',
-                'bikeTypesAvailable': 'Bike Types Available:',
-                'regularBike': 'Regular Bike',
-                'electricBike': 'Electric Bike',
-                'electricScooter': 'Electric Scooter',
-                'cargoBike': 'Cargo Bike',
-                'notRenting': 'Not renting',
-                'notReturning': 'Not returning',
-                'notInstalled': 'Not installed',
-                'active': 'Active'
-            },
-            'es': {
-                'showBarcelonaBikeStations': 'Mostrar Estaciones de Bicicletas de Barcelona',
-                'totalStations': 'Total de Estaciones',
-                'availableBikes': 'Bicicletas Disponibles',
-                'availableDocks': 'Aparcaderos Disponibles',
-                'activeStations': 'Estaciones Activas',
-                'loadingBikeStationData': 'Cargando datos de estaciones de bicicletas...',
-                'errorLoadingBikeStationData': 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo más tarde.',
-                'lastUpdated': 'Última actualización:',
-                'searchStationsByName': 'Buscar estaciones por nombre...',
-                'stations': 'estaciones',
-                'bikesAvailable': 'bicicletas disponibles',
-                'docksAvailable': 'aparcaderos disponibles',
-                'station': 'Estación',
-                'bikes': 'Bicicletas',
-                'types': 'Tipos',
-                'docks': 'Aparcaderos',
-                'status': 'Estado',
-                'previous': 'Anterior',
-                'next': 'Siguiente',
-                'refresh': 'Actualizar',
-                'bikeTypesAvailable': 'Tipos de Bicicletas Disponibles:',
-                'regularBike': 'Bicicleta Normal',
-                'electricBike': 'Bicicleta Eléctrica',
-                'electricScooter': 'Patinete Eléctrico',
-                'cargoBike': 'Bicicleta de Carga',
-                'notRenting': 'No alquila',
-                'notReturning': 'No devuelve',
-                'notInstalled': 'No instalada',
-                'active': 'Activa'
-            },
-            'ca': {
-                'showBarcelonaBikeStations': 'Mostrar Estacions de Bicicletes de Barcelona',
-                'totalStations': 'Total d\'Estacions',
-                'availableBikes': 'Bicicletes Disponibles',
-                'availableDocks': 'Aparcadors Disponibles',
-                'activeStations': 'Estacions Actives',
-                'loadingBikeStationData': 'Carregant dades d\'estacions de bicicletes...',
-                'errorLoadingBikeStationData': 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar més tard.',
-                'lastUpdated': 'Última actualització:',
-                'searchStationsByName': 'Cercar estacions per nom...',
-                'stations': 'estacions',
-                'bikesAvailable': 'bicicletes disponibles',
-                'docksAvailable': 'aparcadors disponibles',
-                'station': 'Estació',
-                'bikes': 'Bicicletes',
-                'types': 'Tipus',
-                'docks': 'Aparcadors',
-                'status': 'Estat',
-                'previous': 'Anterior',
-                'next': 'Següent',
-                'refresh': 'Actualitzar',
-                'bikeTypesAvailable': 'Tipus de Bicicletes Disponibles:',
-                'regularBike': 'Bicicleta Normal',
-                'electricBike': 'Bicicleta Elèctrica',
-                'electricScooter': 'Patinet Elèctric',
-                'cargoBike': 'Bicicleta de Càrrega',
-                'notRenting': 'No lloga',
-                'notReturning': 'No retorna',
-                'notInstalled': 'No instal·lada',
-                'active': 'Activa'
-            }
-        };
 
-        // Auto-detect language and create translation function
-        const browserLang = navigator.language.split('-')[0];
-        const urlParams = new URLSearchParams(window.location.search);
-        const langParam = urlParams.get('lang');
-        const supportedLangs = ['en', 'es', 'ca'];
-        const detectedLang = langParam && supportedLangs.includes(langParam) ? langParam :
-                           supportedLangs.includes(browserLang) ? browserLang : 'en';
-
-        // Create translation function that uses the detected language
-        function getBasicTranslation(key) {
-            return translations[detectedLang] ? translations[detectedLang][key] || key : key;
-        }
-
-        // Make translation function available globally
-        window.standaloneGetTranslation = getBasicTranslation;
-        window.standaloneGetCurrentLanguage = () => detectedLang;
-    </script>
 
     <script>
         // Detect if we're in an iframe (embedded in main page) and apply appropriate styling
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.self !== window.top) {
-                document.body.classList.add('embedded');
-            }
-        });
+        if (window.self !== window.top && document.body) {
+            document.body.classList.add('embedded');
+        }
 
         // Initialize translations after DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
@@ -478,14 +361,41 @@
                         return langData && langData.translations ? langData.translations[key] || key : key;
                     };
                     window.getCurrentLanguage = window.parent.getCurrentLanguage;
-                    initializeBarcelonaTranslations();
+                    initializeZaragozaTranslations();
+                }
+                // Otherwise, wait for parent translations to be available
+                else if (window.parent && window.parent !== window) {
+                    // Parent exists but translations not ready yet, wait and retry
+                    let retryCount = 0;
+                    const waitForParentTranslations = () => {
+                        retryCount++;
+                        if (window.parent.getTranslation && window.parent.translations) {
+                            // Parent translations are now available
+                            window.getTranslation = function(key) {
+                                const currentLang = window.parent.getCurrentLanguage();
+                                const langData = window.parent.translations[currentLang];
+                                return langData && langData.translations ? langData.translations[key] || key : key;
+                            };
+                            window.getCurrentLanguage = window.parent.getCurrentLanguage;
+                            initializeZaragozaTranslations();
+                        } else if (retryCount < 50) { // Wait up to 5 seconds (50 * 100ms)
+                            setTimeout(waitForParentTranslations, 100);
+                        } else {
+                            // Timeout - fall back to default English
+                            console.warn('Timeout waiting for parent translations, using default English');
+                            window.getTranslation = (key) => key;
+                            window.getCurrentLanguage = () => 'en';
+                            initializeZaragozaTranslations();
+                        }
+                    };
+                    waitForParentTranslations();
                 }
                 // Otherwise, don't initialize translations - they should come from main system
                 else {
                     // No translation system available, use default English
                     window.getTranslation = (key) => key;
                     window.getCurrentLanguage = () => 'en';
-                    initializeBarcelonaTranslations();
+                    initializeZaragozaTranslations();
                 }
             };
 
@@ -493,13 +403,13 @@
             initializeTranslations();
         });
 
-        function initializeBarcelonaTranslations() {
+        function initializeZaragozaTranslations() {
             if (!window.getTranslation) return;
 
             // Translate button text
             const showBikeBtn = document.getElementById('show-bike-stations');
             if (showBikeBtn) {
-                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showBarcelonaBikeStations');
+                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showZaragozaBikeStations');
             }
 
             // Translate stat labels
@@ -541,7 +451,7 @@
 <body>
     <div class="container">
         <div class="bike-controls">
-            <button id="show-bike-stations" class="bike-toggle-btn">🚲 Show Barcelona Bike Stations</button>
+            <button id="show-bike-stations" class="bike-toggle-btn" data-i18n="showZaragozaBikeStations">🚲 Show Zaragoza Bike Stations</button>
             <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
         </div>
 
@@ -550,34 +460,34 @@
         <div id="stats" class="stats" style="display: none;">
             <div class="stat-item">
                 <div class="stat-number" id="totalStations">0</div>
-                <div class="stat-label">Total Stations</div>
+                <div class="stat-label" data-i18n="totalStations">Total Stations</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="availableBikes">0</div>
-                <div class="stat-label">Available Bikes</div>
+                <div class="stat-label" data-i18n="availableBikes">Available Bikes</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="availableDocks">0</div>
-                <div class="stat-label">Available Docks</div>
+                <div class="stat-label" data-i18n="availableDocks">Available Docks</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="activeStations">0</div>
-                <div class="stat-label">Active Stations</div>
+                <div class="stat-label" data-i18n="activeStations">Active Stations</div>
             </div>
         </div>
 
-        <div id="loading" class="loading">
+        <div id="loading" class="loading" data-i18n="loadingBikeStationData">
             Loading bike station data...
         </div>
 
-        <div id="error" class="error" style="display: none;"></div>
+        <div id="error" class="error" style="display: none;" data-i18n="errorLoadingBikeStationData"></div>
 
         <div id="lastUpdate" class="last-update" style="display: none;"></div>
     </div>
 
     <script>
-        const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-        const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+        const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+        const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
 
         let stationInfo = {};
         let stationStatus = {};
@@ -623,7 +533,7 @@
 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                document.getElementById('error').textContent = 'Error loading bike station data. Please try again later.';
+                document.getElementById('error').textContent = window.getTranslation ? window.getTranslation('errorLoadingBikeStationData') : 'Error loading bike station data. Please try again later.';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('loading').style.display = 'none';
             }
@@ -675,7 +585,9 @@
 
         function filterStations() {
             const searchInput = document.getElementById('searchInput');
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            if (!searchInput) return allStations; // No search input available (e.g., embedded mode)
+
+            const searchTerm = searchInput.value.toLowerCase();
             if (!searchTerm) return allStations;
 
             return allStations.filter(station =>
@@ -744,10 +656,10 @@
         }
 
         function getStationStatus(station) {
-            if (station.is_renting === 0) return 'Not renting';
-            if (station.is_returning === 0) return 'Not returning';
-            if (station.is_installed === 0) return 'Not installed';
-            return 'Active';
+            if (station.is_renting === 0) return window.getTranslation ? window.getTranslation('notRenting') : 'Not renting';
+            if (station.is_returning === 0) return window.getTranslation ? window.getTranslation('notReturning') : 'Not returning';
+            if (station.is_installed === 0) return window.getTranslation ? window.getTranslation('notInstalled') : 'Not installed';
+            return window.getTranslation ? window.getTranslation('active') : 'Active';
         }
 
         // Search functionality - only add if element exists
@@ -811,13 +723,13 @@
                         await loadBikeStations();
                         notifyParentShowStations();
                         bikeStationsContent.style.display = 'block';
-                        showBikeStationsBtn.textContent = '🚲 Hide Barcelona Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Hide Zaragoza Bike Stations';
                         showBikeStationsBtn.classList.add('active');
                     } else {
                         // Hide bike stations from main map
                         notifyParentHideStations();
                         bikeStationsContent.style.display = 'none';
-                        showBikeStationsBtn.textContent = '🚲 Show Barcelona Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 Show Zaragoza Bike Stations';
                         showBikeStationsBtn.classList.remove('active');
                     }
                 });
@@ -829,9 +741,9 @@
             content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading bike station data...</div>';
 
             try {
-                const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-                const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
-                const VEHICLE_TYPES_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
+                const STATION_INFO_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+                const STATION_STATUS_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+                const VEHICLE_TYPES_URL = 'https://zaragoza.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
 
                 // Fetch all datasets
                 const [infoResponse, statusResponse, vehicleTypesResponse] = await Promise.all([
@@ -1126,7 +1038,7 @@
             // Create vector layer
             bikeStationsLayer = new ol.layer.Vector({
                 source: vectorSource,
-                title: 'Barcelona Bike Stations'
+                title: 'Zaragoza Bike Stations'
             });
 
             // Add layer to map

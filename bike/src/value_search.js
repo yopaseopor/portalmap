@@ -1645,7 +1645,7 @@ function initValueSearch() {
         console.log('🚲 Loading HTML file for system:', systemId);
 
         const htmlFileName = `${systemId}.html`;
-        const htmlFilePath = htmlFileName; // Assuming HTML files are in the root directory
+        const htmlFilePath = `sources/${htmlFileName}`; // HTML files are in the sources directory
 
         // Check if the HTML file exists first
         fetch(htmlFilePath, { method: 'HEAD' })
@@ -1659,7 +1659,7 @@ function initValueSearch() {
                 // Update the iframe src to load the new HTML file
                 const iframe = document.getElementById('bike-stations-iframe');
                 if (iframe) {
-                    iframe.src = htmlFileName;
+                    iframe.src = htmlFilePath;
                     iframe.title = `${systemId} Bike Stations`;
 
                     // Update the iframe title in the HTML for accessibility
