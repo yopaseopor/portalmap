@@ -409,7 +409,7 @@
             // Translate button text
             const showBikeBtn = document.getElementById('show-bike-stations');
             if (showBikeBtn) {
-                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showZaragozaBikeStations');
+                showBikeBtn.textContent = '🚲 ' + window.getTranslation('showBikeStations');
             }
 
             // Translate stat labels
@@ -451,7 +451,7 @@
 <body>
     <div class="container">
         <div class="bike-controls">
-            <button id="show-bike-stations" class="bike-toggle-btn" data-i18n="showZaragozaBikeStations">🚲 Show Zaragoza Bike Stations</button>
+            <button id="show-bike-stations" class="bike-toggle-btn" data-i18n="showBikeStations">🚲 Show Zaragoza Bike Stations</button>
             <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
         </div>
 
@@ -723,13 +723,13 @@
                         await loadBikeStations();
                         notifyParentShowStations();
                         bikeStationsContent.style.display = 'block';
-                        showBikeStationsBtn.textContent = '🚲 Hide Zaragoza Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 ' + window.getTranslation('hideBikeStations');
                         showBikeStationsBtn.classList.add('active');
                     } else {
                         // Hide bike stations from main map
                         notifyParentHideStations();
                         bikeStationsContent.style.display = 'none';
-                        showBikeStationsBtn.textContent = '🚲 Show Zaragoza Bike Stations';
+                        showBikeStationsBtn.textContent = '🚲 ' + window.getTranslation('showBikeStations');
                         showBikeStationsBtn.classList.remove('active');
                     }
                 });
@@ -786,6 +786,8 @@
                             descriptiveName = 'E-Bike Assist';
                         } else if (propulsion === 'combustion') {
                             descriptiveName = 'Gas Vehicle';
+                        } else if (propulsion === 'efit') {
+                            descriptiveName = 'Electric Assisted';
                         }
 
                         vehicleTypesLookup[vehicleType.vehicle_type_id] = {
@@ -1097,9 +1099,10 @@
                             const typeId = vehicleType.vehicle_type_id;
                             const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[typeId] : null;
                             const typeName = typeInfo ? typeInfo.name : typeId;
+                            const propulsionType = typeInfo ? typeInfo.propulsion_type : 'unknown';
                             const count = vehicleType.count || 0;
                             if (count > 0) {
-                                bikeTypesInfo += `<div>• ${typeName} (${typeId}): <strong>${count}</strong></div>`;
+                                bikeTypesInfo += `<div>• ${typeName} (${propulsionType}): <strong>${count}</strong></div>`;
                             }
                         });
                         bikeTypesInfo += '</div>';

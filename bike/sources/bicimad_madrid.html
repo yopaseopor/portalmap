@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcelona Bike Stations - Real Time</title>
+    <title>BiciMAD Bike Stations - Real Time</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -409,7 +409,9 @@
         // Simple translation system that works in both embedded and standalone modes
         const translations = {
             'en': {
-                'showBarcelonaBikeStations': 'Show Barcelona Bike Stations',
+                'showBikeStations': 'Show bike stations',
+                'hideBikeStations': 'Hide bike stations',
+                'bikeTypes': 'Bike Types',
                 'totalStations': 'Total Stations',
                 'availableBikes': 'Available Bikes',
                 'availableDocks': 'Available Docks',
@@ -440,7 +442,7 @@
                 'active': 'Active'
             },
             'es': {
-                'showBarcelonaBikeStations': 'Mostrar Estaciones de Bicicletas de Barcelona',
+                'showBikeStations': 'Mostrar Estaciones de BiciMAD',
                 'totalStations': 'Total de Estaciones',
                 'availableBikes': 'Bicicletas Disponibles',
                 'availableDocks': 'Aparcaderos Disponibles',
@@ -469,37 +471,6 @@
                 'notReturning': 'No devuelve',
                 'notInstalled': 'No instalada',
                 'active': 'Activa'
-            },
-            'ca': {
-                'showBarcelonaBikeStations': 'Mostrar Estacions de Bicicletes de Barcelona',
-                'totalStations': 'Total d\'Estacions',
-                'availableBikes': 'Bicicletes Disponibles',
-                'availableDocks': 'Aparcadors Disponibles',
-                'activeStations': 'Estacions Actives',
-                'loadingBikeStationData': 'Carregant dades d\'estacions de bicicletes...',
-                'errorLoadingBikeStationData': 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar més tard.',
-                'lastUpdated': 'Última actualització:',
-                'searchStationsByName': 'Cercar estacions per nom...',
-                'stations': 'estacions',
-                'bikesAvailable': 'bicicletes disponibles',
-                'docksAvailable': 'aparcadors disponibles',
-                'station': 'Estació',
-                'bikes': 'Bicicletes',
-                'types': 'Tipus',
-                'docks': 'Aparcadors',
-                'status': 'Estat',
-                'previous': 'Anterior',
-                'next': 'Següent',
-                'refresh': 'Actualitzar',
-                'bikeTypesAvailable': 'Tipus de Bicicletes Disponibles:',
-                'regularBike': 'Bicicleta Normal',
-                'electricBike': 'Bicicleta Elèctrica',
-                'electricScooter': 'Patinet Elèctric',
-                'cargoBike': 'Bicicleta de Càrrega',
-                'notRenting': 'No lloga',
-                'notReturning': 'No retorna',
-                'notInstalled': 'No instal·lada',
-                'active': 'Activa'
             }
         };
 
@@ -507,9 +478,9 @@
         const browserLang = navigator.language.split('-')[0];
         const urlParams = new URLSearchParams(window.location.search);
         const langParam = urlParams.get('lang');
-        const supportedLangs = ['en', 'es', 'ca'];
+        const supportedLangs = ['en', 'es'];
         const detectedLang = langParam && supportedLangs.includes(langParam) ? langParam :
-                           supportedLangs.includes(browserLang) ? browserLang : 'en';
+                           supportedLangs.includes(browserLang) ? browserLang : 'es';
 
         // Create translation function that uses the detected language
         function getBasicTranslation(key) {
@@ -537,9 +508,9 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const langParam = urlParams.get('lang');
                 const browserLang = navigator.language.split('-')[0];
-                const supportedLangs = ['en', 'es', 'ca'];
+                const supportedLangs = ['en', 'es'];
                 const detectedLang = langParam && supportedLangs.includes(langParam) ? langParam :
-                                   supportedLangs.includes(browserLang) ? browserLang : 'en';
+                                   supportedLangs.includes(browserLang) ? browserLang : 'es';
 
                 // Try to use parent window translations first (for iframe mode)
                 if (window.parent && window.parent !== window &&
@@ -550,14 +521,14 @@
                         return langData && langData.translations ? langData.translations[key] || key : key;
                     };
                     window.getCurrentLanguage = window.parent.getCurrentLanguage;
-                    initializeBarcelonaTranslations();
+                    initializeMadridTranslations();
                 }
                 // Otherwise, don't initialize translations - they should come from main system
                 else {
-                    // No translation system available, use default English
+                    // No translation system available, use default Spanish (since Madrid is in Spain)
                     window.getTranslation = (key) => key;
-                    window.getCurrentLanguage = () => 'en';
-                    initializeBarcelonaTranslations();
+                    window.getCurrentLanguage = () => 'es';
+                    initializeMadridTranslations();
                 }
             };
 
@@ -565,7 +536,7 @@
             initializeTranslations();
         });
 
-        function initializeBarcelonaTranslations() {
+        function initializeMadridTranslations() {
             if (!window.getTranslation) return;
 
             // Translate button text
@@ -648,8 +619,8 @@
     </div>
 
     <script>
-        const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-        const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+        const STATION_INFO_URL = 'https://madrid.publicbikesystem.net/customer/gbfs/v2/gbfs.json';
+        const STATION_STATUS_URL = 'https://madrid.publicbikesystem.net/customer/gbfs/v2/gbfs.json';
 
         let stationInfo = {};
         let stationStatus = {};
@@ -901,9 +872,9 @@
             content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading bike station data...</div>';
 
             try {
-                const STATION_INFO_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_information';
-                const STATION_STATUS_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/station_status';
-                const VEHICLE_TYPES_URL = 'https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
+                const STATION_INFO_URL = 'https://madrid.publicbikesystem.net/customer/gbfs/v2/en/station_information';
+                const STATION_STATUS_URL = 'https://madrid.publicbikesystem.net/customer/gbfs/v2/en/station_status';
+                const VEHICLE_TYPES_URL = 'https://madrid.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types';
 
                 // Fetch all datasets
                 const [infoResponse, statusResponse, vehicleTypesResponse] = await Promise.all([
@@ -946,8 +917,6 @@
                             descriptiveName = 'E-Bike Assist';
                         } else if (propulsion === 'combustion') {
                             descriptiveName = 'Gas Vehicle';
-                        } else if (propulsion === 'efit') {
-                            descriptiveName = 'Electric Assisted';
                         }
 
                         vehicleTypesLookup[vehicleType.vehicle_type_id] = {
@@ -1206,7 +1175,7 @@
             // Create vector layer
             bikeStationsLayer = new ol.layer.Vector({
                 source: vectorSource,
-                title: 'Barcelona Bike Stations'
+                title: 'BiciMAD Bike Stations'
             });
 
             // Add layer to map
@@ -1265,10 +1234,9 @@
                             const typeId = vehicleType.vehicle_type_id;
                             const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[typeId] : null;
                             const typeName = typeInfo ? typeInfo.name : typeId;
-                            const propulsionType = typeInfo ? typeInfo.propulsion_type : 'unknown';
                             const count = vehicleType.count || 0;
                             if (count > 0) {
-                                bikeTypesInfo += `<div>• ${typeName} (${propulsionType}): <strong>${count}</strong></div>`;
+                                bikeTypesInfo += `<div>• ${typeName} (${typeId}): <strong>${count}</strong></div>`;
                             }
                         });
                         bikeTypesInfo += '</div>';
@@ -1521,20 +1489,28 @@
         function showContextMenu(x, y) {
             if (!contextMenu) return;
 
-            // Get Barcelona vehicle types data
+            // Get Madrid vehicle types data
             fetchVehicleTypesData().then(vehicleTypes => {
                 // Create menu content with translated title and close button
-                const titleKey = window.getTranslation ? window.getTranslation('barcelonaBikeTypes') : '🚲 Barcelona Bike Types';
+                const titleKey = window.getTranslation ? window.getTranslation('bikeTypes') : '🚲 Bike Types';
                 let menuHtml = `<div class="context-menu-title">${titleKey}<button class="context-menu-close" title="Close menu">×</button></div>`;
 
                 vehicleTypes.forEach(vehicleType => {
                     const propulsionIcon = getPropulsionIcon(vehicleType.propulsion_type);
                     const formFactorIcon = getFormFactorIcon(vehicleType.form_factor);
 
-                    // Use translated vehicle type name if available
-                    const vehicleTypeName = window.getTranslation ?
-                        (window.getTranslation(vehicleType.vehicle_type_id) || vehicleType.name) :
-                        vehicleType.name;
+                    // Get the descriptive name from the lookup first
+                    const typeInfo = window.vehicleTypesLookup ? window.vehicleTypesLookup[vehicleType.vehicle_type_id] : null;
+                    let vehicleTypeName = typeInfo ? typeInfo.name : (vehicleType.vehicle_type_id === '1' ? 'Regular Bike' : vehicleType.vehicle_type_id === '2' ? 'Electric Bike' : vehicleType.vehicle_type_id === '3' ? 'Cargo Bike' : `Type ${vehicleType.vehicle_type_id}`);
+
+                    // Then translate the descriptive name
+                    if (window.getTranslation) {
+                        if (vehicleTypeName === 'Regular Bike') vehicleTypeName = window.getTranslation('regularBike');
+                        else if (vehicleTypeName === 'Electric Bike') vehicleTypeName = window.getTranslation('electricBike');
+                        else if (vehicleTypeName === 'Electric Scooter') vehicleTypeName = window.getTranslation('electricScooter');
+                        else if (vehicleTypeName === 'E-Bike Assist') vehicleTypeName = window.getTranslation('eBikeAssist');
+                        else if (vehicleTypeName === 'Cargo Bike') vehicleTypeName = window.getTranslation('cargoBike');
+                    }
 
                     menuHtml += `
                         <div class="context-menu-item">
@@ -1591,7 +1567,7 @@
 
         async function fetchVehicleTypesData() {
             try {
-                const response = await fetch('https://barcelona.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types');
+                const response = await fetch('https://madrid.publicbikesystem.net/customer/gbfs/v2/en/vehicle_types.json');
                 const data = await response.json();
                 return data.data.vehicle_types || [];
             } catch (error) {

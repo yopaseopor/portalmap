@@ -379,6 +379,8 @@ export const en = {
     zaragozaBikeStationsTitle: 'Zaragoza Bike Stations - Real Time',
     showZaragozaBikeStations: '🚲 Show Zaragoza Bike Stations',
     hideZaragozaBikeStations: '🚲 Hide Zaragoza Bike Stations',
+    showBikeStations: '🚲 Show bike stations',
+    hideBikeStations: '🚲 Hide bike stations',
     loadingBikeStationData: 'Loading bike station data...',
     errorLoadingBikeStationData: 'Error loading bike station data. Please try again later.',
     errorLoadingBikeStationDataShort: 'Error loading bike station data. Please try again.',
@@ -426,5 +428,17 @@ export const en = {
     bike: 'Bike',
     eBike: 'E-Bike',
     eScoot: 'E-Scoot',
-    scooter: 'Scooter'
+    scooter: 'Scooter',
+    // Contextual menu translations
+    barcelonaBikeTypes: '🚲 Barcelona Bike Types',
+    zaragozaBikeTypes: '🚲 Zaragoza Bike Types',
+    // Vehicle type translations from API
+    ICONIC: 'ICONIC',
+    FIT: 'FIT',
+    METRO: 'METRO',
+    BOOST: 'BOOST',
+    EFIT: 'EFIT',
+    COSMO: 'COSMO',
+    ASTRO: 'ASTRO',
+    CHLOE: 'CHLOE'
 };

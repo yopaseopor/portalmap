@@ -528,6 +528,8 @@ export const ca = {
     zaragozaBikeStationsTitle: 'Estacions de Bicicletes de Saragossa - Temps Real',
     showZaragozaBikeStations: '🚲 Mostrar Estacions de Bicicletes de Saragossa',
     hideZaragozaBikeStations: '🚲 Ocultar Estacions de Bicicletes de Saragossa',
+    showBikeStations: '🚲 Mostrar estacions de bicicletes',
+    hideBikeStations: '🚲 Ocultar estacions de bicicletes',
     loadingBikeStationData: 'Carregant dades d\'estacions de bicicletes...',
     errorLoadingBikeStationData: 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar més tard.',
     errorLoadingBikeStationDataShort: 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar.',
@@ -575,5 +577,17 @@ export const ca = {
     bike: 'Bici',
     eBike: 'E-Bici',
     eScoot: 'E-Patinet',
-    scooter: 'Patí'
+    scooter: 'Patí',
+    // Contextual menu translations
+    barcelonaBikeTypes: '🚲 Tipus de Bicicletes de Barcelona',
+    zaragozaBikeTypes: '🚲 Tipus de Bicicletes de Saragossa',
+    // Vehicle type translations from API
+    ICONIC: 'ICONIC',
+    FIT: 'FIT',
+    METRO: 'METRO',
+    BOOST: 'BOOST',
+    EFIT: 'EFIT',
+    COSMO: 'COSMO',
+    ASTRO: 'ASTRO',
+    CHLOE: 'CHLOE'
 };

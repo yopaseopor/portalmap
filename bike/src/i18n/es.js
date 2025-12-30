@@ -527,6 +527,8 @@ export const es = {
     zaragozaBikeStationsTitle: 'Estaciones de Bicicletas de Zaragoza - Tiempo Real',
     showZaragozaBikeStations: '🚲 Mostrar Estaciones de Bicicletas de Zaragoza',
     hideZaragozaBikeStations: '🚲 Ocultar Estaciones de Bicicletas de Zaragoza',
+    showBikeStations: '🚲 Mostrar estaciones de bicicletas',
+    hideBikeStations: '🚲 Ocultar estaciones de bicicletas',
     loadingBikeStationData: 'Cargando datos de estaciones de bicicletas...',
     errorLoadingBikeStationData: 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo más tarde.',
     errorLoadingBikeStationDataShort: 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo.',
@@ -574,5 +576,17 @@ export const es = {
     bike: 'Bici',
     eBike: 'E-Bici',
     eScoot: 'E-Patinete',
-    scooter: 'Patinete'
+    scooter: 'Patinete',
+    // Contextual menu translations
+    barcelonaBikeTypes: '🚲 Tipos de Bicicletas de Barcelona',
+    zaragozaBikeTypes: '🚲 Tipos de Bicicletas de Zaragoza',
+    // Vehicle type translations from API
+    ICONIC: 'ICONIC',
+    FIT: 'FIT',
+    METRO: 'METRO',
+    BOOST: 'BOOST',
+    EFIT: 'EFIT',
+    COSMO: 'COSMO',
+    ASTRO: 'ASTRO',
+    CHLOE: 'CHLOE'
 };
