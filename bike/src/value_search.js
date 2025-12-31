@@ -5,6 +5,53 @@
  */
 
 /**
+ * Select a value result from the dropdown
+ */
+function selectValueResult(result) {
+    if (!result) {
+        console.error('selectValueResult: result is undefined or null');
+        return;
+    }
+
+    if (result.systemId) {
+        // System selected - store the system ID and show execute button
+        $('#value-search').val(result.systemId);
+        $('#value-search').data('selectedSystemId', result.systemId);
+        $('#value-search-dropdown').empty().hide();
+
+        showExecuteButton(result.systemId, result.name || result.systemId);
+    } else if (result.value) {
+        // Fallback for old tag-based results
+        const currentKey = $('#value-search').data('selectedKey');
+        if (!currentKey) {
+            console.warn('No key available for value selection');
+            return;
+        }
+        $('#value-search').val(result.value);
+        $('#value-search-dropdown').empty().hide();
+
+        showExecuteButton(currentKey, result.value);
+    } else {
+        console.error('selectValueResult: result missing required properties:', result);
+    }
+}
+
+/**
+ * Show the execute button with the specified key and value
+ */
+function showExecuteButton(key, value) {
+    const executeBtn = $('#execute-query-btn');
+    const clearBtn = $('#clear-search-btn');
+
+    executeBtn
+        .show()
+        .prop('disabled', false)
+        .text(`${window.getTranslation ? window.getTranslation('executeQuery') : 'Execute Query'}: ${key}=${value}`);
+
+    clearBtn.show();
+}
+
+/**
  * Process query results and add them to the map
  * @param {Array} allFeatures - Array of features returned from the query
  * @param {string} key - The OSM key
