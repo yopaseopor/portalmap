@@ -732,7 +732,7 @@ function initRouter(map) {
                 const query = input.val();
                 if (query.length < 3) return;
 
-                fetch(`http://localhost:3001/nominatim/search?format=json&q=${encodeURIComponent(query)}`)
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
                         resultsDiv.empty().show();

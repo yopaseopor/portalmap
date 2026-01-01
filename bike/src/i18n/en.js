@@ -21,6 +21,7 @@ export const en = {
     searchOverlays: 'Search overlays...',
     searchOsmKeys: 'Search OSM keys...',
     searchOsmValues: 'Search OSM values...',
+    searchBikeSystems: 'Search bike systems...',
     // From animal.js
     animal_boarding: 'Animal boarding',
     animal_shelter: 'Animal shelter',
@@ -381,6 +382,8 @@ export const en = {
     hideZaragozaBikeStations: '🚲 Hide Zaragoza Bike Stations',
     showBikeStations: '🚲 Show bike stations',
     hideBikeStations: '🚲 Hide bike stations',
+    showScooters: '🛵 Show scooters',
+    hideScooters: '🛵 Hide scooters',
     loadingBikeStationData: 'Loading bike station data...',
     errorLoadingBikeStationData: 'Error loading bike station data. Please try again later.',
     errorLoadingBikeStationDataShort: 'Error loading bike station data. Please try again.',
@@ -430,6 +433,7 @@ export const en = {
     eScoot: 'E-Scoot',
     scooter: 'Scooter',
     // Contextual menu translations
+    bikeTypes: '🚲 Bike Types',
     barcelonaBikeTypes: '🚲 Barcelona Bike Types',
     zaragozaBikeTypes: '🚲 Zaragoza Bike Types',
     // Vehicle type translations from API
@@ -440,5 +444,16 @@ export const en = {
     EFIT: 'EFIT',
     COSMO: 'COSMO',
     ASTRO: 'ASTRO',
-    CHLOE: 'CHLOE'
+    CHLOE: 'CHLOE',
+    // Additional bike station translations
+    scooters: 'scooters',
+    battery: 'Battery',
+    reserved: 'Reserved',
+    unavailable: 'Unavailable',
+    available: 'available',
+    address: 'Address',
+    page: 'Page',
+    of: 'of',
+    loadingScooterData: 'Loading scooter data...',
+    errorLoadingScooterData: 'Error loading scooter data. Please try again.'
 };

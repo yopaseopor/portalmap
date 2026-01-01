@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Adeje Service Areas - Virtual Stations Map</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .map-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stations-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .stations-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stations-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .station-card {
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .station-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .station-card.virtual {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+
+        .station-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .station-address {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .station-coords {
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #95a5a6;
+            margin-bottom: 10px;
+        }
+
+        .station-type {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .station-type.virtual {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #ffeaa7;
+            color: #d63031;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #d63031;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn.secondary {
+            background: #95a5a6;
+        }
+
+        .btn.secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .stations-grid {
+                grid-template-columns: 1fr;
+                max-height: 400px;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group input, .control-group select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛵 Bird Adeje Service Areas</h1>
+        <p>45 Virtual Stations for Scooter Pickup & Dropoff</p>
+    </div>
+
+    <div class="container">
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="total-stations">0</div>
+                <div class="stat-label">Service Areas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="scooters-available">0</div>
+                <div class="stat-label">Scooters Available</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stations-active">0</div>
+                <div class="stat-label">Active Stations</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="station-filter">Filter Stations:</label>
+                <input type="text" id="station-filter" placeholder="Search by address..." />
+                <label for="station-type">Type:</label>
+                <select id="station-type">
+                    <option value="all">All Stations</option>
+                    <option value="virtual">Virtual Stations</option>
+                </select>
+                <button class="btn secondary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <div id="map"></div>
+        </div>
+
+        <div class="stations-list">
+            <div class="stations-header">
+                <h2>🚩 Station Locations</h2>
+            </div>
+            <div id="stations-container" class="stations-grid">
+                <div class="loading">Loading station data...</div>
+            </div>
+        </div>
+
+        <div class="last-updated" id="last-updated">Last updated: Loading...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let stations = [];
+        let markers = [];
+        let scooterData = [];
+        let stationAreas = [];
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([28.0926, -16.7328], 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add a marker for the center of Adeje
+            L.marker([28.0926, -16.7328])
+                .addTo(map)
+                .bindPopup('<b>Adeje, Tenerife</b><br>Bird Scooter Service Area')
+                .openPopup();
+        }
+
+        // Fetch station information
+        async function fetchStationData() {
+            try {
+                const response = await fetch('https://mds.bird.co/gbfs/v2/public/adeje/station_information.json');
+                const data = await response.json();
+
+                stations = data.data.stations;
+                document.getElementById('total-stations').textContent = stations.length;
+                document.getElementById('last-updated').textContent = `Last updated: ${new Date(data.last_updated * 1000).toLocaleString()}`;
+
+                // Fetch scooter availability
+                await fetchScooterData();
+
+                displayStations();
+                updateMap();
+
+            } catch (error) {
+                console.error('Error fetching station data:', error);
+                document.getElementById('stations-container').innerHTML =
+                    '<div class="error">Error loading station data. Please refresh the page.</div>';
+            }
+        }
+
+        // Fetch scooter availability data
+        async function fetchScooterData() {
+            try {
+                const response = await fetch('https://mds.bird.co/gbfs/v2/public/adeje/free_bike_status.json');
+                const data = await response.json();
+
+                scooterData = data.data.bikes;
+                const availableScooters = scooterData.filter(bike => !bike.is_reserved).length;
+
+                document.getElementById('scooters-available').textContent = availableScooters;
+                document.getElementById('stations-active').textContent = availableScooters > 0 ? stations.length : 0;
+
+            } catch (error) {
+                console.error('Error fetching scooter data:', error);
+            }
+        }
+
+        // Display stations in grid
+        function displayStations() {
+            const container = document.getElementById('stations-container');
+            const filterValue = document.getElementById('station-filter').value.toLowerCase();
+            const typeValue = document.getElementById('station-type').value;
+
+            const filteredStations = stations.filter(station => {
+                const matchesFilter = station.name.toLowerCase().includes(filterValue) ||
+                                    station.address.toLowerCase().includes(filterValue);
+                const matchesType = typeValue === 'all' || station.is_virtual_station;
+
+                return matchesFilter && matchesType;
+            });
+
+            container.innerHTML = filteredStations.map(station => `
+                <div class="station-card ${station.is_virtual_station ? 'virtual' : ''}" onclick="zoomToStation('${station.station_id}')">
+                    <div class="station-name">${station.name}</div>
+                    <div class="station-address">${station.address}</div>
+                    <div class="station-coords">
+                        <span>Lat: ${station.lat.toFixed(6)}</span>
+                        <span>Lon: ${station.lon.toFixed(6)}</span>
+                    </div>
+                    <span class="station-type ${station.is_virtual_station ? 'virtual' : ''}">
+                        ${station.is_virtual_station ? 'Virtual Station' : 'Station'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Update map with station markers
+        function updateMap() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            // Add markers for each station
+            stations.forEach(station => {
+                const marker = L.marker([station.lat, station.lon])
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>${station.name}</b><br>
+                        ${station.address}<br>
+                        <small>Lat: ${station.lat.toFixed(6)}, Lon: ${station.lon.toFixed(6)}</small><br>
+                        <span style="color: ${station.is_virtual_station ? '#e74c3c' : '#3498db'}">
+                            ${station.is_virtual_station ? '🛵 Virtual Station' : '📍 Station'}
+                        </span>
+                    `);
+
+                markers.push(marker);
+            });
+
+            // Fit map to show all stations
+            if (stations.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        // Zoom to specific station
+        function zoomToStation(stationId) {
+            const station = stations.find(s => s.station_id === stationId);
+            if (station) {
+                map.setView([station.lat, station.lon], 16);
+
+                // Find and open the corresponding marker popup
+                const marker = markers.find(m => {
+                    const latlng = m.getLatLng();
+                    return Math.abs(latlng.lat - station.lat) < 0.0001 &&
+                           Math.abs(latlng.lng - station.lon) < 0.0001;
+                });
+
+                if (marker) {
+                    marker.openPopup();
+                }
+            }
+        }
+
+        // Filter stations
+        function applyFilters() {
+            displayStations();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('station-filter').value = '';
+            document.getElementById('station-type').value = 'all';
+            displayStations();
+        }
+
+        // Event listeners
+        document.getElementById('station-filter').addEventListener('input', applyFilters);
+        document.getElementById('station-type').addEventListener('change', applyFilters);
+
+        // Initialize
+        initMap();
+        fetchStationData();
+
+        // Refresh data every 5 minutes
+        setInterval(fetchScooterData, 300000);
+    </script>
+</body>
+</html>

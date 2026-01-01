@@ -121,6 +121,13 @@ function parseSystemsCSV(csvText) {
 }
 
 /**
+ * Remove accents from a string for better search matching
+ */
+function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
  * Search for systems matching a query string
  */
 function searchSystems(query, limit = 100) {
@@ -132,7 +139,7 @@ function searchSystems(query, limit = 100) {
     if (!query || query.length < 1) return [];
 
     const results = [];
-    const queryLower = query.toLowerCase();
+    const queryLower = removeAccents(query.toLowerCase());
 
     console.log('🔍 Starting search iteration through systems...');
 
@@ -141,31 +148,32 @@ function searchSystems(query, limit = 100) {
 
         // Search in ALL text fields from the CSV
         const searchTexts = [
-            systemData.countryCode ? systemData.countryCode.toLowerCase() : '',
-            systemData.name ? systemData.name.toLowerCase() : '',
-            systemData.location ? systemData.location.toLowerCase() : '',
-            systemData.systemId ? systemData.systemId.toLowerCase() : '',
-            systemData.url ? systemData.url.toLowerCase() : '',
-            systemData.autoDiscoveryUrl ? systemData.autoDiscoveryUrl.toLowerCase() : '',
-            systemData.supportedVersions ? systemData.supportedVersions.toLowerCase() : '',
-            systemData.authInfoUrl ? systemData.authInfoUrl.toLowerCase() : '',
-            systemData.authType ? systemData.authType.toLowerCase() : '',
-            systemData.authParamName ? systemData.authParamName.toLowerCase() : ''
+            removeAccents(systemData.countryCode ? systemData.countryCode.toLowerCase() : ''),
+            removeAccents(systemData.name ? systemData.name.toLowerCase() : ''),
+            removeAccents(systemData.location ? systemData.location.toLowerCase() : ''),
+            removeAccents(systemData.systemId ? systemData.systemId.toLowerCase() : ''),
+            removeAccents(systemData.url ? systemData.url.toLowerCase() : ''),
+            removeAccents(systemData.autoDiscoveryUrl ? systemData.autoDiscoveryUrl.toLowerCase() : ''),
+            removeAccents(systemData.supportedVersions ? systemData.supportedVersions.toLowerCase() : ''),
+            removeAccents(systemData.authInfoUrl ? systemData.authInfoUrl.toLowerCase() : ''),
+            removeAccents(systemData.authType ? systemData.authType.toLowerCase() : ''),
+            removeAccents(systemData.authParamName ? systemData.authParamName.toLowerCase() : '')
         ];
 
         let matchFound = false;
         let matchScore = 0;
 
-        for (const searchText of searchTexts) {
+        for (let i = 0; i < searchTexts.length; i++) {
+            const searchText = searchTexts[i];
             if (searchText && searchText.includes(queryLower)) {
                 console.log('🔍 Found match in system', systemId, 'field:', searchText);
                 matchFound = true;
                 // Prioritize different fields differently
-                if (searchText === (systemData.systemId ? systemData.systemId.toLowerCase() : '')) {
+                if (i === 3 && searchText === queryLower) { // systemId
                     matchScore += 1000; // Exact system ID match gets highest priority
-                } else if (searchText === (systemData.name ? systemData.name.toLowerCase() : '')) {
+                } else if (i === 1 && searchText === queryLower) { // name
                     matchScore += 800; // Name match gets high priority
-                } else if (searchText === (systemData.location ? systemData.location.toLowerCase() : '')) {
+                } else if (i === 2 && searchText === queryLower) { // location
                     matchScore += 600; // Location match gets medium-high priority
                 } else if (searchText.startsWith(queryLower)) {
                     matchScore += 100; // Starting with query

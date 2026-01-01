@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Pájara Scooters - Real Time</title>
+    
+    <!-- IMMEDIATE GLOBAL FUNCTION DEFINITIONS - Must be first -->
+    <script>
+        // Define functions immediately in global scope to prevent any ReferenceErrors
+        // These will be overridden by proper implementations later
+        
+        // Critical functions that must exist before any other code runs
+        self.updatePagination = self.updatePagination || function() { 
+            console.log('Global stub updatePagination called'); 
+            if (window.updateBikePagination) window.updateBikePagination();
+        };
+        
+        self.updateDisplay = self.updateDisplay || function() { 
+            console.log('Global stub updateDisplay called'); 
+            const tbody = document.getElementById('bike-stations-tbody');
+            if (tbody && window.renderBikeStationsTable) {
+                tbody.innerHTML = window.renderBikeStationsTable();
+                if (window.updateBikePagination) window.updateBikePagination();
+            }
+        };
+        
+        self.fetchStationData = self.fetchStationData || function() { 
+            console.log('Global stub fetchStationData called'); 
+            if (window.loadBikeStations) return window.loadBikeStations();
+            return Promise.resolve();
+        };
+        
+        self.zoomToStation = self.zoomToStation || function(stationId) { 
+            console.log('Global stub zoomToStation called with:', stationId);
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'zoomToBikeStation',
+                    stationId: stationId
+                }, '*');
+            } else {
+                console.log('Would zoom to station:', stationId);
+            }
+        };
+        
+        // Also assign to window for compatibility
+        window.updatePagination = self.updatePagination;
+        window.updateDisplay = self.updateDisplay;
+        window.fetchStationData = self.fetchStationData;
+        window.zoomToStation = self.zoomToStation;
+        
+        // And as plain global variables for inline handlers
+        var updatePagination = self.updatePagination;
+        var updateDisplay = self.updateDisplay;
+        var fetchStationData = self.fetchStationData;
+        var zoomToStation = self.zoomToStation;
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            font-size: 10px;
+        }
+
+        /* Styles for standalone viewing */
+        body:not(.embedded) h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        body:not(.embedded) .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Styles for embedded viewing (in main page) */
+        body.embedded {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-size: 7px;
+        }
+
+        body.embedded .container {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        body.embedded * {
+            font-size: 9px !important;
+        }
+
+        body.embedded .stat-number {
+            font-size: 7px !important;
+        }
+
+        body.embedded .stat-label {
+            font-size: 7px !important;
+        }
+
+        body.embedded table th,
+        body.embedded table td {
+            padding: 0;
+            font-size: 9px !important;
+        }
+
+        body.embedded .page-btn {
+            padding: 0 1px;
+            font-size: 9px !important;
+        }
+
+        body.embedded .bike-toggle-btn {
+            font-size: 9px !important;
+            padding: 0 1px;
+            height: 12px;
+            line-height: 10px;
+        }
+
+        /* Hide standalone elements in embedded view */
+        body.embedded .search-container,
+        body.embedded #stats,
+        body.embedded #loading,
+        body.embedded #error,
+        body.embedded #stationsTable,
+        body.embedded #pagination,
+        body.embedded #lastUpdate {
+            display: none !important;
+        }
+
+        body.embedded #searchInput {
+            font-size: 7px !important;
+            padding: 1px 2px;
+            height: 8px;
+            width: 100px;
+        }
+
+        body.embedded #searchInput::placeholder {
+            font-size: 4px !important;
+        }
+
+        /* Reduce margins and padding throughout */
+        .search-container {
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 9px;
+            font-weight: bold;
+            color: #007cba;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            padding: 2px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007cba;
+            color: white;
+            font-weight: bold;
+        }
+
+        .pagination {
+            margin-top: 5px;
+        }
+
+        .page-btn {
+            padding: 2px 4px;
+            margin: 0 2px;
+            border: 1px solid #007cba;
+            background-color: #007cba;
+            color: white;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .bike-controls {
+            margin: 2px 0;
+            padding: 2px;
+            background: #f8f9fa;
+            border-radius: 2px;
+        }
+
+        .bike-toggle-btn {
+            padding: 2px 4px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+    </style>
+
+    <!-- Define zoom function immediately to prevent ReferenceError -->
+    <script>
+        // Define as global function for inline onclick handlers BEFORE any other scripts
+        // This MUST be defined before the HTML is parsed
+        window.zoomToStation = function(stationId) {
+            // Notify parent window to zoom to the scooter
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'zoomToBikeStation',
+                    stationId: stationId
+                }, '*');
+            } else {
+                console.log('Would zoom to station:', stationId);
+            }
+        };
+        
+        // Make it available as a plain global variable for onclick handlers
+        var zoomToStation = window.zoomToStation;
+        
+        // Also ensure it's immediately available before DOM loads
+        if (typeof self !== 'undefined') {
+            self.zoomToStation = window.zoomToStation;
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Early fallback functions to prevent ReferenceErrors -->
+    <script>
+        // Create comprehensive stub functions that will be properly defined later
+        // This prevents ReferenceErrors from old/cached code or inline handlers
+        window.fetchStationData = window.fetchStationData || function() { 
+            console.log('fetchStationData called - forwarding to loadBikeStations'); 
+            return window.loadBikeStations ? window.loadBikeStations() : Promise.resolve();
+        };
+        window.updateDisplay = window.updateDisplay || function() { 
+            console.log('updateDisplay called'); 
+            const tbody = document.getElementById('bike-stations-tbody');
+            if (tbody && window.renderBikeStationsTable) {
+                tbody.innerHTML = window.renderBikeStationsTable();
+                if (window.updateBikePagination) {
+                    window.updateBikePagination();
+                }
+            }
+        };
+        window.updatePagination = window.updatePagination || function() { 
+            console.log('updatePagination called - forwarding to updateBikePagination'); 
+            if (window.updateBikePagination) {
+                window.updateBikePagination();
+            }
+        };
+        window.renderBikeStationsTable = window.renderBikeStationsTable || function() { 
+            console.log('renderBikeStationsTable called'); 
+            return ''; 
+        };
+        window.updateBikePagination = window.updateBikePagination || function() { 
+            console.log('updateBikePagination called'); 
+        };
+        
+        // Ensure zoomToStation is available
+        if (typeof window.zoomToStation === 'undefined') {
+            window.zoomToStation = function(stationId) {
+                console.log('Fallback zoomToStation called with:', stationId);
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'zoomToBikeStation',
+                        stationId: stationId
+                    }, '*');
+                } else {
+                    console.log('Would zoom to station:', stationId);
+                }
+            };
+        }
+        
+        // Make functions available as plain global variables for onclick handlers
+        var fetchStationData = window.fetchStationData;
+        var updateDisplay = window.updateDisplay;
+        var updatePagination = window.updatePagination;
+        var zoomToStation = window.zoomToStation;
+    </script>
+
+    <!-- Translation system integration -->
+    <script>
+        // Use main translation system - no embedded translations
+
+        // Make translation function available globally - will use parent window translations
+        window.standaloneGetTranslation = (key) => key; // Fallback to key if no translation available
+        window.standaloneGetCurrentLanguage = () => 'en'; // Default to English
+        // The main translation function will be set by the parent window or iframe detection below
+    </script>
+
+    <script>
+        // Detect if we're in an iframe (embedded in main page) and apply appropriate styling
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.self !== window.top) {
+                document.body.classList.add('embedded');
+            }
+        });
+
+        // Initialize translations after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up a more reliable translation initialization
+            const initializeTranslations = () => {
+                // Use main translation system - no local language detection needed
+
+                // Try to use parent window translations first (for iframe mode)
+                if (window.parent && window.parent !== window &&
+                    window.parent.getTranslation && window.parent.translations) {
+                    window.getTranslation = function(key) {
+                        const currentLang = window.parent.getCurrentLanguage();
+                        const langData = window.parent.translations[currentLang];
+                        return langData && langData.translations ? langData.translations[key] || key : key;
+                    };
+                    window.getCurrentLanguage = window.parent.getCurrentLanguage;
+                    initializeBirdAdejeTranslations();
+                }
+                // Otherwise, don't initialize translations - they should come from main system
+                else {
+                    // No translation system available, use default English
+                    window.getTranslation = (key) => key;
+                    window.getCurrentLanguage = () => 'en';
+                    initializeBirdAdejeTranslations();
+                }
+            };
+
+            // Try to initialize immediately, or wait a bit for ES6 modules
+            initializeTranslations();
+        });
+
+        function initializeBirdAdejeTranslations() {
+            if (!window.getTranslation) return;
+
+            // Translate button text
+            const showBikeBtn = document.getElementById('show-bike-stations');
+            if (showBikeBtn) {
+                showBikeBtn.textContent = window.getTranslation('showScooters');
+            }
+
+            // No stat labels in this embedded format - they're hidden in embedded view
+
+            // Translate loading text
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.textContent = window.getTranslation('loadingScooterData');
+            }
+
+            // Translate error text
+            const error = document.getElementById('error');
+            if (error && error.textContent.includes('Error loading Adeje scooter data')) {
+                error.textContent = window.getTranslation('errorLoadingScooterData');
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- CRITICAL: Define functions immediately to prevent any ReferenceErrors -->
+    <script>
+        // Define functions immediately when body starts loading
+        // This ensures they exist before any other scripts or event handlers can run
+        
+        // Force definition in all possible scopes
+        if (typeof window.updatePagination === 'undefined') {
+            window.updatePagination = function() {
+                console.log('Body-level updatePagination called');
+                if (typeof updateBikePagination === 'function') {
+                    updateBikePagination();
+                } else if (window.updateBikePagination) {
+                    window.updateBikePagination();
+                }
+            };
+        }
+        
+        if (typeof window.updateDisplay === 'undefined') {
+            window.updateDisplay = function() {
+                console.log('Body-level updateDisplay called');
+                const tbody = document.getElementById('bike-stations-tbody');
+                if (tbody) {
+                    if (typeof renderBikeStationsTable === 'function') {
+                        tbody.innerHTML = renderBikeStationsTable();
+                    } else if (window.renderBikeStationsTable) {
+                        tbody.innerHTML = window.renderBikeStationsTable();
+                    }
+                    if (typeof updateBikePagination === 'function') {
+                        updateBikePagination();
+                    } else if (window.updateBikePagination) {
+                        window.updateBikePagination();
+                    }
+                }
+            };
+        }
+        
+        if (typeof window.fetchStationData === 'undefined') {
+            window.fetchStationData = function() {
+                console.log('Body-level fetchStationData called');
+                if (typeof loadBikeStations === 'function') {
+                    return loadBikeStations();
+                } else if (window.loadBikeStations) {
+                    return window.loadBikeStations();
+                }
+                return Promise.resolve();
+            };
+        }
+        
+        if (typeof window.zoomToStation === 'undefined') {
+            window.zoomToStation = function(stationId) {
+                console.log('Body-level zoomToStation called with:', stationId);
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'zoomToBikeStation',
+                        stationId: stationId
+                    }, '*');
+                } else {
+                    console.log('Would zoom to station:', stationId);
+                }
+            };
+        }
+        
+        // Also define as plain global variables for inline onclick handlers
+        var updatePagination = window.updatePagination;
+        var updateDisplay = window.updateDisplay;
+        var fetchStationData = window.fetchStationData;
+        var zoomToStation = window.zoomToStation;
+        
+        // And in self scope for workers/iframes
+        if (typeof self !== 'undefined') {
+            self.updatePagination = window.updatePagination;
+            self.updateDisplay = window.updateDisplay;
+            self.fetchStationData = window.fetchStationData;
+            self.zoomToStation = window.zoomToStation;
+        }
+        
+        console.log('Critical functions defined at body level:', {
+            updatePagination: typeof window.updatePagination,
+            updateDisplay: typeof window.updateDisplay,
+            fetchStationData: typeof window.fetchStationData,
+            zoomToStation: typeof window.zoomToStation
+        });
+    </script>
+    
+    <div class="container">
+        <div class="bike-controls">
+            <button id="show-bike-stations" class="bike-toggle-btn">🛵 Show scooters</button>
+            <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading scooter data...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Global variables for Pájara scooter functionality
+        let currentBikePage = 1;
+        let itemsPerBikePage = 20;
+        window.bikeStationsData = [];
+
+        // Setup Pájara scooter controls (no map functionality)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure all critical functions are available immediately
+            if (typeof window.updatePagination === 'undefined') {
+                window.updatePagination = self.updatePagination;
+            }
+            if (typeof window.updateDisplay === 'undefined') {
+                window.updateDisplay = self.updateDisplay;
+            }
+            if (typeof window.fetchStationData === 'undefined') {
+                window.fetchStationData = self.fetchStationData;
+            }
+            if (typeof window.zoomToStation === 'undefined') {
+                window.zoomToStation = self.zoomToStation;
+            }
+            
+            setupBikeControls();
+
+            // Add persistent event delegation for zoom-to-station links
+            // This handles all dynamically added rows during pagination/search
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('zoom-to-station')) {
+                    const stationId = e.target.getAttribute('data-station-id');
+                    if (stationId) {
+                        console.log('Zoom-to-station clicked for:', stationId);
+                        
+                        // Try multiple ways to call zoomToStation
+                        if (typeof window.zoomToStation === 'function') {
+                            window.zoomToStation(stationId);
+                        } else if (typeof zoomToStation === 'function') {
+                            zoomToStation(stationId);
+                        } else if (typeof self.zoomToStation === 'function') {
+                            self.zoomToStation(stationId);
+                        } else {
+                            console.error('zoomToStation function not found! Available functions:', {
+                                'window.zoomToStation': typeof window.zoomToStation,
+                                'zoomToStation': typeof zoomToStation,
+                                'self.zoomToStation': typeof self.zoomToStation
+                            });
+                            
+                            // Fallback: manually post message to parent
+                            if (window.parent && window.parent !== window) {
+                                window.parent.postMessage({
+                                    type: 'zoomToBikeStation',
+                                    stationId: stationId
+                                }, '*');
+                            }
+                        }
+                    } else {
+                        console.warn('Station ID not found for zoom-to-station click');
+                    }
+                }
+            });
+
+            // Auto-load scooters when not embedded (standalone view)
+            if (window.self === window.top) {
+                // We're in standalone mode, auto-show scooters after data loads
+                // Wait for the bike data to be loaded before auto-clicking
+                const autoLoadScooters = () => {
+                    if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+                        const showBikeStationsBtn = document.getElementById('show-bike-stations');
+                        if (showBikeStationsBtn) {
+                            showBikeStationsBtn.click();
+                        }
+                    } else {
+                        // Wait a bit more and try again
+                        setTimeout(autoLoadScooters, 500);
+                    }
+                };
+
+                // Start checking after initial load delay
+                setTimeout(autoLoadScooters, 2000);
+            }
+        });
+
+        function setupBikeControls() {
+            const showBikeStationsBtn = document.getElementById('show-bike-stations');
+            const bikeStationsContent = document.getElementById('bike-stations-content');
+
+            if (showBikeStationsBtn && bikeStationsContent) {
+                showBikeStationsBtn.addEventListener('click', async function() {
+                    const t = window.getTranslation || ((key) => key);
+
+                    if (bikeStationsContent.style.display === 'none' || bikeStationsContent.style.display === '') {
+                        // Show Adeje scooters on main map
+                        await loadBikeStations();
+                        notifyParentShowStations();
+                        bikeStationsContent.style.display = 'block';
+                        showBikeStationsBtn.textContent = t('hideScooters') || '🛵 Hide scooters';
+                        showBikeStationsBtn.classList.add('active');
+                    } else {
+                        // Hide Adeje scooters from main map
+                        notifyParentHideStations();
+                        bikeStationsContent.style.display = 'none';
+                        showBikeStationsBtn.textContent = t('showScooters') || '🛵 Show scooters';
+                        showBikeStationsBtn.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        async function loadBikeStations() {
+            const content = document.getElementById('bike-stations-content');
+            content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading Pájara scooter data...</div>';
+
+            try {
+                // Fetch Pájara station information (virtual stations)
+                const stationInfoResponse = await fetch('https://mds.bird.co/gbfs/v2/public/pajara/station_information.json');
+                if (!stationInfoResponse.ok) {
+                    throw new Error(`Failed to fetch station info: ${stationInfoResponse.status} ${stationInfoResponse.statusText}`);
+                }
+                const stationInfoData = await stationInfoResponse.json();
+
+                // Fetch Pájara scooter availability
+                const freeBikeResponse = await fetch('https://mds.bird.co/gbfs/v2/public/pajara/free_bike_status.json');
+                if (!freeBikeResponse.ok) {
+                    throw new Error(`Failed to fetch free bike status: ${freeBikeResponse.status} ${freeBikeResponse.statusText}`);
+                }
+                const freeBikeData = await freeBikeResponse.json();
+
+                // Validate data
+                if (!freeBikeData.data || !freeBikeData.data.bikes) {
+                    throw new Error('Invalid bike data format from API');
+                }
+
+                // Store station addresses for reference
+                const stationAddresses = {};
+                if (stationInfoData.data && stationInfoData.data.stations) {
+                    stationInfoData.data.stations.forEach(station => {
+                        stationAddresses[station.station_id] = station.address || station.name;
+                    });
+                }
+
+                // Process scooter data - each scooter is a "station"
+                window.bikeStationsData = freeBikeData.data.bikes.map(bike => {
+                    // Find nearest station or use first available station address
+                    let nearestStationAddress = null;
+                    if (stationInfoData.data && stationInfoData.data.stations && stationInfoData.data.stations.length > 0) {
+                        // For simplicity, use the first station's address, or we could calculate distance
+                        // In a real implementation, you'd calculate which station is closest to the scooter
+                        nearestStationAddress = stationInfoData.data.stations[0].address || stationInfoData.data.stations[0].name;
+                    }
+
+                    // Calculate availability based on disabled and reserved status
+                    const isAvailable = !bike.is_disabled && !bike.is_reserved;
+                    
+                    // Use battery percentage if available, otherwise use range
+                    const batteryPercent = bike.current_fuel_percent ? Math.round(bike.current_fuel_percent * 100) : null;
+                    const rangeKm = bike.current_range_meters ? Math.round(bike.current_range_meters / 1000) : null;
+
+                    return {
+                        ...bike,
+                        station_id: bike.bike_id,
+                        name: `Scooter ${bike.bike_id.substring(0, 8)}`,
+                        capacity: 1,
+                        num_bikes_available: isAvailable ? 1 : 0,
+                        num_docks_available: 0,
+                        is_renting: isAvailable,
+                        is_returning: true,
+                        is_installed: true,
+                        vehicle_type_id: bike.vehicle_type_id,
+                        last_reported: bike.last_reported ? new Date(bike.last_reported * 1000) : null,
+                        address: nearestStationAddress,
+                        battery_percent: batteryPercent,
+                        range_km: rangeKm,
+                        is_disabled: bike.is_disabled
+                    };
+                });
+
+                // No virtual stations needed for Pájara
+
+                // Calculate stats
+                const totalStations = window.bikeStationsData.length;
+                const availableBikes = window.bikeStationsData.filter(scooter => scooter.num_bikes_available > 0).length;
+                const activeStations = window.bikeStationsData.filter(scooter => scooter.is_renting).length;
+
+                // Get translation function
+                const t = window.getTranslation || ((key) => key);
+
+                // Create compact display
+                content.innerHTML = `
+                    <div style="margin-bottom: 10px; text-align: center;">
+                        <input type="text" id="bike-search-input" placeholder="${t('searchStationsByName') || 'Search scooters...'}" style="padding: 4px 8px; width: 200px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                    </div>
+                    <div id="bike-stats" style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong id="filtered-total">${totalStations}</strong> ${t('scooters') || 'scooters'}</span>
+                            <span><strong id="filtered-bikes">${availableBikes}</strong> ${t('available') || 'available'}</span>
+                            <span><strong id="filtered-active">${activeStations}</strong> ${t('active') || 'active'}</span>
+                        </div>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                            <thead style="background: #007cba; color: white; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 8px; text-align: left;">${t('station') || 'Scooter ID'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('status') || 'Status'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('types') || 'Type'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('battery') || 'Battery'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('address') || 'Address'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('lastUpdated') || 'Last Seen'}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bike-stations-tbody">
+                                ${renderBikeStationsTable()}
+                            </tbody>
+                        </table>
+                        <div id="bike-pagination" style="padding: 8px; text-align: center; background: #f8f9fa; border-top: 1px solid #ddd; display: none;">
+                            <button id="bike-prev-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${t('previous') || 'Previous'}</button>
+                            <span id="bike-page-info" style="margin: 0 8px; font-size: 11px;"></span>
+                            <button id="bike-next-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${t('next') || 'Next'}</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 11px; color: #666; text-align: center;">
+                        ${t('lastUpdated') || 'Last updated'}: ${new Date().toLocaleTimeString()}
+                        <button onclick="this.parentElement.parentElement.querySelector('button').click(); loadBikeStations();" style="margin-left: 10px; padding: 2px 6px; background: #007cba; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 10px;">${t('refresh') || 'Refresh'}</button>
+                    </div>
+                `;
+
+                // Add search functionality for Adeje scooters
+                const bikeSearchInput = document.getElementById('bike-search-input');
+                if (bikeSearchInput) {
+                    bikeSearchInput.addEventListener('input', () => {
+                        currentBikePage = 1; // Reset to first page when searching
+
+                        // Update filtered stats
+                        const searchTerm = bikeSearchInput.value.toLowerCase();
+                        const filteredStations = searchTerm ?
+                            window.bikeStationsData.filter(scooter =>
+                                scooter.name && scooter.name.toLowerCase().includes(searchTerm)
+                            ) : window.bikeStationsData;
+
+                        const filteredTotal = filteredStations.length;
+                        const filteredBikes = filteredStations.filter(scooter => scooter.num_bikes_available > 0).length;
+                        const filteredActive = filteredStations.filter(scooter => scooter.is_renting).length;
+
+                        document.getElementById('filtered-total').textContent = filteredTotal;
+                        document.getElementById('filtered-bikes').textContent = filteredBikes;
+                        document.getElementById('filtered-active').textContent = filteredActive;
+
+                        const tbody = document.getElementById('bike-stations-tbody');
+                        if (tbody) {
+                            tbody.innerHTML = renderBikeStationsTable();
+                            updateBikePagination();
+                        }
+                    });
+                }
+
+                // Update pagination after content is loaded
+                updateBikePagination();
+
+                // Hide loading and show content
+                document.getElementById('loading').style.display = 'none';
+                document.dispatchEvent(new CustomEvent('bikeDataLoaded'));
+
+            } catch (error) {
+                console.error('Error loading Pájara scooter data:', error);
+                const t = window.getTranslation || ((key) => key);
+                const errorMsg = `<div style="text-align: center; padding: 20px; color: #d32f2f;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">${t('errorLoadingScooterData') || 'Error loading scooter data'}</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px;">${error.message}</div>
+                    <button onclick="loadBikeStations();" style="padding: 6px 12px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Retry</button>
+                </div>`;
+                content.innerHTML = errorMsg;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function renderBikeStationsTable() {
+            // Get translation function
+            const t = window.getTranslation || ((key) => key);
+
+            // Filter scooters based on search input
+            const searchInput = document.getElementById('bike-search-input');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const filteredStations = searchTerm ?
+                window.bikeStationsData.filter(scooter =>
+                    scooter.name && scooter.name.toLowerCase().includes(searchTerm)
+                ) : window.bikeStationsData;
+
+            const startIndex = (currentBikePage - 1) * itemsPerBikePage;
+            const endIndex = startIndex + itemsPerBikePage;
+            const stationsToShow = filteredStations.slice(startIndex, endIndex);
+
+            return stationsToShow.map(scooter => {
+                // Determine status - consider disabled status too
+                let status, statusClass;
+                if (scooter.is_disabled) {
+                    status = t('disabled') || 'Disabled';
+                    statusClass = 'status-empty';
+                } else if (scooter.is_reserved) {
+                    status = t('reserved') || 'Reserved';
+                    statusClass = 'status-low';
+                } else if (scooter.is_renting) {
+                    status = t('available') || 'Available';
+                    statusClass = 'status-available';
+                } else {
+                    status = t('unavailable') || 'Unavailable';
+                    statusClass = 'status-empty';
+                }
+                
+                const vehicleTypeName = getVehicleTypeName(scooter.vehicle_type_id);
+                
+                // Display battery as percentage if available, otherwise as range
+                let battery;
+                if (scooter.battery_percent !== null) {
+                    battery = `${scooter.battery_percent}%`;
+                } else if (scooter.range_km !== null) {
+                    battery = `${scooter.range_km} km`;
+                } else {
+                    battery = t('unknown') || 'Unknown';
+                }
+                
+                const address = scooter.address || (scooter.lat && scooter.lon ? `${scooter.lat.toFixed(4)}, ${scooter.lon.toFixed(4)}` : 'Pájara area');
+                const lastSeen = scooter.last_reported ? scooter.last_reported.toLocaleTimeString() : (t('unknown') || 'Unknown');
+
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px;"><span class="station-link zoom-to-station" style="font-weight: bold; cursor: pointer; color: #007cba; text-decoration: underline;" data-station-id="${scooter.station_id}">${scooter.name}</span></td>
+                    <td style="padding: 8px; text-align: center; color: ${statusClass === 'status-available' ? '#28a745' : statusClass === 'status-low' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
+                        ${status}
+                    </td>
+                    <td style="padding: 8px; text-align: center; font-size: 10px;">${vehicleTypeName}</td>
+                    <td style="padding: 8px; text-align: center;">${battery}</td>
+                    <td style="padding: 8px; text-align: center; font-size: 10px;">${address}</td>
+                    <td style="padding: 8px; text-align: center;">${lastSeen}</td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function updateBikePagination() {
+            // Get translation function
+            const t = window.getTranslation || ((key) => key);
+
+            const totalPages = Math.ceil(window.bikeStationsData.length / itemsPerBikePage);
+            const pageInfo = document.getElementById('bike-page-info');
+            const prevBtn = document.getElementById('bike-prev-btn');
+            const nextBtn = document.getElementById('bike-next-btn');
+            const pagination = document.getElementById('bike-pagination');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'block';
+            pageInfo.textContent = `${t('page') || 'Page'} ${currentBikePage} ${t('of') || 'of'} ${totalPages}`;
+
+            prevBtn.disabled = currentBikePage === 1;
+            nextBtn.disabled = currentBikePage === totalPages;
+
+            // Update button styles based on disabled state
+            prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
+            nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
+        }
+
+        // Add pagination event handlers after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scooter pagination handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'bike-prev-btn') {
+                    if (currentBikePage > 1) {
+                        currentBikePage--;
+                        const tbody = document.getElementById('bike-stations-tbody');
+                        if (tbody) {
+                            tbody.innerHTML = renderBikeStationsTable();
+                            updateBikePagination();
+                        }
+                    }
+                } else if (e.target.id === 'bike-next-btn') {
+                    const totalPages = Math.ceil(window.bikeStationsData.length / itemsPerBikePage);
+                    if (currentBikePage < totalPages) {
+                        currentBikePage++;
+                        const tbody = document.getElementById('bike-stations-tbody');
+                        if (tbody) {
+                            tbody.innerHTML = renderBikeStationsTable();
+                            updateBikePagination();
+                        }
+                    }
+                }
+            });
+        });
+
+        function getVehicleTypeName(vehicleTypeId) {
+            // This would be set by the parent window, but provide fallback
+            if (!window.vehicleTypesLookup) return `Type ${vehicleTypeId}`;
+            const typeInfo = window.vehicleTypesLookup[vehicleTypeId];
+            return typeInfo ? typeInfo.name : `Type ${vehicleTypeId}`;
+        }
+
+        // Store data globally for main page map functions
+        
+        // Ensure all critical functions exist to prevent ReferenceErrors
+        // These fallback to the properly named functions to maintain backwards compatibility
+        if (typeof window.updatePagination === 'undefined') {
+            window.updatePagination = function() {
+                console.log('Final fallback updatePagination called');
+                if (typeof updateBikePagination === 'function') {
+                    updateBikePagination();
+                } else if (window.updateBikePagination) {
+                    window.updateBikePagination();
+                }
+            };
+        }
+        if (typeof window.updateDisplay === 'undefined') {
+            window.updateDisplay = function() {
+                console.log('Final fallback updateDisplay called');
+                const tbody = document.getElementById('bike-stations-tbody');
+                if (tbody) {
+                    if (typeof renderBikeStationsTable === 'function') {
+                        tbody.innerHTML = renderBikeStationsTable();
+                    } else if (window.renderBikeStationsTable) {
+                        tbody.innerHTML = window.renderBikeStationsTable();
+                    }
+                    if (typeof updateBikePagination === 'function') {
+                        updateBikePagination();
+                    } else if (window.updateBikePagination) {
+                        window.updateBikePagination();
+                    }
+                }
+            };
+        }
+        
+        // Ensure fetchStationData exists for backwards compatibility
+        if (typeof window.fetchStationData === 'undefined') {
+            window.fetchStationData = function() {
+                console.log('Final fallback fetchStationData called');
+                if (typeof loadBikeStations === 'function') {
+                    return loadBikeStations();
+                } else if (window.loadBikeStations) {
+                    return window.loadBikeStations();
+                }
+                return Promise.resolve();
+            };
+        }
+        
+        // Ensure zoomToStation is globally available for all contexts
+        if (typeof window.zoomToStation === 'undefined') {
+            window.zoomToStation = function(stationId) {
+                console.log('Final fallback zoomToStation called with:', stationId);
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'zoomToBikeStation',
+                        stationId: stationId
+                    }, '*');
+                } else {
+                    console.log('Would zoom to station:', stationId);
+                }
+            };
+        }
+        
+        // Also make them available as plain global variables for onclick handlers
+        var updatePagination = window.updatePagination;
+        var updateDisplay = window.updateDisplay;
+        var fetchStationData = window.fetchStationData;
+        var zoomToStation = window.zoomToStation;
+    </script>
+
+    <script>
+        // Communication with parent window (main page)
+        function notifyParentShowStations() {
+            if (window.parent && window.parent !== window) {
+                // Send command to show Adeje scooters on main map
+                window.parent.postMessage({
+                    type: 'showBirdScooters',
+                    data: window.bikeStationsData
+                }, '*');
+            }
+        }
+
+        function notifyParentHideStations() {
+            if (window.parent && window.parent !== window) {
+                // Send command to hide Adeje scooters from main map
+                window.parent.postMessage({
+                    type: 'hideBirdScooters'
+                }, '*');
+            }
+        }
+
+        function notifyParentAboutStations() {
+            if (window.parent && window.parent !== window) {
+                // Send Adeje scooter data to parent window for map display
+                window.parent.postMessage({
+                    type: 'birdScootersData',
+                    data: window.bikeStationsData
+                }, '*');
+            }
+        }
+
+        // Notify parent when data is loaded
+        document.addEventListener('bikeDataLoaded', notifyParentAboutStations);
+
+        // Also notify immediately if data is already available
+        if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+            notifyParentAboutStations();
+        }
+
+        // Periodically send updates to parent
+        setInterval(() => {
+            if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+                notifyParentAboutStations();
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+    
+    <!-- FINAL SAFEGUARD: Ensure functions exist at document end -->
+    <script>
+        // Last resort function definitions - these run after everything else
+        // This ensures functions are available even if they were overwritten
+        
+        console.log('Final safeguard: Ensuring critical functions exist');
+        
+        // Redefine functions if they're missing or broken
+        window.updatePagination = window.updatePagination || function() {
+            console.log('Final safeguard updatePagination');
+            if (window.updateBikePagination) window.updateBikePagination();
+        };
+        
+        window.updateDisplay = window.updateDisplay || function() {
+            console.log('Final safeguard updateDisplay');
+            const tbody = document.getElementById('bike-stations-tbody');
+            if (tbody && window.renderBikeStationsTable) {
+                tbody.innerHTML = window.renderBikeStationsTable();
+                if (window.updateBikePagination) window.updateBikePagination();
+            }
+        };
+        
+        window.fetchStationData = window.fetchStationData || function() {
+            console.log('Final safeguard fetchStationData');
+            if (window.loadBikeStations) return window.loadBikeStations();
+            return Promise.resolve();
+        };
+        
+        window.zoomToStation = window.zoomToStation || function(stationId) {
+            console.log('Final safeguard zoomToStation:', stationId);
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'zoomToBikeStation',
+                    stationId: stationId
+                }, '*');
+            }
+        };
+        
+        // Ensure global variables exist for inline handlers
+        var updatePagination = window.updatePagination;
+        var updateDisplay = window.updateDisplay;
+        var fetchStationData = window.fetchStationData;
+        var zoomToStation = window.zoomToStation;
+        
+        console.log('Final safeguard complete - functions available:', {
+            updatePagination: typeof window.updatePagination,
+            updateDisplay: typeof window.updateDisplay,
+            fetchStationData: typeof window.fetchStationData,
+            zoomToStation: typeof window.zoomToStation
+        });
+    </script>
+</body>
+</html>

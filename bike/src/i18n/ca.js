@@ -22,6 +22,7 @@ export const ca = {
     searchOverlays: 'Cercar superposicions...',
     searchOsmKeys: 'Cercar claus OSM...',
     searchOsmValues: 'Cercar valors OSM...',
+    searchBikeSystems: 'Cercar sistemes de bicicletes...',
     
     // From animal.js
     animal_boarding: 'Pensió per a animals',
@@ -530,6 +531,8 @@ export const ca = {
     hideZaragozaBikeStations: '🚲 Ocultar Estacions de Bicicletes de Saragossa',
     showBikeStations: '🚲 Mostrar estacions de bicicletes',
     hideBikeStations: '🚲 Ocultar estacions de bicicletes',
+    showScooters: '🛵 Mostrar patinets',
+    hideScooters: '🛵 Ocultar patinets',
     loadingBikeStationData: 'Carregant dades d\'estacions de bicicletes...',
     errorLoadingBikeStationData: 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar més tard.',
     errorLoadingBikeStationDataShort: 'Error al carregar les dades d\'estacions de bicicletes. Si us plau, torna-ho a provar.',
@@ -589,5 +592,16 @@ export const ca = {
     EFIT: 'EFIT',
     COSMO: 'COSMO',
     ASTRO: 'ASTRO',
-    CHLOE: 'CHLOE'
+    CHLOE: 'CHLOE',
+    // Additional bike station translations
+    scooters: 'patinets',
+    battery: 'Bateria',
+    reserved: 'Reservat',
+    unavailable: 'No disponible',
+    available: 'disponible',
+    address: 'Adreça',
+    page: 'Pàgina',
+    of: 'de',
+    loadingScooterData: 'Carregant dades de patinets...',
+    errorLoadingScooterData: 'Error al carregar les dades de patinets. Si us plau, torna-ho a provar.'
 };

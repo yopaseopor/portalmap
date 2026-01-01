@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Murcia Scooters - Real Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            font-size: 10px;
+        }
+
+        /* Styles for standalone viewing */
+        body:not(.embedded) h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        body:not(.embedded) .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Styles for embedded viewing (in main page) */
+        body.embedded {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-size: 7px;
+        }
+
+        body.embedded .container {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        body.embedded * {
+            font-size: 9px !important;
+        }
+
+        body.embedded .stat-number {
+            font-size: 7px !important;
+        }
+
+        body.embedded .stat-label {
+            font-size: 7px !important;
+        }
+
+        body.embedded .stat-number {
+            font-size: 9px !important;
+        }
+
+        body.embedded .stat-label {
+            font-size: 9px !important;
+        }
+
+        body.embedded table th,
+        body.embedded table td {
+            padding: 0;
+            font-size: 9px !important;
+        }
+
+        body.embedded .page-btn {
+            padding: 0 1px;
+            font-size: 9px !important;
+        }
+
+        body.embedded .bike-toggle-btn {
+            font-size: 9px !important;
+            padding: 0 1px;
+            height: 12px;
+            line-height: 10px;
+        }
+
+        /* Hide standalone elements in embedded view */
+        body.embedded .search-container,
+        body.embedded #stats,
+        body.embedded #loading,
+        body.embedded #error,
+        body.embedded #stationsTable,
+        body.embedded #pagination,
+        body.embedded #lastUpdate {
+            display: none !important;
+        }
+
+        body.embedded #searchInput {
+            font-size: 7px !important;
+            padding: 1px 2px;
+            height: 8px;
+            width: 100px;
+        }
+
+        body.embedded #searchInput::placeholder {
+            font-size: 4px !important;
+        }
+
+        /* Reduce margins and padding throughout */
+        .search-container {
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 9px;
+            font-weight: bold;
+            color: #007cba;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            padding: 2px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007cba;
+            color: white;
+            font-weight: bold;
+        }
+
+        .pagination {
+            margin-top: 5px;
+        }
+
+        .page-btn {
+            padding: 2px 4px;
+            margin: 0 2px;
+            border: 1px solid #007cba;
+            background-color: #007cba;
+            color: white;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .bike-controls {
+            margin: 2px 0;
+            padding: 2px;
+            background: #f8f9fa;
+            border-radius: 2px;
+        }
+
+        .bike-toggle-btn {
+            padding: 2px 4px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #searchInput {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007cba;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007cba;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .status-available {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-low {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .status-empty {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .last-update {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .station-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .page-btn {
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: 1px solid #007cba;
+            background-color: #007cba;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .page-btn:hover {
+            background-color: #005a87;
+        }
+        .page-btn:disabled {
+            background-color: #cccccc;
+            border-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Additional styles for map integration */
+        #map-container {
+            height: 400px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .bike-controls {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .bike-toggle-btn {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .bike-toggle-btn:hover {
+            background: #218838;
+        }
+
+        .bike-toggle-btn.active {
+            background: #dc3545;
+        }
+
+        /* Contextual menu styles */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 250px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .context-menu-item:hover {
+            background: #f8f9fa;
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-title {
+            padding: 8px 12px;
+            background: #007cba;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .context-menu-close {
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background: red;
+            padding: 4px 10px;
+            user-select: none;
+            margin-left: auto;
+            border-radius: 4px;
+            border: 2px solid white;
+            display: inline-block;
+        }
+
+        .context-menu-close:hover {
+            background: darkred;
+            border-color: yellow;
+        }
+
+        .vehicle-type-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vehicle-type-name {
+            font-weight: bold;
+        }
+
+        .vehicle-type-info {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+
+    <!-- Define zoom function immediately to prevent ReferenceError -->
+    <script>
+        // Define as global function for inline onclick handlers BEFORE any other scripts
+        // This MUST be defined before the HTML is parsed
+        window.zoomToStation = function(stationId) {
+            // Notify parent window to zoom to the scooter
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'zoomToBikeStation',
+                    stationId: stationId
+                }, '*');
+            } else {
+                console.log('Would zoom to station:', stationId);
+            }
+        };
+
+        // Make it globally accessible as 'zoomToStation' (not just window.zoomToStation)
+        if (typeof zoomToStation === 'undefined') {
+            var zoomToStation = window.zoomToStation;
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Translation system integration -->
+    <script>
+        // Use main translation system - no embedded translations
+
+        // Make translation function available globally - will use parent window translations
+        window.standaloneGetTranslation = (key) => key; // Fallback to key if no translation available
+        window.standaloneGetCurrentLanguage = () => 'en'; // Default to English
+        // The main translation function will be set by the parent window or iframe detection below
+    </script>
+
+    <script>
+        // Detect if we're in an iframe (embedded in main page) and apply appropriate styling
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.self !== window.top) {
+                document.body.classList.add('embedded');
+            }
+        });
+
+        // Initialize translations after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up a more reliable translation initialization
+            const initializeTranslations = () => {
+                // Use main translation system - no local language detection needed
+
+                // Try to use parent window translations first (for iframe mode)
+                if (window.parent && window.parent !== window &&
+                    window.parent.getTranslation && window.parent.translations) {
+                    window.getTranslation = function(key) {
+                        const currentLang = window.parent.getCurrentLanguage();
+                        const langData = window.parent.translations[currentLang];
+                        return langData && langData.translations ? langData.translations[key] || key : key;
+                    };
+                    window.getCurrentLanguage = window.parent.getCurrentLanguage;
+                    initializeBirdMurciaTranslations();
+                }
+                // Otherwise, don't initialize translations - they should come from main system
+                else {
+                    // No translation system available, use default English
+                    window.getTranslation = (key) => key;
+                    window.getCurrentLanguage = () => 'en';
+                    initializeBirdMurciaTranslations();
+                }
+            };
+
+            // Try to initialize immediately, or wait a bit for ES6 modules
+            initializeTranslations();
+        });
+
+        function initializeBirdMurciaTranslations() {
+            if (!window.getTranslation) return;
+
+            // Translate button text
+            const showBikeBtn = document.getElementById('show-bike-stations');
+            if (showBikeBtn) {
+            showBikeBtn.textContent = window.getTranslation('showScooters');
+            }
+
+            // Translate stat labels
+            const statLabels = document.querySelectorAll('.stat-label');
+            statLabels.forEach(label => {
+                const text = label.textContent.trim();
+                if (text === 'Total Scooters') {
+                    label.textContent = window.getTranslation('totalScooters');
+                } else if (text === 'Available Scooters') {
+                    label.textContent = window.getTranslation('availableScooters');
+                } else if (text === 'Active Scooters') {
+                    label.textContent = window.getTranslation('activeScooters');
+                }
+            });
+
+            // Translate loading text
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.textContent = window.getTranslation('loadingScooterData');
+            }
+
+            // Translate error text
+            const error = document.getElementById('error');
+            if (error && error.textContent.includes('Error loading scooter data')) {
+                error.textContent = window.getTranslation('errorLoadingScooterData');
+            }
+
+            // Translate last updated text
+            const lastUpdate = document.getElementById('lastUpdate');
+            if (lastUpdate && lastUpdate.textContent.includes('Last updated:')) {
+                const timePart = lastUpdate.textContent.split(': ')[1];
+                lastUpdate.textContent = window.getTranslation('lastUpdated') + ' ' + timePart;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="bike-controls">
+            <button id="show-bike-stations" class="bike-toggle-btn">🛵 Show Bird scooters</button>
+            <div id="bike-stations-content" style="display: none; margin-top: 10px;"></div>
+        </div>
+
+
+
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="totalStations">0</div>
+                <div class="stat-label">Total Scooters</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="availableBikes">0</div>
+                <div class="stat-label">Available Scooters</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="activeStations">0</div>
+                <div class="stat-label">Active Scooters</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading scooter data...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="lastUpdate" class="last-update" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Global variables for Murcia scooter functionality
+        let currentBikePage = 1;
+        let itemsPerBikePage = 20;
+        window.bikeStationsData = [];
+
+        // Setup Murcia scooter controls (no map functionality)
+        document.addEventListener('DOMContentLoaded', function() {
+            setupBikeControls();
+
+            // Add persistent event delegation for zoom-to-station links
+            // This handles all dynamically added rows during pagination/search
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('zoom-to-station')) {
+                    const stationId = e.target.getAttribute('data-station-id');
+                    if (stationId && window.zoomToStation) {
+                        console.log('Zooming to Murcia station:', stationId);
+                        window.zoomToStation(stationId);
+                    } else {
+                        console.warn('Station ID not found or zoomToStation not available');
+                    }
+                }
+            });
+
+            // Auto-load scooters when not embedded (standalone view)
+            if (window.self === window.top) {
+                // We're in standalone mode, auto-show scooters after data loads
+                // Wait for the bike data to be loaded before auto-clicking
+                const autoLoadScooters = () => {
+                    if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+                        const showBikeStationsBtn = document.getElementById('show-bike-stations');
+                        if (showBikeStationsBtn) {
+                            showBikeStationsBtn.click();
+                        }
+                    } else {
+                        // Wait a bit more and try again
+                        setTimeout(autoLoadScooters, 500);
+                    }
+                };
+
+                // Start checking after initial load delay
+                setTimeout(autoLoadScooters, 2000);
+            }
+        });
+
+        function setupBikeControls() {
+            const showBikeStationsBtn = document.getElementById('show-bike-stations');
+            const bikeStationsContent = document.getElementById('bike-stations-content');
+
+            if (showBikeStationsBtn && bikeStationsContent) {
+                showBikeStationsBtn.addEventListener('click', async function() {
+                    const t = window.getTranslation || ((key) => key);
+
+                    if (bikeStationsContent.style.display === 'none' || bikeStationsContent.style.display === '') {
+                        // Show Murcia scooters on main map
+                        await loadBikeStations();
+                        notifyParentShowStations();
+                        bikeStationsContent.style.display = 'block';
+                        showBikeStationsBtn.textContent = t('hideScooters') || '🛵 Hide scooters';
+                        showBikeStationsBtn.classList.add('active');
+                    } else {
+                        // Hide Murcia scooters from main map
+                        notifyParentHideStations();
+                        bikeStationsContent.style.display = 'none';
+                        showBikeStationsBtn.textContent = t('showScooters') || '🛵 Show scooters';
+                        showBikeStationsBtn.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        async function loadBikeStations() {
+            const content = document.getElementById('bike-stations-content');
+            content.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading Murcia scooter data...</div>';
+
+            try {
+                // Fetch Murcia station information (virtual stations)
+                const stationInfoResponse = await fetch('https://mds.bird.co/gbfs/v2/public/murcia/station_information.json');
+                const stationInfoData = await stationInfoResponse.json();
+
+                // Fetch Murcia scooter availability
+                const freeBikeResponse = await fetch('https://mds.bird.co/gbfs/v2/public/murcia/free_bike_status.json');
+                const freeBikeData = await freeBikeResponse.json();
+
+                // Process scooter data - each scooter is a "station"
+                window.bikeStationsData = freeBikeData.data.bikes.map(bike => {
+                    // Use station address from API data if available
+                    let nearestStationAddress = null;
+                    if (stationInfoData.data && stationInfoData.data.stations && stationInfoData.data.stations.length > 0) {
+                        // Use the first available station address
+                        const firstStation = stationInfoData.data.stations[0];
+                        nearestStationAddress = firstStation.address ||
+                                               firstStation.name ||
+                                               (firstStation.address_components ?
+                                                firstStation.address_components.join(', ') : null) ||
+                                               firstStation.formatted_address ||
+                                               firstStation.location_name;
+                    }
+
+                    return {
+                        ...bike,
+                        station_id: bike.bike_id,
+                        name: `Bird Scooter ${bike.bike_id}`,
+                        capacity: 1,
+                        num_bikes_available: bike.is_reserved ? 0 : 1,
+                        num_docks_available: 0,
+                        is_renting: !bike.is_reserved,
+                        is_returning: true,
+                        is_installed: true,
+                        vehicle_type_id: bike.vehicle_type_id,
+                        last_reported: bike.last_reported ? new Date(bike.last_reported * 1000) : null,
+                        address: nearestStationAddress
+                    };
+                });
+
+                // Calculate stats
+                const totalStations = window.bikeStationsData.length;
+                const availableBikes = window.bikeStationsData.filter(scooter => scooter.num_bikes_available > 0).length;
+                const activeStations = window.bikeStationsData.filter(scooter => scooter.is_renting).length;
+
+                // Get translation function
+                const t = window.getTranslation || ((key) => key);
+
+                // Create compact display
+                content.innerHTML = `
+                    <div style="margin-bottom: 10px; text-align: center;">
+                        <input type="text" id="bike-search-input" placeholder="${t('searchStationsByName') || 'Search scooters...'}" style="padding: 4px 8px; width: 200px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                    </div>
+                    <div id="bike-stats" style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong id="filtered-total">${totalStations}</strong> ${t('scooters') || 'scooters'}</span>
+                            <span><strong id="filtered-bikes">${availableBikes}</strong> ${t('available') || 'available'}</span>
+                            <span><strong id="filtered-active">${activeStations}</strong> ${t('active') || 'active'}</span>
+                        </div>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                            <thead style="background: #007cba; color: white; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 8px; text-align: left;">${t('station') || 'Scooter ID'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('status') || 'Status'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('types') || 'Type'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('battery') || 'Battery'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('address') || 'Address'}</th>
+                                    <th style="padding: 8px; text-align: center;">${t('lastUpdated') || 'Last Seen'}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bike-stations-tbody">
+                                ${renderBikeStationsTable()}
+                            </tbody>
+                        </table>
+                        <div id="bike-pagination" style="padding: 8px; text-align: center; background: #f8f9fa; border-top: 1px solid #ddd; display: none;">
+                            <button id="bike-prev-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${t('previous') || 'Previous'}</button>
+                            <span id="bike-page-info" style="margin: 0 8px; font-size: 11px;"></span>
+                            <button id="bike-next-btn" style="padding: 4px 8px; margin: 0 4px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">${t('next') || 'Next'}</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 11px; color: #666; text-align: center;">
+                        ${t('lastUpdated') || 'Last updated'}: ${new Date().toLocaleTimeString()}
+                        <button onclick="this.parentElement.parentElement.querySelector('button').click(); loadBikeStations();" style="margin-left: 10px; padding: 2px 6px; background: #007cba; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 10px;">${t('refresh') || 'Refresh'}</button>
+                    </div>
+                `;
+
+                // Add search functionality for Murcia scooters
+                const bikeSearchInput = document.getElementById('bike-search-input');
+                if (bikeSearchInput) {
+                    bikeSearchInput.addEventListener('input', () => {
+                        currentBikePage = 1; // Reset to first page when searching
+
+                        // Update filtered stats
+                        const searchTerm = bikeSearchInput.value.toLowerCase();
+                        const filteredStations = searchTerm ?
+                            window.bikeStationsData.filter(scooter =>
+                                scooter.name && scooter.name.toLowerCase().includes(searchTerm)
+                            ) : window.bikeStationsData;
+
+                        const filteredTotal = filteredStations.length;
+                        const filteredBikes = filteredStations.filter(scooter => scooter.num_bikes_available > 0).length;
+                        const filteredActive = filteredStations.filter(scooter => scooter.is_renting).length;
+
+                        document.getElementById('filtered-total').textContent = filteredTotal;
+                        document.getElementById('filtered-bikes').textContent = filteredBikes;
+                        document.getElementById('filtered-active').textContent = filteredActive;
+
+                        const tbody = document.getElementById('bike-stations-tbody');
+                        if (tbody) {
+                            tbody.innerHTML = renderBikeStationsTable();
+                            updateBikePagination();
+                        }
+                    });
+                }
+
+                // Update pagination after content is loaded
+                updateBikePagination();
+
+                // Hide loading and show content
+                document.getElementById('loading').style.display = 'none';
+                document.dispatchEvent(new CustomEvent('bikeDataLoaded'));
+
+            } catch (error) {
+                console.error('Error loading Murcia scooter data:', error);
+                const t = window.getTranslation || ((key) => key);
+                content.innerHTML = `<div style="text-align: center; padding: 20px; color: #d32f2f;">${t('errorLoadingScooterData') || 'Error loading scooter data. Please try again.'}</div>`;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function renderBikeStationsTable() {
+            // Get translation function
+            const t = window.getTranslation || ((key) => key);
+
+            // Filter scooters based on search input
+            const searchInput = document.getElementById('bike-search-input');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const filteredStations = searchTerm ?
+                window.bikeStationsData.filter(scooter =>
+                    scooter.name && scooter.name.toLowerCase().includes(searchTerm)
+                ) : window.bikeStationsData;
+
+            const startIndex = (currentBikePage - 1) * itemsPerBikePage;
+            const endIndex = startIndex + itemsPerBikePage;
+            const stationsToShow = filteredStations.slice(startIndex, endIndex);
+
+            return stationsToShow.map(scooter => {
+                const status = scooter.is_reserved ? (t('reserved') || 'Reserved') : (scooter.is_renting ? (t('available') || 'Available') : (t('unavailable') || 'Unavailable'));
+                const statusClass = scooter.is_reserved ? 'status-low' : (scooter.is_renting ? 'status-available' : 'status-empty');
+                const vehicleTypeName = getVehicleTypeName(scooter.vehicle_type_id);
+                const battery = scooter.current_range_meters ? Math.round(scooter.current_range_meters / 1000) + ' km' : (t('unknown') || 'Unknown');
+                const address = scooter.address || (scooter.lat && scooter.lon ? `${scooter.lat.toFixed(4)}, ${scooter.lon.toFixed(4)}` : 'Murcia area');
+                const lastSeen = scooter.last_reported ? scooter.last_reported.toLocaleTimeString() : (t('unknown') || 'Unknown');
+
+                return `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px;"><span class="station-link zoom-to-station" style="font-weight: bold; cursor: pointer; color: #007cba; text-decoration: underline;" data-station-id="${scooter.station_id}">${scooter.name}</span></td>
+                    <td style="padding: 8px; text-align: center; color: ${statusClass === 'status-available' ? '#28a745' : statusClass === 'status-low' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
+                        ${status}
+                    </td>
+                    <td style="padding: 8px; text-align: center; font-size: 10px;">${vehicleTypeName}</td>
+                    <td style="padding: 8px; text-align: center;">${battery}</td>
+                    <td style="padding: 8px; text-align: center; font-size: 10px;">${address}</td>
+                    <td style="padding: 8px; text-align: center;">${lastSeen}</td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function updateBikePagination() {
+            // Get translation function
+            const t = window.getTranslation || ((key) => key);
+
+            const totalPages = Math.ceil(window.bikeStationsData.length / itemsPerBikePage);
+            const pageInfo = document.getElementById('bike-page-info');
+            const prevBtn = document.getElementById('bike-prev-btn');
+            const nextBtn = document.getElementById('bike-next-btn');
+            const pagination = document.getElementById('bike-pagination');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'block';
+            pageInfo.textContent = `${t('page') || 'Page'} ${currentBikePage} ${t('of') || 'of'} ${totalPages}`;
+
+            prevBtn.disabled = currentBikePage === 1;
+            nextBtn.disabled = currentBikePage === totalPages;
+
+            // Update button styles based on disabled state
+            prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
+            nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
+        }
+
+        function getVehicleTypeName(vehicleTypeId) {
+            // This would be set by the parent window, but provide fallback
+            if (!window.vehicleTypesLookup) return `Type ${vehicleTypeId}`;
+            const typeInfo = window.vehicleTypesLookup[vehicleTypeId];
+            return typeInfo ? typeInfo.name : `Type ${vehicleTypeId}`;
+        }
+
+        // Store data globally for main page map functions
+    </script>
+
+    <script>
+        // Communication with parent window (main page)
+        function notifyParentShowStations() {
+            if (window.parent && window.parent !== window) {
+                // Send command to show Murcia scooters on main map
+                window.parent.postMessage({
+                    type: 'showBirdScooters',
+                    data: window.bikeStationsData
+                }, '*');
+            }
+        }
+
+        function notifyParentHideStations() {
+            if (window.parent && window.parent !== window) {
+                // Send command to hide Murcia scooters from main map
+                window.parent.postMessage({
+                    type: 'hideBirdScooters'
+                }, '*');
+            }
+        }
+
+        function notifyParentAboutStations() {
+            if (window.parent && window.parent !== window) {
+                // Send Murcia scooter data to parent window for map display
+                window.parent.postMessage({
+                    type: 'birdScootersData',
+                    data: window.bikeStationsData
+                }, '*');
+            }
+        }
+
+        // Notify parent when data is loaded
+        document.addEventListener('bikeDataLoaded', notifyParentAboutStations);
+
+        // Also notify immediately if data is already available
+        if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+            notifyParentAboutStations();
+        }
+
+        // Periodically send updates to parent
+        setInterval(() => {
+            if (window.bikeStationsData && window.bikeStationsData.length > 0) {
+                notifyParentAboutStations();
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

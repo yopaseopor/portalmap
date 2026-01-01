@@ -1099,17 +1099,17 @@ var rotateleftControlBuild = function () {
     return container[0];
 };
 
-// 3D Toggle button - Enhanced DEM Terrain with Cesium
+// 3D Toggle button
 function toggle3DControlBuild() {
-    // Check if Cesium is available for DEM terrain rendering
-    if (typeof Cesium === 'undefined') {
-        console.error('Cesium library not loaded. 3D DEM view is not available.');
+    // Check if ol-cesium is available
+    if (typeof olcs === 'undefined') {
+        console.error('ol-cesium library not loaded. 3D view is not available.');
         const button = document.createElement('button');
         button.innerHTML = '<i class="fa fa-cube" style="color: #ccc;"></i>';
-        button.title = '3D DEM view not available - Cesium library not loaded';
+        button.title = '3D view not available - ol-cesium library not loaded';
         button.disabled = true;
         button.style.cursor = 'not-allowed';
-
+        
         const element = document.createElement('div');
         element.className = 'ol-unselectable ol-control ol-3d-toggle';
         element.appendChild(button);
@@ -1205,84 +1205,12 @@ if (routeLayers.length > 0) {
     routeLayers.forEach(layer => layer.setVisible(true));
 }
 
-                        // Set up terrain provider with DEM (Digital Elevation Model) data
+                        // Set up terrain provider
                         try {
-                            // Try to use Cesium World Terrain with DEM data
-                            console.log('🌍 Attempting to load Cesium World Terrain with DEM data...');
-
-                            // Temporarily enable Ion for terrain access
-                            const originalToken = Cesium.Ion.defaultAccessToken;
-                            Cesium.Ion.defaultAccessToken = undefined; // Allow default access
-
-                            scene.terrainProvider = Cesium.createWorldTerrain({
-                                requestVertexNormals: true, // Enable normals for hillshade
-                                requestWaterMask: false, // Disable water mask for better performance
-                                requestMetadata: true // Enable metadata for better terrain handling
-                            });
-
-                            // Since Cesium World Terrain requires authentication, skip directly to enhanced ellipsoid
-                            console.log('🌍 Skipping Cesium World Terrain (requires auth), using enhanced ellipsoid terrain');
-
-                            // Create maximum exaggeration terrain with ultimate hillshade effects
                             scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-
-                            // Maximum terrain exaggeration for dramatic mountain-like effects
-                            scene.globe.terrainExaggeration = 20.0; // Maximum exaggeration
-                            scene.globe.terrainExaggerationRelativeHeight = -5000;
-
-                            // Ultimate shadow and lighting effects for maximum hillshade
-                            scene.globe.enableLighting = true;
-                            scene.globe.lightingFadeOutDistance = 10000000;
-                            scene.globe.lightingFadeInDistance = 0;
-                            scene.globe.nightFadeOutDistance = 10000000;
-                            scene.globe.nightFadeInDistance = 0;
-
-                            // Maximum shadow mapping resolution and darkness
-                            scene.shadowMap.enabled = true;
-                            scene.shadowMap.size = 8192; // Maximum resolution possible
-                            scene.shadowMap.softShadows = true;
-                            scene.shadowMap.darkness = 0.99; // Near-total darkness for maximum contrast
-                            scene.shadowMap.maximumDistance = 200000; // Maximum shadow distance
-
-                            // Ultra-bright directional lighting for extreme hillshade effect
-                            scene.light = new Cesium.DirectionalLight({
-                                direction: new Cesium.Cartesian3(0, -1, -0.1),
-                                intensity: 10.0 // Maximum intensity
-                            });
-
-                            // Maximum atmospheric effects for enhanced depth perception
-                            scene.skyAtmosphere.show = true;
-                            scene.skyAtmosphere.brightnessShift = 0.6;
-                            scene.skyAtmosphere.hueShift = -0.5;
-                            scene.skyAtmosphere.saturationShift = 0.6;
-
-                            // Dense fog for mountain-like atmospheric perspective
-                            scene.fog.enabled = true;
-                            scene.fog.density = 0.003; // Maximum fog density
-                            scene.fog.minimumBrightness = 0.5;
-
-                            // Enable additional visual effects for enhanced terrain perception
-                            scene.globe.showGroundAtmosphere = true;
-                            scene.globe.groundAtmosphereBrightnessShift = 0.3;
-                            scene.globe.groundAtmosphereHueShift = -0.2;
-                            scene.globe.groundAtmosphereSaturationShift = 0.2;
-
-                            console.log('✅ Maximum exaggeration ellipsoid terrain with ultimate hillshade effects - mountains visible!');
-
-                            // Restore original token setting
-                            setTimeout(() => {
-                                Cesium.Ion.defaultAccessToken = originalToken;
-                            }, 2000);
-
                         } catch (error) {
-                            console.warn('Failed to set DEM terrain provider, using enhanced ellipsoid:', error);
-                            // Enhanced ellipsoid fallback
-                            scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-                            scene.globe.enableLighting = true;
-                            scene.shadowMap.enabled = true;
-                            scene.shadowMap.size = 2048;
-                            scene.shadowMap.softShadows = true;
-                            console.log('⚠️ Using enhanced ellipsoid terrain with hillshade effects');
+                            console.warn('Failed to set terrain provider, using default:', error);
+                            // Continue without custom terrain provider
                         }
                         
                         // Clear any existing imagery layers

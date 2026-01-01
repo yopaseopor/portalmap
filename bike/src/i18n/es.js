@@ -22,6 +22,7 @@ export const es = {
     searchOverlays: 'Buscar superposiciones...',
     searchOsmKeys: 'Buscar claves OSM...',
     searchOsmValues: 'Buscar valores OSM...',
+    searchBikeSystems: 'Buscar sistemas de bicicletas...',
     
     // From animal.js
     animal_boarding: 'Alojamiento de animales',
@@ -529,6 +530,8 @@ export const es = {
     hideZaragozaBikeStations: '🚲 Ocultar Estaciones de Bicicletas de Zaragoza',
     showBikeStations: '🚲 Mostrar estaciones de bicicletas',
     hideBikeStations: '🚲 Ocultar estaciones de bicicletas',
+    showScooters: '🛵 Mostrar patinetes',
+    hideScooters: '🛵 Ocultar patinetes',
     loadingBikeStationData: 'Cargando datos de estaciones de bicicletas...',
     errorLoadingBikeStationData: 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo más tarde.',
     errorLoadingBikeStationDataShort: 'Error al cargar los datos de estaciones de bicicletas. Por favor, inténtalo de nuevo.',
@@ -578,6 +581,7 @@ export const es = {
     eScoot: 'E-Patinete',
     scooter: 'Patinete',
     // Contextual menu translations
+    bikeTypes: '🚲 Tipos de Bicicletas',
     barcelonaBikeTypes: '🚲 Tipos de Bicicletas de Barcelona',
     zaragozaBikeTypes: '🚲 Tipos de Bicicletas de Zaragoza',
     // Vehicle type translations from API
@@ -588,5 +592,16 @@ export const es = {
     EFIT: 'EFIT',
     COSMO: 'COSMO',
     ASTRO: 'ASTRO',
-    CHLOE: 'CHLOE'
+    CHLOE: 'CHLOE',
+    // Additional bike station translations
+    scooters: 'patinetes',
+    battery: 'Batería',
+    reserved: 'Reservado',
+    unavailable: 'No disponible',
+    available: 'disponible',
+    address: 'Dirección',
+    page: 'Página',
+    of: 'de',
+    loadingScooterData: 'Cargando datos de patinetes...',
+    errorLoadingScooterData: 'Error al cargar los datos de patinetes. Por favor, inténtalo de nuevo.'
 };
